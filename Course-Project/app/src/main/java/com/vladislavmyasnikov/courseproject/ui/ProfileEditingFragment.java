@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
@@ -13,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnBackButtonListener;
@@ -35,6 +37,8 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
             mSurnameField.setText(args.getString(SURNAME_ARG));
             mPatronymicField.setText(args.getString(PATRONYMIC_ARG));
         }
+
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
 
         return view;
     }
@@ -74,6 +78,24 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
                 !initialPatronymic.equals(mPatronymicField.getText().toString());
     }
 
+    private int areDataCorrect() {
+        String name = mNameField.getText().toString();
+        String surname = mSurnameField.getText().toString();
+        String patronymic = mPatronymicField.getText().toString();
+
+        if (name.equals("") || surname.equals("") || patronymic.equals("")) {
+            return EMPTY_FIELD_ERROR;
+        }
+        else if (!isWord(name) || !isWord(surname) || !isWord(patronymic)) {
+            return INCORRECT_FIELD_ERROR;
+        }
+        return 0;
+    }
+
+    private boolean isWord(String s) {
+        return s.matches("[A-ZА-ЯЁ][a-zA-Zа-яА-ЯёЁ]*$");
+    }
+
     public static ProfileEditingFragment newInstance(String name, String surname, String patronymic) {
         Bundle args = new Bundle();
         args.putString(NAME_ARG, name);
@@ -89,14 +111,24 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
     private View.OnClickListener mSaveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
-            preferences.edit()
-                    .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
-                    .putString(ProfileFragment.USER_SURNAME, mSurnameField.getText().toString())
-                    .putString(ProfileFragment.USER_PATRONYMIC, mPatronymicField.getText().toString())
-                    .apply();
-            isFinished = true;
-            getActivity().onBackPressed();
+            switch (areDataCorrect()) {
+                case 0:
+                    SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
+                    preferences.edit()
+                            .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
+                            .putString(ProfileFragment.USER_SURNAME, mSurnameField.getText().toString())
+                            .putString(ProfileFragment.USER_PATRONYMIC, mPatronymicField.getText().toString())
+                            .apply();
+                    isFinished = true;
+                    getActivity().onBackPressed();
+                    break;
+                case EMPTY_FIELD_ERROR:
+                    Toast.makeText(getActivity(), R.string.empty_input_message, Toast.LENGTH_SHORT).show();
+                    break;
+                case INCORRECT_FIELD_ERROR:
+                    Toast.makeText(getActivity(), R.string.incorrect_input_message, Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
     };
 
@@ -115,5 +147,8 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
     private static final String NAME_ARG = "name_arg";
     private static final String SURNAME_ARG = "surname_arg";
     private static final String PATRONYMIC_ARG = "patronymic_arg";
+
     private static final int REQUEST_CODE = 2;
+    private static final int EMPTY_FIELD_ERROR = 1;
+    private static final int INCORRECT_FIELD_ERROR = 2;
 }

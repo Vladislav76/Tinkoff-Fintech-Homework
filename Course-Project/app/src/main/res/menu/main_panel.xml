@@ -3,18 +3,15 @@
     <item
         android:id="@+id/events_action"
         android:title="@string/events_action"
-        android:icon="@drawable/ic_event_note_black_24dp"
-        android:orderInCategory="0" />
+        android:icon="@drawable/ic_event_note_black_24dp" />
 
     <item
         android:id="@+id/courses_action"
         android:title="@string/courses_action"
-        android:icon="@drawable/ic_school_black_24dp"
-        android:orderInCategory="1" />
+        android:icon="@drawable/ic_school_black_24dp" />
 
     <item
         android:id="@+id/profile_action"
         android:title="@string/profile_action"
-        android:icon="@drawable/ic_account_circle_black_24dp"
-        android:orderInCategory="2" />
+        android:icon="@drawable/ic_account_circle_black_24dp" />
 </menu>

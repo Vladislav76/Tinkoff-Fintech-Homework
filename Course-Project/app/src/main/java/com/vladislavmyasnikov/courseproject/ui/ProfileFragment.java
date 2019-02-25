@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -13,20 +14,18 @@ import android.widget.TextView;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
-import com.vladislavmyasnikov.courseproject.ui.callbacks.OnToolbarChangedListener;
 
 public class ProfileFragment extends Fragment {
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnToolbarChangedListener && context instanceof OnFragmentListener) {
-            mToolbarListener = (OnToolbarChangedListener) context;
+        if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
         }
         else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnToolbarChangedListener and OnFragmentListener");
+                    + " must implement OnFragmentListener");
         }
     }
 
@@ -38,19 +37,13 @@ public class ProfileFragment extends Fragment {
         mNameField = view.findViewById(R.id.name_field);
         mSurnameField = view.findViewById(R.id.surname_field);
         mPatronymicField = view.findViewById(R.id.patronymic_field);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.profile_toolbar_title);
         return view;
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mToolbarListener.setToolbarTitle(R.string.profile_toolbar_title);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        mToolbarListener = null;
         mFragmentListener = null;
     }
 
@@ -71,7 +64,6 @@ public class ProfileFragment extends Fragment {
         return new ProfileFragment();
     }
 
-    private OnToolbarChangedListener mToolbarListener;
     private OnFragmentListener mFragmentListener;
     private View.OnClickListener mEditButtonListener = new View.OnClickListener() {
         @Override
@@ -80,7 +72,7 @@ public class ProfileFragment extends Fragment {
             String surname = mSurnameField.getText().toString();
             String patronymic = mPatronymicField.getText().toString();
             ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(name, surname, patronymic);
-            mFragmentListener.addFragmentOnTop(fragment, "2");
+            mFragmentListener.addFragmentOnTop(fragment, Integer.toString(R.id.profile_action));
         }
     };
 

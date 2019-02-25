@@ -13,6 +13,7 @@
     <string name="events_toolbar_title">Мероприятия</string>
     <string name="courses_toolbar_title">Мои курсы</string>
     <string name="profile_toolbar_title">Профиль</string>
+    <string name="profile_editing_toolbar_title">Редактирование профиля</string>
 
     <string name="name_label">Имя:</string>
     <string name="surname_label">Фамилия:</string>
@@ -23,4 +24,6 @@
     <string name="patronymic_hint">Не указано</string>
 
     <string name="action_confirmation_message">Если уйти с экрана редактирования, изменения не сохранятся. Уйти?</string>
+    <string name="empty_input_message">Все поля должны быть заполнены</string>
+    <string name="incorrect_input_message">В ФИО могут быть только буквы, причем первая - заглавная</string>
 </resources>

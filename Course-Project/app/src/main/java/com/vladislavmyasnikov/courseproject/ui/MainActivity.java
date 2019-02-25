@@ -14,10 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnBackButtonListener;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
-import com.vladislavmyasnikov.courseproject.ui.callbacks.OnToolbarChangedListener;
 
 public class MainActivity extends AppCompatActivity
-        implements BottomNavigationView.OnNavigationItemSelectedListener, OnToolbarChangedListener, OnFragmentListener {
+        implements BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,22 +27,17 @@ public class MainActivity extends AppCompatActivity
         mMainPanel.setOnNavigationItemSelectedListener(this);
 
         mToolbar = findViewById(R.id.toolbar);
-        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_frame, EventsFragment.newInstance(), "0")
-                    .addToBackStack("0")
-                    .commit();
+            addFragmentOnTop(EventsFragment.newInstance(), Integer.toString(R.id.events_action));
         }
     }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        String tag = Integer.toString(item.getOrder());
+        String tag = Integer.toString(item.getItemId());
         Fragment fragment = fragmentManager.findFragmentByTag(tag);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -89,7 +83,8 @@ public class MainActivity extends AppCompatActivity
 
                 fragment = fragmentManager.findFragmentById(R.id.content_frame);
                 System.out.println("TopFragmentTag = " + fragment.getTag());
-                int itemId = getItemId(fragment.getTag());
+
+                int itemId = Integer.parseInt(fragment.getTag());
                 if (itemId >= 0) {
                     mMainPanel.getMenu().findItem(itemId).setChecked(true);
                 }
@@ -97,24 +92,6 @@ public class MainActivity extends AppCompatActivity
         }
         else {
             supportFinishAfterTransition();
-        }
-    }
-
-    @Override
-    public void setToolbarTitle(int titleId) {
-        mToolbar.setTitle(titleId);
-    }
-
-    private int getItemId(String tag) {
-        switch (tag) {
-            case "0":
-                return R.id.events_action;
-            case "1":
-                return R.id.courses_action;
-            case "2":
-                return R.id.profile_action;
-            default:
-                return -1;
         }
     }
 
