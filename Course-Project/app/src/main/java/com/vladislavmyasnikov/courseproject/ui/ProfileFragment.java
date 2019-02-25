@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
             String surname = mSurnameField.getText().toString();
             String patronymic = mPatronymicField.getText().toString();
             ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(name, surname, patronymic);
-            mFragmentListener.addFragmentOnTop(fragment, Integer.toString(R.id.profile_action));
+            mFragmentListener.addFragmentOnTop(fragment);
         }
     };
 

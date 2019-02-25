@@ -4,4 +4,10 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+
+    <style name="MainPanelStyle" parent="Widget.Design.BottomNavigationView">
+        <item name="itemIconTint">@color/item_color</item>
+        <item name="itemTextColor">@color/item_color</item>
+        <item name="itemBackground">@color/itemBackground</item>
+    </style>
 </resources>

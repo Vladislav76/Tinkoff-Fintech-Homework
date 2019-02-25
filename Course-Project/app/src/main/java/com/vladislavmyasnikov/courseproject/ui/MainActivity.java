@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -30,7 +29,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(mToolbar);
 
         if (savedInstanceState == null) {
-            addFragmentOnTop(EventsFragment.newInstance(), Integer.toString(R.id.events_action));
+            onNavigationItemSelected(mMainPanel.getMenu().getItem(0));
         }
     }
 
@@ -39,9 +38,10 @@ public class MainActivity extends AppCompatActivity
         FragmentManager fragmentManager = getSupportFragmentManager();
         String tag = Integer.toString(item.getItemId());
         Fragment fragment = fragmentManager.findFragmentByTag(tag);
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
         if (fragment == null) {
+            System.out.println("Fragment == null");
             switch (item.getItemId()) {
                 case R.id.events_action:
                     fragment = EventsFragment.newInstance();
@@ -56,18 +56,21 @@ public class MainActivity extends AppCompatActivity
                     return false;
             }
         }
-        fragmentTransaction.replace(R.id.content_frame, fragment, tag)
-                .addToBackStack(tag)
+
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment, tag)
+                .addToBackStack(BACK_STACK_ROOT_TAG)
                 .commit();
+
         return true;
     }
 
     @Override
-    public void addFragmentOnTop(@NonNull Fragment fragment, String tag) {
+    public void addFragmentOnTop(@NonNull Fragment fragment) {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame, fragment, tag)
-                .addToBackStack(tag)
+                .replace(R.id.content_frame, fragment)
+                .addToBackStack(null)
                 .commit();
     }
 
@@ -80,14 +83,6 @@ public class MainActivity extends AppCompatActivity
             if (!(fragment instanceof OnBackButtonListener) ||
                     !((OnBackButtonListener) fragment).onBackPressed()) {
                 fragmentManager.popBackStackImmediate();
-
-                fragment = fragmentManager.findFragmentById(R.id.content_frame);
-                System.out.println("TopFragmentTag = " + fragment.getTag());
-
-                int itemId = Integer.parseInt(fragment.getTag());
-                if (itemId >= 0) {
-                    mMainPanel.getMenu().findItem(itemId).setChecked(true);
-                }
             }
         }
         else {
@@ -97,4 +92,6 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar mToolbar;
     private BottomNavigationView mMainPanel;
+
+    private static final String BACK_STACK_ROOT_TAG = "root_fragment";
 }

@@ -4,5 +4,5 @@ import androidx.fragment.app.Fragment;
 
 public interface OnFragmentListener {
 
-    void addFragmentOnTop(Fragment fragment, String tag);
+    void addFragmentOnTop(Fragment fragment);
 }
