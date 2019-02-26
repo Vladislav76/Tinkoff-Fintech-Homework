@@ -37,24 +37,21 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         String tag = Integer.toString(item.getItemId());
-        Fragment fragment = fragmentManager.findFragmentByTag(tag);
         fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        Fragment fragment;
 
-        if (fragment == null) {
-            System.out.println("Fragment == null");
-            switch (item.getItemId()) {
-                case R.id.events_action:
-                    fragment = EventsFragment.newInstance();
-                    break;
-                case R.id.courses_action:
-                    fragment = CoursesFragment.newInstance();
-                    break;
-                case R.id.profile_action:
-                    fragment = ProfileFragment.newInstance();
-                    break;
-                default:
-                    return false;
-            }
+        switch (item.getItemId()) {
+            case R.id.events_action:
+                fragment = EventsFragment.newInstance();
+                break;
+            case R.id.courses_action:
+                fragment = CoursesFragment.newInstance();
+                break;
+            case R.id.profile_action:
+                fragment = ProfileFragment.newInstance();
+                break;
+            default:
+                return false;
         }
 
         fragmentManager.beginTransaction()

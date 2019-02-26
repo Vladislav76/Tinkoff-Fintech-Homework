@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
@@ -22,7 +23,7 @@ import com.vladislavmyasnikov.courseproject.ui.callbacks.OnBackButtonListener;
 public class ProfileEditingFragment extends Fragment implements OnBackButtonListener {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile_editing, container, false);
         view.findViewById(R.id.save_button).setOnClickListener(mSaveButtonListener);
@@ -38,7 +39,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
             mPatronymicField.setText(args.getString(PATRONYMIC_ARG));
         }
 
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
 
         return view;
     }
@@ -50,7 +51,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         }
         else if (areDataChanged()) {
             DialogFragment dialog = ActionConfirmationDialogFragment.newInstance();
-            dialog.setTargetFragment(this, REQUEST_CODE);
+            dialog.setTargetFragment(this, QUIT_REQUEST_CODE);
             dialog.show(getFragmentManager(), "action_confirmation_tag");
             return true;
         }
@@ -59,7 +60,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE) {
+        if (requestCode == QUIT_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 isFinished = true;
                 getActivity().onBackPressed();
@@ -84,16 +85,16 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         String patronymic = mPatronymicField.getText().toString();
 
         if (name.equals("") || surname.equals("") || patronymic.equals("")) {
-            return EMPTY_FIELD_ERROR;
+            return NOT_FULL_INPUT_DATA;
         }
-        else if (!isWord(name) || !isWord(surname) || !isWord(patronymic)) {
-            return INCORRECT_FIELD_ERROR;
+        else if (isNotWord(name) || isNotWord(surname) || isNotWord(patronymic)) {
+            return INCORRECT_INPUT_DATA;
         }
-        return 0;
+        return CORRECT_INPUT_DATA;
     }
 
-    private boolean isWord(String s) {
-        return s.matches("[A-ZА-ЯЁ][a-zA-Zа-яА-ЯёЁ]*$");
+    private boolean isNotWord(String s) {
+        return !s.matches("[A-ZА-ЯЁ][a-zA-Zа-яА-ЯёЁ]*$");
     }
 
     public static ProfileEditingFragment newInstance(String name, String surname, String patronymic) {
@@ -112,7 +113,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         @Override
         public void onClick(View v) {
             switch (areDataCorrect()) {
-                case 0:
+                case CORRECT_INPUT_DATA:
                     SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
                     preferences.edit()
                             .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
@@ -122,10 +123,10 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
                     isFinished = true;
                     getActivity().onBackPressed();
                     break;
-                case EMPTY_FIELD_ERROR:
+                case NOT_FULL_INPUT_DATA:
                     Toast.makeText(getActivity(), R.string.empty_input_message, Toast.LENGTH_SHORT).show();
                     break;
-                case INCORRECT_FIELD_ERROR:
+                case INCORRECT_INPUT_DATA:
                     Toast.makeText(getActivity(), R.string.incorrect_input_message, Toast.LENGTH_SHORT).show();
                     break;
             }
@@ -148,7 +149,9 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
     private static final String SURNAME_ARG = "surname_arg";
     private static final String PATRONYMIC_ARG = "patronymic_arg";
 
-    private static final int REQUEST_CODE = 2;
-    private static final int EMPTY_FIELD_ERROR = 1;
-    private static final int INCORRECT_FIELD_ERROR = 2;
+    private static final int QUIT_REQUEST_CODE = 1;
+
+    private static final int CORRECT_INPUT_DATA = 0;
+    private static final int NOT_FULL_INPUT_DATA = 1;
+    private static final int INCORRECT_INPUT_DATA = 2;
 }

@@ -8,12 +8,14 @@ import android.os.Bundle;
 
 import com.vladislavmyasnikov.courseproject.R;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 public class ActionConfirmationDialogFragment extends DialogFragment {
 
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         return new AlertDialog.Builder(getActivity())
                 .setMessage(R.string.action_confirmation_message)

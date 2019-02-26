@@ -24,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:hint="@string/name_hint"
+        android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/name_label"
         app:layout_constraintTop_toTopOf="@+id/name_label" />
@@ -45,6 +46,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:hint="@string/surname_hint"
+        android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/surname_label"
         app:layout_constraintTop_toTopOf="@+id/surname_label" />
@@ -66,6 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:hint="@string/patronymic_hint"
+        android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/patronymic_label"
         app:layout_constraintTop_toTopOf="@+id/patronymic_label" />

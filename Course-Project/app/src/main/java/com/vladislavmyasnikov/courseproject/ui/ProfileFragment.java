@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
@@ -24,20 +25,19 @@ public class ProfileFragment extends Fragment {
             mFragmentListener = (OnFragmentListener) context;
         }
         else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentListener");
+            throw new RuntimeException(context.toString() + " must implement OnFragmentListener");
         }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         view.findViewById(R.id.edit_button).setOnClickListener(mEditButtonListener);
         mNameField = view.findViewById(R.id.name_field);
         mSurnameField = view.findViewById(R.id.surname_field);
         mPatronymicField = view.findViewById(R.id.patronymic_field);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle(R.string.profile_toolbar_title);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_toolbar_title);
         return view;
     }
 
