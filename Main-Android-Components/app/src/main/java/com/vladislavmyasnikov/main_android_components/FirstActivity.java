@@ -1,7 +1,6 @@
 package com.vladislavmyasnikov.main_android_components;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
@@ -19,19 +18,36 @@ public class FirstActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        mContacts = savedInstanceState.getParcelableArrayList(EXTRA_CONTACTS_LIST);
+        if (mContacts != null) {
+            updateList();
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && data != null) {
             if (requestCode == START_SECOND_ACTIVITY_REQUEST_CODE) {
-                ArrayList<ContactData> contacts = data.getParcelableArrayListExtra(CustomIntentService.EXTRA_DATA);
-                updateList(contacts);
+                mContacts = data.getParcelableArrayListExtra(SecondActivity.EXTRA_CONTACTS);
+                updateList();
             }
         }
     }
 
-    private void updateList(ArrayList<ContactData> contacts) {
-        RecyclerView recyclerView = findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(new ContactAdapter(contacts));
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putParcelableArrayList(EXTRA_CONTACTS_LIST, mContacts);
+    }
+
+    private void updateList() {
+        if (mAdapter == null) {
+            mAdapter = new ContactAdapter();
+            RecyclerView recyclerView = findViewById(R.id.recycler_view);
+            recyclerView.setAdapter(mAdapter);
+        }
+        mAdapter.setContacts(mContacts);
     }
 
     public void onStartNewActivity(View view) {
@@ -39,5 +55,9 @@ public class FirstActivity extends AppCompatActivity {
         startActivityForResult(intent, START_SECOND_ACTIVITY_REQUEST_CODE);
     }
 
-    private int START_SECOND_ACTIVITY_REQUEST_CODE = 7;
+    private ContactAdapter mAdapter;
+    private ArrayList<ContactData> mContacts;
+
+    private static final int START_SECOND_ACTIVITY_REQUEST_CODE = 1;
+    private static final String EXTRA_CONTACTS_LIST = "extra_contacts_list";
 }

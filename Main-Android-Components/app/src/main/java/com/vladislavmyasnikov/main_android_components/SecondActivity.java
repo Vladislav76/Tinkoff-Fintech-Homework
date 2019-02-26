@@ -1,5 +1,6 @@
 package com.vladislavmyasnikov.main_android_components;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -12,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -40,7 +40,7 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startService();
@@ -68,7 +68,9 @@ public class SecondActivity extends AppCompatActivity {
     }
 
     private void close(Intent intent) {
-        setResult(Activity.RESULT_OK, intent);
+        Intent result = new Intent();
+        result.putExtra(EXTRA_CONTACTS, intent.getParcelableArrayListExtra(CustomIntentService.EXTRA_DATA));
+        setResult(Activity.RESULT_OK, result);
         finish();
     }
 
@@ -78,16 +80,13 @@ public class SecondActivity extends AppCompatActivity {
             if (intent.getAction() != null
                     && intent.getAction().equals(CustomIntentService.BROADCAST_ACTION)
                     && intent.hasExtra(CustomIntentService.EXTRA_DATA)) {
-                Log.i("LocalBroadcastReceiver", "EXTRA DATA ARE RECEIVED");
                 close(intent);
-            }
-            else {
-                Log.i("LocalBroadcastReceiver", "OTHER DATA ARE RECEIVED");
             }
         }
     }
 
     private CustomLocalBroadcastReceiver mReceiver;
 
-    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 3;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 1;
+    public static final String EXTRA_CONTACTS = "extra_contacts";
 }

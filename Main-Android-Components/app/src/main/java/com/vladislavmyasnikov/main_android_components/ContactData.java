@@ -4,10 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ContactData implements Parcelable {
 
-    public ContactData(String displayName, ArrayList<String> phoneNumbers) {
+    public ContactData(String displayName, List<String> phoneNumbers) {
         mDisplayName = displayName;
         mPhoneNumbers = phoneNumbers;
     }
@@ -22,15 +23,8 @@ public class ContactData implements Parcelable {
         return mDisplayName;
     }
 
-    public ArrayList<String> getPhoneNumbers() {
+    public List<String> getPhoneNumbers() {
         return mPhoneNumbers;
-    }
-
-    public String getPhoneNumbersAsString() {
-        if (mPhoneNumbers.size() > 0) {
-            return mPhoneNumbers.toString();
-        }
-        return EMPTY_PHONE_NUMBERS;
     }
 
     @Override
@@ -45,7 +39,7 @@ public class ContactData implements Parcelable {
     }
 
     private String mDisplayName;
-    private ArrayList<String> mPhoneNumbers;
+    private List<String> mPhoneNumbers;
 
     public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public ContactData createFromParcel(Parcel in) {
@@ -56,6 +50,4 @@ public class ContactData implements Parcelable {
             return new ContactData[size];
         }
     };
-
-    private static final String EMPTY_PHONE_NUMBERS = "No phone numbers";
 }
