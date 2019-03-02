@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/events_action"
+        android:title="@string/events_action"
+        android:icon="@drawable/ic_event_note_black_24dp" />
+
+    <item
+        android:id="@+id/courses_action"
+        android:title="@string/courses_action"
+        android:icon="@drawable/ic_school_black_24dp" />
+
+    <item
+        android:id="@+id/profile_action"
+        android:title="@string/profile_action"
+        android:icon="@drawable/ic_account_circle_black_24dp" />
+</menu>
