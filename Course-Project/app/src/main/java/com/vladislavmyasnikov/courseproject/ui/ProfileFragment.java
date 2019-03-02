@@ -42,22 +42,17 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
-        mFragmentListener = null;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        updateUI();
-    }
-
-    private void updateUI() {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         SharedPreferences preferences = getActivity().getSharedPreferences(PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
         mNameField.setText(preferences.getString(USER_NAME, ""));
         mSurnameField.setText(preferences.getString(USER_SURNAME, ""));
         mPatronymicField.setText(preferences.getString(USER_PATRONYMIC, ""));
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mFragmentListener = null;
     }
 
     public static ProfileFragment newInstance() {

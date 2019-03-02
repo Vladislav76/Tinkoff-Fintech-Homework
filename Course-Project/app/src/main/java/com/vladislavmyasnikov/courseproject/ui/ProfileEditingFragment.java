@@ -28,20 +28,24 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         View view = inflater.inflate(R.layout.fragment_profile_editing, container, false);
         view.findViewById(R.id.save_button).setOnClickListener(mSaveButtonListener);
         view.findViewById(R.id.cancel_button).setOnClickListener(mCancelButtonListener);
+
         mNameField = view.findViewById(R.id.name_field);
         mSurnameField = view.findViewById(R.id.surname_field);
         mPatronymicField = view.findViewById(R.id.patronymic_field);
 
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
+
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle args = getArguments();
             mNameField.setText(args.getString(NAME_ARG));
             mSurnameField.setText(args.getString(SURNAME_ARG));
             mPatronymicField.setText(args.getString(PATRONYMIC_ARG));
         }
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
-
-        return view;
     }
 
     @Override
