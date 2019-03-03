@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity
         mMainPanel.setOnNavigationItemSelectedListener(this);
 
         mToolbar = findViewById(R.id.toolbar);
+        mToolbar.setTitle("");
         setSupportActionBar(mToolbar);
 
         if (savedInstanceState == null) {
@@ -37,27 +38,31 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         String tag = Integer.toString(item.getItemId());
-        fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        Fragment fragment;
+        Fragment fragment = fragmentManager.findFragmentByTag(tag);
 
-        switch (item.getItemId()) {
-            case R.id.events_action:
-                fragment = EventsFragment.newInstance();
-                break;
-            case R.id.courses_action:
-                fragment = CoursesFragment.newInstance();
-                break;
-            case R.id.profile_action:
-                fragment = ProfileFragment.newInstance();
-                break;
-            default:
-                return false;
+        if (fragment == null) {
+            switch (item.getItemId()) {
+                case R.id.events_action:
+                    fragment = EventsFragment.newInstance();
+                    break;
+                case R.id.courses_action:
+                    fragment = CoursesFragment.newInstance();
+                    break;
+                case R.id.profile_action:
+                    fragment = ProfileFragment.newInstance();
+                    break;
+                default:
+                    return false;
+            }
+            fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, fragment, tag)
+                    .addToBackStack(BACK_STACK_ROOT_TAG)
+                    .commit();
         }
-
-        fragmentManager.beginTransaction()
-                .replace(R.id.content_frame, fragment, tag)
-                .addToBackStack(BACK_STACK_ROOT_TAG)
-                .commit();
+        else {
+            fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, 0);
+        }
 
         return true;
     }
@@ -69,6 +74,11 @@ public class MainActivity extends AppCompatActivity
                 .replace(R.id.content_frame, fragment)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    @Override
+    public void setToolbarTitle(int titleId) {
+        mToolbar.setTitle(titleId);
     }
 
     @Override

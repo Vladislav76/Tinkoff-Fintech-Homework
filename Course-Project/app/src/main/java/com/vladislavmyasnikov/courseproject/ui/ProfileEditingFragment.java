@@ -19,8 +19,20 @@ import android.widget.Toast;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnBackButtonListener;
+import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
 public class ProfileEditingFragment extends Fragment implements OnBackButtonListener {
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentListener) {
+            mFragmentListener = (OnFragmentListener) context;
+        }
+        else {
+            throw new RuntimeException(context.toString() + " must implement OnFragmentListener");
+        }
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -33,13 +45,12 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         mSurnameField = view.findViewById(R.id.surname_field);
         mPatronymicField = view.findViewById(R.id.patronymic_field);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_editing_toolbar_title);
-
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        mFragmentListener.setToolbarTitle(R.string.profile_editing_toolbar_title);
         if (savedInstanceState == null) {
             Bundle args = getArguments();
             mNameField.setText(args.getString(NAME_ARG));
@@ -70,6 +81,12 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
                 getActivity().onBackPressed();
             }
         }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mFragmentListener = null;
     }
 
     private boolean areDataChanged() {
@@ -137,6 +154,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         }
     };
 
+    private OnFragmentListener mFragmentListener;
     private View.OnClickListener mCancelButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

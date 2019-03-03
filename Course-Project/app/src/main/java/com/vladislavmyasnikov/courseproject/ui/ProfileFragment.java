@@ -3,11 +3,6 @@ package com.vladislavmyasnikov.courseproject.ui;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +10,9 @@ import android.widget.TextView;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
 
@@ -37,12 +35,12 @@ public class ProfileFragment extends Fragment {
         mNameField = view.findViewById(R.id.name_field);
         mSurnameField = view.findViewById(R.id.surname_field);
         mPatronymicField = view.findViewById(R.id.patronymic_field);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.profile_toolbar_title);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        mFragmentListener.setToolbarTitle(R.string.profile_toolbar_title);
         SharedPreferences preferences = getActivity().getSharedPreferences(PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
         mNameField.setText(preferences.getString(USER_NAME, ""));
         mSurnameField.setText(preferences.getString(USER_SURNAME, ""));
