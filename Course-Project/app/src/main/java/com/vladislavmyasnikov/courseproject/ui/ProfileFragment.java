@@ -16,8 +16,17 @@ import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
 
+    private TextView mNameField;
+    private TextView mSurnameField;
+    private TextView mPatronymicField;
+
+    public static final String USER_NAME = "user_name";
+    public static final String USER_SURNAME = "user_surname";
+    public static final String USER_PATRONYMIC = "user_patronymic";
+    public static final String PERSISTENT_STORAGE_NAME = "pref";
+
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
@@ -28,8 +37,7 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         view.findViewById(R.id.edit_button).setOnClickListener(mEditButtonListener);
         mNameField = view.findViewById(R.id.name_field);
@@ -68,13 +76,4 @@ public class ProfileFragment extends Fragment {
             mFragmentListener.addFragmentOnTop(fragment);
         }
     };
-
-    private TextView mNameField;
-    private TextView mSurnameField;
-    private TextView mPatronymicField;
-
-    public static final String USER_NAME = "user_name";
-    public static final String USER_SURNAME = "user_surname";
-    public static final String USER_PATRONYMIC = "user_patronymic";
-    public static final String PERSISTENT_STORAGE_NAME = "pref";
 }

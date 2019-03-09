@@ -17,6 +17,11 @@ import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener {
 
+    private Toolbar mToolbar;
+    private BottomNavigationView mMainPanel;
+
+    private static final String BACK_STACK_ROOT_TAG = "root_fragment";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,9 +101,4 @@ public class MainActivity extends AppCompatActivity
             supportFinishAfterTransition();
         }
     }
-
-    private Toolbar mToolbar;
-    private BottomNavigationView mMainPanel;
-
-    private static final String BACK_STACK_ROOT_TAG = "root_fragment";
 }
