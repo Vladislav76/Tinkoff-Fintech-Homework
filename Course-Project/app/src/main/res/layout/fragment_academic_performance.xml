@@ -48,14 +48,28 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <include layout="@layout/user_item"
-                android:id="@+id/user_1" />
+            <com.vladislavmyasnikov.courseproject.ui.UserView
+                android:id="@+id/user_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:text="Михаил"
+                app:iconBackgroundColor="@color/black"
+                app:badgeCount="10"/>
 
-            <include layout="@layout/user_item"
-                android:id="@+id/user_2" />
+            <com.vladislavmyasnikov.courseproject.ui.UserView
+                android:id="@+id/user_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:text="Вы"
+                app:iconBackgroundColor="@color/green"
+                app:badgeCount="8"/>
 
-            <include layout="@layout/user_item"
-                android:id="@+id/user_3" />
+            <com.vladislavmyasnikov.courseproject.ui.UserView
+                android:id="@+id/user_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:text="Дмитрий"
+                app:badgeCount="6"/>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

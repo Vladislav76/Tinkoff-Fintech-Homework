@@ -17,6 +17,13 @@ import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
 public class CoursesFragment extends Fragment {
 
+    private OnFragmentListener mFragmentListener;
+    private AcademicPerformanceFragment mAcademicPerformanceFragment;
+
+    private static final String CONTENT_FRAME_1_TAG = "content_frame_1";
+    private static final String CONTENT_FRAME_2_TAG = "content_frame_2";
+    private static final String CONTENT_FRAME_3_TAG = "content_frame_3";
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -29,8 +36,7 @@ public class CoursesFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_courses, container, false);
     }
 
@@ -88,11 +94,4 @@ public class CoursesFragment extends Fragment {
     public static CoursesFragment newInstance() {
         return new CoursesFragment();
     }
-
-    private OnFragmentListener mFragmentListener;
-    private AcademicPerformanceFragment mAcademicPerformanceFragment;
-
-    private static final String CONTENT_FRAME_1_TAG = "content_frame_1";
-    private static final String CONTENT_FRAME_2_TAG = "content_frame_2";
-    private static final String CONTENT_FRAME_3_TAG = "content_frame_3";
 }

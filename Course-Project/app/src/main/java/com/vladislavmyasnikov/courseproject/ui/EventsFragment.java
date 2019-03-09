@@ -16,8 +16,10 @@ import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
 public class EventsFragment extends Fragment {
 
+    private OnFragmentListener mFragmentListener;
+
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
@@ -28,8 +30,7 @@ public class EventsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_events, container, false);
     }
 
@@ -47,6 +48,4 @@ public class EventsFragment extends Fragment {
     public static EventsFragment newInstance() {
         return new EventsFragment();
     }
-
-    private OnFragmentListener mFragmentListener;
 }

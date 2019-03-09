@@ -23,8 +23,53 @@ import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
 public class ProfileEditingFragment extends Fragment implements OnBackButtonListener {
 
+    private EditText mNameField;
+    private EditText mSurnameField;
+    private EditText mPatronymicField;
+    private boolean isFinished;
+    private OnFragmentListener mFragmentListener;
+
+    private View.OnClickListener mCancelButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            getActivity().onBackPressed();
+        }
+    };
+    private View.OnClickListener mSaveButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (areDataCorrect()) {
+                case CORRECT_INPUT_DATA:
+                    SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
+                    preferences.edit()
+                            .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
+                            .putString(ProfileFragment.USER_SURNAME, mSurnameField.getText().toString())
+                            .putString(ProfileFragment.USER_PATRONYMIC, mPatronymicField.getText().toString())
+                            .apply();
+                    isFinished = true;
+                    getActivity().onBackPressed();
+                    break;
+                case NOT_FULL_INPUT_DATA:
+                    Toast.makeText(getActivity(), R.string.empty_input_message, Toast.LENGTH_SHORT).show();
+                    break;
+                case INCORRECT_INPUT_DATA:
+                    Toast.makeText(getActivity(), R.string.incorrect_input_message, Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    };
+
+    private static final String NAME_ARG = "name_arg";
+    private static final String SURNAME_ARG = "surname_arg";
+    private static final String PATRONYMIC_ARG = "patronymic_arg";
+
+    private static final int QUIT_REQUEST_CODE = 1;
+    private static final int CORRECT_INPUT_DATA = 0;
+    private static final int NOT_FULL_INPUT_DATA = 1;
+    private static final int INCORRECT_INPUT_DATA = 2;
+
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
@@ -35,8 +80,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
     }
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile_editing, container, false);
         view.findViewById(R.id.save_button).setOnClickListener(mSaveButtonListener);
         view.findViewById(R.id.cancel_button).setOnClickListener(mCancelButtonListener);
@@ -129,51 +173,4 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
         return fragment;
     }
-
-    private View.OnClickListener mSaveButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            switch (areDataCorrect()) {
-                case CORRECT_INPUT_DATA:
-                    SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
-                    preferences.edit()
-                            .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
-                            .putString(ProfileFragment.USER_SURNAME, mSurnameField.getText().toString())
-                            .putString(ProfileFragment.USER_PATRONYMIC, mPatronymicField.getText().toString())
-                            .apply();
-                    isFinished = true;
-                    getActivity().onBackPressed();
-                    break;
-                case NOT_FULL_INPUT_DATA:
-                    Toast.makeText(getActivity(), R.string.empty_input_message, Toast.LENGTH_SHORT).show();
-                    break;
-                case INCORRECT_INPUT_DATA:
-                    Toast.makeText(getActivity(), R.string.incorrect_input_message, Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
-
-    private OnFragmentListener mFragmentListener;
-    private View.OnClickListener mCancelButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            getActivity().onBackPressed();
-        }
-    };
-
-    private EditText mNameField;
-    private EditText mSurnameField;
-    private EditText mPatronymicField;
-    private boolean isFinished;
-
-    private static final String NAME_ARG = "name_arg";
-    private static final String SURNAME_ARG = "surname_arg";
-    private static final String PATRONYMIC_ARG = "patronymic_arg";
-
-    private static final int QUIT_REQUEST_CODE = 1;
-
-    private static final int CORRECT_INPUT_DATA = 0;
-    private static final int NOT_FULL_INPUT_DATA = 1;
-    private static final int INCORRECT_INPUT_DATA = 2;
 }
