@@ -5,4 +5,9 @@
         <attr name="iconBackgroundColor" format="color"/>
         <attr name="text" format="string"/>
     </declare-styleable>
+
+    <declare-styleable name="InitialsRoundView">
+        <attr name="initials" format="string"/>
+        <attr name="roundColor" format="color"/>
+    </declare-styleable>
 </resources>
