@@ -12,8 +12,8 @@
         android:text="@string/passed_courses_label" />
 
     <include
-        layout="@layout/course_item" />
+        layout="@layout/item_course" />
 
     <include
-        layout="@layout/course_item" />
+        layout="@layout/item_course" />
 </LinearLayout>

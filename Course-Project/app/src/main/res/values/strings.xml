@@ -1,14 +1,21 @@
 <resources>
     <string name="app_name">Course Project</string>
 
-    <string name="events_action">Мероприятия</string>
-    <string name="courses_action">Мои курсы</string>
-    <string name="profile_action">Профиль</string>
+    <string name="events_tab">Мероприятия</string>
+    <string name="courses_tab">Мои курсы</string>
+    <string name="profile_tab">Профиль</string>
+
     <string name="edit_action">Редактировать</string>
     <string name="save_action">Сохранить</string>
     <string name="cancel_action">Отменить</string>
     <string name="leave_action">Уйти</string>
     <string name="stay_action">Остаться</string>
+
+    <!--temp strings-->
+    <string name="list_rearrangement_action">Перестроить</string>
+    <string name="list_item_adding_action">Добавить</string>
+    <string name="list_item_removing_action">Удалить</string>
+    <string name="list_mixing_action">Перемешать</string>
 
     <string name="events_toolbar_title">Мероприятия</string>
     <string name="courses_toolbar_title">Мои курсы</string>

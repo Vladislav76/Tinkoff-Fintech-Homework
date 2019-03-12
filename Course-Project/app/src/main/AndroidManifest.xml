@@ -27,6 +27,6 @@
 
         <activity
             android:name=".ui.UsersListActivity"
-            android:screenOrientation="sensor" />
+            android:screenOrientation="portrait" />
     </application>
 </manifest>

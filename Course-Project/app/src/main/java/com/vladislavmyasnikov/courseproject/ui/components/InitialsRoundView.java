@@ -31,7 +31,7 @@ public class InitialsRoundView extends FrameLayout {
     }
 
     private void init(AttributeSet attrs) {
-        View view = inflate(getContext(), R.layout.user_icon, this);
+        View view = inflate(getContext(), R.layout.icon_user, this);
         mInitialsView = view.findViewById(R.id.user_initials_field);
         mIconView = view.findViewById(R.id.user_icon_background);
         if (attrs != null) {

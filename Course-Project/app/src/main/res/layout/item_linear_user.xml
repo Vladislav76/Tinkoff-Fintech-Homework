@@ -8,23 +8,27 @@
 
     <com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
         android:id="@+id/user_icon"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        app:initials="GG"
-        app:roundColor="@color/black"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintStart_toStartOf="parent"/>
 
     <TextView
         android:id="@+id/user_name_field"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:maxLines="2"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:singleLine="true"
+        app:layout_constraintStart_toEndOf="@id/user_icon"
+        app:layout_constraintEnd_toStartOf="@id/user_points_field"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/user_points_field"
+        style="@style/BoldTextStyle"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/user_icon"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

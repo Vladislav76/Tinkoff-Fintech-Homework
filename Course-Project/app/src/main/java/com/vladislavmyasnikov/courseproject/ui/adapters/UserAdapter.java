@@ -10,9 +10,10 @@ import com.vladislavmyasnikov.courseproject.models.User;
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView;
 
 import java.util.List;
-import java.util.Random;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHolder> {
@@ -23,12 +24,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
     public static final int LINEAR_USER_VIEW = 1;
     public static final int GRID_USER_VIEW = 2;
 
-    public UserAdapter(List<User> users) {
-        mUsers = users;
-    }
+    public UserAdapter() {}
 
     public void setList(List<User> users) {
-        mUsers = users;
+        if (mUsers == null) {
+            mUsers = users;
+            notifyItemRangeInserted(0, mUsers.size());
+        }
+        else {
+            final DiffUtil.Callback callback = new DiffCallback(mUsers, users);
+            mUsers = users;
+            DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this);
+        }
     }
 
     public void setViewType(int viewType) {
@@ -66,26 +73,15 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
         int layoutItemId;
         switch (viewType) {
             case LINEAR_USER_VIEW:
-                layoutItemId = R.layout.linear_user_item;
+                layoutItemId = R.layout.item_linear_user;
                 break;
             case GRID_USER_VIEW:
-                layoutItemId = R.layout.grid_user_item;
+                layoutItemId = R.layout.item_grid_user;
                 break;
             default:
                 return null;
         }
         return inflater.inflate(layoutItemId, parent, false);
-    }
-
-    private int getRandomColor() {
-        int[] values = new int[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
-        int color = 0x00000000;
-        Random random = new Random();
-        for (int i = 0; i < 6; i++) {
-            color <<= 4;
-            color |= values[random.nextInt(16)];
-        }
-        return color | 0xFF000000;
     }
 
     private int getColor(String displayName) {
@@ -136,7 +132,42 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
 
         void bind(User user) {
             super.bind(user);
-            mUserPointsView.setText(Integer.toString(user.getPoints()) + "балл");
+            String text = user.getPoints() + " points";
+            mUserPointsView.setText(text);
+        }
+    }
+
+    class DiffCallback extends DiffUtil.Callback {
+        private List<User> mOldList;
+        private List<User> mNewList;
+
+        DiffCallback (List<User> oldList, List<User> newList) {
+            mOldList = oldList;
+            mNewList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return mOldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return mNewList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            return mOldList.get(oldItemPosition).getId() == mNewList.get(newItemPosition).getId();
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            User oldUser = mOldList.get(oldItemPosition);
+            User newUser = mNewList.get(newItemPosition);
+            return oldUser.getName().equals(newUser.getName()) &&
+                    oldUser.getSurname().equals(newUser.getSurname()) &&
+                    oldUser.getPoints() == newUser.getPoints();
         }
     }
 }

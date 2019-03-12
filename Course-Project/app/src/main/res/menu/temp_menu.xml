@@ -2,8 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/items_rearrangement_action"
-        android:title="Reorder"
-        android:icon="@drawable/ic_reorder_black_24dp"
+        android:id="@+id/list_rearrangement_action"
+        android:title="@string/list_rearrangement_action"
+        android:icon="@drawable/ic_reorder_white_24dp"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item
+        android:id="@+id/list_item_adding_action"
+        android:title="@string/list_item_adding_action"
+        android:icon="@drawable/ic_add_white_24dp"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item
+        android:id="@+id/list_item_removing_action"
+        android:title="@string/list_item_removing_action"
+        android:icon="@drawable/ic_remove_white_24dp"
+        app:showAsAction="ifRoom|withText"/>
+
+    <item
+        android:id="@+id/list_mixing_action"
+        android:title="@string/list_mixing_action"
+        android:icon="@drawable/ic_autorenew_white_24dp"
         app:showAsAction="ifRoom|withText"/>
 </menu>

@@ -13,8 +13,11 @@ import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.models.User;
 import com.vladislavmyasnikov.courseproject.ui.adapters.UserAdapter;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -26,6 +29,7 @@ public class UsersListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private UserAdapter mAdapter;
+    private List<User> mUsers;
     private OnFragmentListener mFragmentListener;
     private int mItemsArrangement;
 
@@ -55,8 +59,9 @@ public class UsersListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         mFragmentListener.setToolbarTitle(R.string.academic_performance_toolbar_title);
-        mAdapter = new UserAdapter(null);
+        mAdapter = new UserAdapter();
         mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.addItemDecoration(new CustomItemDecoration(10));
         if (savedInstanceState != null) {
             mItemsArrangement = savedInstanceState.getInt(ITEMS_ARRANGEMENT);
         }
@@ -71,9 +76,24 @@ public class UsersListFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.items_rearrangement_action:
+            case R.id.list_rearrangement_action:
                 mItemsArrangement = mItemsArrangement == LINEAR_ARRANGEMENT ? GRID_ARRANGEMENT : LINEAR_ARRANGEMENT;
                 rearrangeLayout();
+                return true;
+            case R.id.list_item_adding_action:
+                mUsers.add(generateNewUser());
+                mAdapter.notifyItemInserted(mUsers.size() - 1);
+                return true;
+            case R.id.list_item_removing_action:
+                int userId = mUsers.size() - 1;
+                mUsers.remove(userId);
+                mAdapter.notifyItemRemoved(userId);
+                return true;
+            case R.id.list_mixing_action:
+                List<User> mixedList = getMixedList();
+                mUsers = mixedList;
+                mRecyclerView.getLayoutManager().scrollToPosition(0);
+                mAdapter.setList(mixedList);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -92,6 +112,12 @@ public class UsersListFragment extends Fragment {
         mFragmentListener = null;
     }
 
+    public void updateList(List<User> users) {
+        mUsers = users;
+        mAdapter.setList(users);
+        rearrangeLayout();
+    }
+
     private void rearrangeLayout() {
         if (mItemsArrangement == LINEAR_ARRANGEMENT) {
             mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -102,9 +128,22 @@ public class UsersListFragment extends Fragment {
         }
     }
 
-    public void updateList(List<User> users) {
-        mAdapter.setList(users);
-        rearrangeLayout();
+    private User generateNewUser() {
+        Random random = new Random();
+        int surnameId = random.nextInt(999999);
+        return new User("User", Integer.toString(surnameId), random.nextInt(500));
+    }
+
+    private List<User> getMixedList() {
+        List<User> mixedList = new ArrayList<>(mUsers.size());
+        Random random = new Random();
+        int currentSize = 0;
+        for (User user : mUsers) {
+            User clonedUser = new User(user);
+            currentSize++;
+            mixedList.add(random.nextInt(currentSize), clonedUser);
+        }
+        return mixedList;
     }
 
     public static UsersListFragment newInstance() {

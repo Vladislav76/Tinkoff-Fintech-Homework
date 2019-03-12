@@ -16,6 +16,11 @@ import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
 
+    public static final String USER_NAME = "user_name";
+    public static final String USER_SURNAME = "user_surname";
+    public static final String USER_PATRONYMIC = "user_patronymic";
+    public static final String PERSISTENT_STORAGE_NAME = "pref";
+
     private TextView mNameField;
     private TextView mSurnameField;
     private TextView mPatronymicField;
@@ -31,11 +36,6 @@ public class ProfileFragment extends Fragment {
             mFragmentListener.addFragmentOnTop(fragment);
         }
     };
-
-    public static final String USER_NAME = "user_name";
-    public static final String USER_SURNAME = "user_surname";
-    public static final String USER_PATRONYMIC = "user_patronymic";
-    public static final String PERSISTENT_STORAGE_NAME = "pref";
 
     @Override
     public void onAttach(@NonNull Context context) {

@@ -7,9 +7,12 @@ import androidx.annotation.NonNull;
 
 public class User implements Parcelable {
 
+    private int mId;
     private String mName;
     private String mSurname;
     private int mPoints;
+
+    private static int NEXT_USER_ID;
 
     private static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public User createFromParcel(Parcel in) {
@@ -25,12 +28,25 @@ public class User implements Parcelable {
         mName = name;
         mSurname = surname;
         mPoints = points;
+        mId = generateId();
+    }
+
+    public User(User original) {
+        mId = original.getId();
+        mName = original.getName();
+        mSurname = original.getSurname();
+        mPoints = original.getPoints();
     }
 
     private User(Parcel in) {
         mName = in.readString();
         mSurname = in.readString();
         mPoints = in.readInt();
+        mId = generateId();
+    }
+
+    private static int generateId() {
+        return NEXT_USER_ID++;
     }
 
     @Override
@@ -46,6 +62,10 @@ public class User implements Parcelable {
     }
 
     /* GETTERS */
+    public int getId() {
+        return mId;
+    }
+
     public String getName() {
         return mName;
     }
