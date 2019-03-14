@@ -13,6 +13,7 @@ import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.models.User;
 import com.vladislavmyasnikov.courseproject.ui.adapters.UserAdapter;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator;
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration;
 
 import java.util.ArrayList;
@@ -62,6 +63,7 @@ public class UsersListFragment extends Fragment {
         mAdapter = new UserAdapter();
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addItemDecoration(new CustomItemDecoration(10));
+        mRecyclerView.setItemAnimator(new CustomItemAnimator());
         if (savedInstanceState != null) {
             mItemsArrangement = savedInstanceState.getInt(ITEMS_ARRANGEMENT);
         }
