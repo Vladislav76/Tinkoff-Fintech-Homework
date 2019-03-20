@@ -16,14 +16,26 @@ import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
 
-    private TextView mNameField;
-    private TextView mSurnameField;
-    private TextView mPatronymicField;
-
     public static final String USER_NAME = "user_name";
     public static final String USER_SURNAME = "user_surname";
     public static final String USER_PATRONYMIC = "user_patronymic";
     public static final String PERSISTENT_STORAGE_NAME = "pref";
+
+    private TextView mNameField;
+    private TextView mSurnameField;
+    private TextView mPatronymicField;
+    private OnFragmentListener mFragmentListener;
+
+    private View.OnClickListener mEditButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String name = mNameField.getText().toString();
+            String surname = mSurnameField.getText().toString();
+            String patronymic = mPatronymicField.getText().toString();
+            ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(name, surname, patronymic);
+            mFragmentListener.addFragmentOnTop(fragment);
+        }
+    };
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -64,16 +76,4 @@ public class ProfileFragment extends Fragment {
     public static ProfileFragment newInstance() {
         return new ProfileFragment();
     }
-
-    private OnFragmentListener mFragmentListener;
-    private View.OnClickListener mEditButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            String name = mNameField.getText().toString();
-            String surname = mSurnameField.getText().toString();
-            String patronymic = mPatronymicField.getText().toString();
-            ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(name, surname, patronymic);
-            mFragmentListener.addFragmentOnTop(fragment);
-        }
-    };
 }

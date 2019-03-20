@@ -1,19 +1,27 @@
 <resources>
     <string name="app_name">Course Project</string>
 
-    <string name="events_action">Мероприятия</string>
-    <string name="courses_action">Мои курсы</string>
-    <string name="profile_action">Профиль</string>
+    <string name="events_tab">Мероприятия</string>
+    <string name="courses_tab">Мои курсы</string>
+    <string name="profile_tab">Профиль</string>
+
     <string name="edit_action">Редактировать</string>
     <string name="save_action">Сохранить</string>
     <string name="cancel_action">Отменить</string>
     <string name="leave_action">Уйти</string>
     <string name="stay_action">Остаться</string>
 
+    <!--temp strings-->
+    <string name="list_rearrangement_action">Перестроить</string>
+    <string name="list_item_adding_action">Добавить</string>
+    <string name="list_item_removing_action">Удалить</string>
+    <string name="list_mixing_action">Перемешать</string>
+
     <string name="events_toolbar_title">Мероприятия</string>
     <string name="courses_toolbar_title">Мои курсы</string>
     <string name="profile_toolbar_title">Профиль</string>
     <string name="profile_editing_toolbar_title">Редактирование профиля</string>
+    <string name="academic_performance_toolbar_title">Успеваемость</string>
 
     <string name="name_label">Имя:</string>
     <string name="surname_label">Фамилия:</string>
@@ -33,9 +41,7 @@
     <string name="patronymic_hint">Не указано</string>
 
     <string name="action_confirmation_message">Если уйти с экрана редактирования, изменения не сохранятся. Уйти?</string>
-    <string name="empty_input_message">Все поля должны быть заполнены.</string>
-    <string name="incorrect_input_message">В ФИО могут быть только буквы, причем первая должна быть заглавной.</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="empty_input_message">Все поля должны быть заполнены</string>
+    <string name="incorrect_input_message">В ФИО могут быть только буквы, причем первая должна быть заглавной</string>
+    <string name="permission_read_contacts_message">Нет разрешения на чтение контактов</string>
 </resources>

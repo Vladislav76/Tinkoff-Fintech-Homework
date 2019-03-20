@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.ui;
+package com.vladislavmyasnikov.courseproject.ui.components;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -34,11 +34,10 @@ public class UserView extends ConstraintLayout {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        View view = inflate(context, R.layout.user_item, null);
+        View view = inflate(context, R.layout.user_item, this);
         mUserNameView = view.findViewById(R.id.user_name_field);
         mBadgeView = view.findViewById(R.id.user_points_field);
         mUserIconView = view.findViewById(R.id.user_icon);
-        addView(view);
 
         if (attrs != null) {
             TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.UserView);

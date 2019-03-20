@@ -47,13 +47,13 @@ public class MainActivity extends AppCompatActivity
 
         if (fragment == null) {
             switch (item.getItemId()) {
-                case R.id.events_action:
+                case R.id.events_tab:
                     fragment = EventsFragment.newInstance();
                     break;
-                case R.id.courses_action:
+                case R.id.courses_tab:
                     fragment = CoursesFragment.newInstance();
                     break;
-                case R.id.profile_action:
+                case R.id.profile_tab:
                     fragment = ProfileFragment.newInstance();
                     break;
                 default:
