@@ -11,7 +11,6 @@ import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView;
 
 import java.util.List;
 
-import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +22,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
 
     public static final int LINEAR_USER_VIEW = 1;
     public static final int GRID_USER_VIEW = 2;
-
-    public UserAdapter() {}
 
     public void setList(List<User> users) {
         if (mUsers == null) {
@@ -87,7 +84,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
     private int getColor(String displayName) {
         int[] values = new int[] {0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF};
         int color = 0x00000000;
-        if (!displayName.equals("")) {
+        if (displayName != null && !displayName.equals("")) {
             int hash = Math.abs(displayName.hashCode());
             for (int i = 1; i <= 6; i++) {
                 color <<= 4;
@@ -115,7 +112,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
             if (!user.getSurname().equals("")) {
                 initials += user.getSurname().substring(0, 1);
             }
-            String displayName = user.getName() + " " + user.getSurname();
+            String displayName;
+            if (user.getName().equals("") && user.getSurname().equals("")) {
+                displayName = null;
+            }
+            else {
+                displayName = user.getName() + " " + user.getSurname();
+            }
             mUserNameView.setText(displayName);
             mUserIconView.setText(initials);
             mUserIconView.setIconColor(getColor(displayName));
@@ -137,7 +140,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
         }
     }
 
-    class DiffCallback extends DiffUtil.Callback {
+    static class DiffCallback extends DiffUtil.Callback {
         private List<User> mOldList;
         private List<User> mNewList;
 
