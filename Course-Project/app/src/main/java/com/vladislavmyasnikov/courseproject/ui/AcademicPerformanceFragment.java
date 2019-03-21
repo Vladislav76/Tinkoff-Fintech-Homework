@@ -1,5 +1,6 @@
 package com.vladislavmyasnikov.courseproject.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
+import com.vladislavmyasnikov.courseproject.ui.callbacks.OnRefreshLayoutListener;
 import com.vladislavmyasnikov.courseproject.ui.components.UserView;
 
 import java.util.Random;
@@ -23,6 +25,7 @@ public class AcademicPerformanceFragment extends Fragment {
     private static final String UPDATED_POINTS_DATA = "updated_points_data";
     private static final int CURRENT_HARDCODED_NUMBER_OF_USER_ICONS = 2;
 
+    private OnRefreshLayoutListener mRefreshLayoutListener;
     private UserView mUser1View;
     private UserView mUser2View;
     private Handler mHandler = new Handler(Looper.getMainLooper()) {
@@ -34,6 +37,7 @@ public class AcademicPerformanceFragment extends Fragment {
             if (points != null) {
                 mUser1View.setBadgeCount(points[0]);
                 mUser2View.setBadgeCount(points[1]);
+                mRefreshLayoutListener.stopRefreshing();
             }
         }
     };
@@ -47,6 +51,17 @@ public class AcademicPerformanceFragment extends Fragment {
     };
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (getParentFragment() instanceof OnRefreshLayoutListener) {
+            mRefreshLayoutListener = (OnRefreshLayoutListener) getParentFragment();
+        }
+        else {
+            throw new RuntimeException(getParentFragment().toString() + " must implement OnFragmentListener");
+        }
+    }
+
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_academic_performance, container, false);
     }
@@ -56,6 +71,12 @@ public class AcademicPerformanceFragment extends Fragment {
         mUser1View = view.findViewById(R.id.user_1);
         mUser2View = view.findViewById(R.id.user_2);
         view.findViewById(R.id.title).setOnClickListener(mOnTitleListener);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mRefreshLayoutListener = null;
     }
 
     public void updateBadges() {

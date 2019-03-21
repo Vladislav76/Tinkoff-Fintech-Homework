@@ -14,11 +14,13 @@ import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.callbacks.OnRefreshLayoutListener;
 
-public class CoursesFragment extends Fragment {
+public class CoursesFragment extends Fragment implements OnRefreshLayoutListener {
 
     private OnFragmentListener mFragmentListener;
     private AcademicPerformanceFragment mAcademicPerformanceFragment;
+    private SwipeRefreshLayout mSwipeRefreshLayout;
 
     private static final String CONTENT_FRAME_1_TAG = "content_frame_1";
     private static final String CONTENT_FRAME_2_TAG = "content_frame_2";
@@ -48,12 +50,11 @@ public class CoursesFragment extends Fragment {
         addChildFragment(CONTENT_FRAME_2_TAG);
         addChildFragment(CONTENT_FRAME_3_TAG);
 
-        final SwipeRefreshLayout layout = view.findViewById(R.id.swipe_refresh_layout);
-        layout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 mAcademicPerformanceFragment.updateBadges();
-                layout.setRefreshing(false);
             }
         });
     }
@@ -62,6 +63,11 @@ public class CoursesFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mFragmentListener = null;
+    }
+
+    @Override
+    public void stopRefreshing() {
+        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     private void addChildFragment(String tag) {
