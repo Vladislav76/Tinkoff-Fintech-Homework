@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
+import com.vladislavmyasnikov.courseproject.core.DataUpdater;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnRefreshLayoutListener;
 import com.vladislavmyasnikov.courseproject.ui.components.UserView;
 
@@ -22,7 +23,6 @@ import java.util.Random;
 
 public class AcademicPerformanceFragment extends Fragment {
 
-    private static final String UPDATED_POINTS_DATA = "updated_points_data";
     private static final int CURRENT_HARDCODED_NUMBER_OF_USER_ICONS = 2;
 
     private OnRefreshLayoutListener mRefreshLayoutListener;
@@ -33,8 +33,8 @@ public class AcademicPerformanceFragment extends Fragment {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             Bundle data = msg.getData();
-            int[] points = data.getIntArray(UPDATED_POINTS_DATA);
-            if (points != null) {
+            int[] points = data.getIntArray(DataUpdater.UPDATED_POINTS_DATA);
+            if (points != null && mRefreshLayoutListener != null) {
                 mUser1View.setBadgeCount(points[0]);
                 mUser2View.setBadgeCount(points[1]);
                 mRefreshLayoutListener.stopRefreshing();
@@ -55,9 +55,8 @@ public class AcademicPerformanceFragment extends Fragment {
         super.onAttach(context);
         if (getParentFragment() instanceof OnRefreshLayoutListener) {
             mRefreshLayoutListener = (OnRefreshLayoutListener) getParentFragment();
-        }
-        else {
-            throw new RuntimeException(getParentFragment().toString() + " must implement OnFragmentListener");
+        } else {
+            throw new IllegalStateException(getParentFragment() + " must implement OnFragmentListener");
         }
     }
 
@@ -80,21 +79,7 @@ public class AcademicPerformanceFragment extends Fragment {
     }
 
     public void updateBadges() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Message message = Message.obtain();
-                Bundle data = new Bundle();
-                Random random = new Random();
-                int[] points = new int[CURRENT_HARDCODED_NUMBER_OF_USER_ICONS];
-                for (int i = 0; i < points.length; i++) {
-                    points[i] = random.nextInt(11);
-                }
-                data.putIntArray(UPDATED_POINTS_DATA, points);
-                message.setData(data);
-                mHandler.sendMessage(message);
-            }
-        }).start();
+        DataUpdater.newInstance(mHandler, CURRENT_HARDCODED_NUMBER_OF_USER_ICONS).start();
     }
 
     public static AcademicPerformanceFragment newInstance() {

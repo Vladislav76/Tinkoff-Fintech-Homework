@@ -23,9 +23,8 @@ public class EventsFragment extends Fragment {
         super.onAttach(context);
         if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
-        }
-        else {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentListener");
+        } else {
+            throw new IllegalStateException(context + " must implement OnFragmentListener");
         }
     }
 

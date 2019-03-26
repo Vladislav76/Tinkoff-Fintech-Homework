@@ -27,8 +27,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
         if (mUsers == null) {
             mUsers = users;
             notifyItemRangeInserted(0, mUsers.size());
-        }
-        else {
+        } else {
             final DiffUtil.Callback callback = new DiffCallback(mUsers, users);
             mUsers = users;
             DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this);
@@ -44,8 +43,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
     public GridUserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == LINEAR_USER_VIEW) {
             return new LinearUserViewHolder(createView(parent, viewType));
-        }
-        else {
+        } else {
             return new GridUserViewHolder(createView(parent, viewType));
         }
     }
@@ -115,8 +113,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
             String displayName;
             if (user.getName().equals("") && user.getSurname().equals("")) {
                 displayName = null;
-            }
-            else {
+            } else {
                 displayName = user.getName() + " " + user.getSurname();
             }
             mUserNameView.setText(displayName);

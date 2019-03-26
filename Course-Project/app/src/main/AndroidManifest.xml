@@ -12,12 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".services.ContactReadingIntentService"
+            android:name=".core.services.ContactReadingIntentService"
             android:exported="false" />
 
         <activity
             android:name=".ui.MainActivity"
-            android:screenOrientation="sensor">
+            android:screenOrientation="unspecified">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
