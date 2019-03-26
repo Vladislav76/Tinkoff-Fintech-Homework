@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.services;
+package com.vladislavmyasnikov.courseproject.core.services;
 
 import android.app.IntentService;
 import android.content.Intent;

@@ -64,8 +64,7 @@ public class MainActivity extends AppCompatActivity
                     .replace(R.id.content_frame, fragment, tag)
                     .addToBackStack(BACK_STACK_ROOT_TAG)
                     .commit();
-        }
-        else {
+        } else {
             fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, 0);
         }
 
@@ -96,8 +95,7 @@ public class MainActivity extends AppCompatActivity
                     !((OnBackButtonListener) fragment).onBackPressed()) {
                 fragmentManager.popBackStackImmediate();
             }
-        }
-        else {
+        } else {
             supportFinishAfterTransition();
         }
     }

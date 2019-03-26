@@ -1,24 +1,46 @@
 package com.vladislavmyasnikov.courseproject.ui;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
+import com.vladislavmyasnikov.courseproject.core.DataUpdater;
+import com.vladislavmyasnikov.courseproject.ui.callbacks.OnRefreshLayoutListener;
 import com.vladislavmyasnikov.courseproject.ui.components.UserView;
 
 import java.util.Random;
 
 public class AcademicPerformanceFragment extends Fragment {
 
+    private static final int CURRENT_HARDCODED_NUMBER_OF_USER_ICONS = 2;
+
+    private OnRefreshLayoutListener mRefreshLayoutListener;
     private UserView mUser1View;
     private UserView mUser2View;
+    private Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            int[] points = data.getIntArray(DataUpdater.UPDATED_POINTS_DATA);
+            if (points != null && mRefreshLayoutListener != null) {
+                mUser1View.setBadgeCount(points[0]);
+                mUser2View.setBadgeCount(points[1]);
+                mRefreshLayoutListener.stopRefreshing();
+            }
+        }
+    };
 
     private View.OnClickListener mOnTitleListener = new View.OnClickListener() {
         @Override
@@ -27,6 +49,16 @@ public class AcademicPerformanceFragment extends Fragment {
             startActivity(intent);
         }
     };
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (getParentFragment() instanceof OnRefreshLayoutListener) {
+            mRefreshLayoutListener = (OnRefreshLayoutListener) getParentFragment();
+        } else {
+            throw new IllegalStateException(getParentFragment() + " must implement OnFragmentListener");
+        }
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -40,14 +72,14 @@ public class AcademicPerformanceFragment extends Fragment {
         view.findViewById(R.id.title).setOnClickListener(mOnTitleListener);
     }
 
-    private void updateBadgeValue(@NonNull UserView view, int newValue) {
-        view.setBadgeCount(newValue);
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mRefreshLayoutListener = null;
     }
 
     public void updateBadges() {
-        Random random = new Random();
-        updateBadgeValue(mUser1View, random.nextInt(11));
-        updateBadgeValue(mUser2View, random.nextInt(11));
+        DataUpdater.newInstance(mHandler, CURRENT_HARDCODED_NUMBER_OF_USER_ICONS).start();
     }
 
     public static AcademicPerformanceFragment newInstance() {

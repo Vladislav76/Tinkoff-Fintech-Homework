@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.models.User;
-import com.vladislavmyasnikov.courseproject.services.ContactReadingIntentService;
+import com.vladislavmyasnikov.courseproject.core.services.ContactReadingIntentService;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
 import java.util.ArrayList;
@@ -48,8 +48,7 @@ public class UsersListActivity extends AppCompatActivity implements OnFragmentLi
             fragmentManager.beginTransaction()
                     .replace(R.id.content_frame, mFragment, USERS_LIST_FRAGMENT_TAG)
                     .commit();
-        }
-        else {
+        } else {
             mFragment = (UsersListFragment) fragmentManager.findFragmentByTag(USERS_LIST_FRAGMENT_TAG);
         }
 
@@ -69,8 +68,7 @@ public class UsersListActivity extends AppCompatActivity implements OnFragmentLi
         if (requestCode == READ_CONTACTS_PERMISSION_REQUEST) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ContactReadingIntentService.startContactsReadingAction(this);
-            }
-            else {
+            } else {
                 Toast.makeText(this, R.string.permission_read_contacts_message, Toast.LENGTH_SHORT).show();
             }
         }
@@ -94,8 +92,7 @@ public class UsersListActivity extends AppCompatActivity implements OnFragmentLi
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
                 && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[] {Manifest.permission.READ_CONTACTS}, READ_CONTACTS_PERMISSION_REQUEST);
-        }
-        else {
+        } else {
             ContactReadingIntentService.startContactsReadingAction(this);
         }
     }

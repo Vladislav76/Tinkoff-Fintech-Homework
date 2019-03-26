@@ -71,9 +71,8 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         super.onAttach(context);
         if (context instanceof OnFragmentListener) {
             mFragmentListener = (OnFragmentListener) context;
-        }
-        else {
-            throw new RuntimeException(context.toString() + " must implement OnFragmentListener");
+        } else {
+            throw new IllegalStateException(context + " must implement OnFragmentListener");
         }
     }
 
@@ -105,8 +104,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
     public boolean onBackPressed() {
         if (isFinished) {
             return false;
-        }
-        else if (areDataChanged()) {
+        } else if (areDataChanged()) {
             DialogFragment dialog = ActionConfirmationDialogFragment.newInstance();
             dialog.setTargetFragment(this, QUIT_REQUEST_CODE);
             dialog.show(getFragmentManager(), "action_confirmation_tag");
@@ -149,8 +147,7 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
         if (name.equals("") || surname.equals("") || patronymic.equals("")) {
             return NOT_FULL_INPUT_DATA;
-        }
-        else if (isNotWord(name) || isNotWord(surname) || isNotWord(patronymic)) {
+        } else if (isNotWord(name) || isNotWord(surname) || isNotWord(patronymic)) {
             return INCORRECT_INPUT_DATA;
         }
         return CORRECT_INPUT_DATA;
