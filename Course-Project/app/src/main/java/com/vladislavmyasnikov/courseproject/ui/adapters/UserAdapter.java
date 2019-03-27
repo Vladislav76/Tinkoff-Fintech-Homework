@@ -104,17 +104,17 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
 
         void bind(User user) {
             String initials = "";
-            if (!user.getName().equals("")) {
-                initials += user.getName().substring(0, 1);
+            if (!user.getFirstName().equals("")) {
+                initials += user.getFirstName().substring(0, 1);
             }
-            if (!user.getSurname().equals("")) {
-                initials += user.getSurname().substring(0, 1);
+            if (!user.getLastName().equals("")) {
+                initials += user.getLastName().substring(0, 1);
             }
             String displayName;
-            if (user.getName().equals("") && user.getSurname().equals("")) {
+            if (user.getFirstName().equals("") && user.getLastName().equals("")) {
                 displayName = null;
             } else {
-                displayName = user.getName() + " " + user.getSurname();
+                displayName = user.getFirstName() + " " + user.getLastName();
             }
             mUserNameView.setText(displayName);
             mUserIconView.setText(initials);
@@ -165,8 +165,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
             User oldUser = mOldList.get(oldItemPosition);
             User newUser = mNewList.get(newItemPosition);
-            return oldUser.getName().equals(newUser.getName()) &&
-                    oldUser.getSurname().equals(newUser.getSurname()) &&
+            return oldUser.getFirstName().equals(newUser.getFirstName()) &&
+                    oldUser.getLastName().equals(newUser.getLastName()) &&
                     oldUser.getPoints() == newUser.getPoints();
         }
     }

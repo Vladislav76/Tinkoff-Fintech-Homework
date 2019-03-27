@@ -42,9 +42,9 @@ public class ContactReadingIntentService extends IntentService {
                 while (cursor.moveToNext()) {
                     String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     String[] strings = displayName != null ? displayName.split(" ", 2) : new String[0];
-                    String name = strings.length > 0 ? strings[0] : "";
-                    String surname = strings.length > 1 ? strings[1] : "";
-                    contacts.add(new User(name, surname, random.nextInt(500)));
+                    String firstName = strings.length > 0 ? strings[0] : "";
+                    String lastName = strings.length > 1 ? strings[1] : "";
+                    contacts.add(new User(firstName, lastName, "", random.nextInt(500)));
                 }
             }
             finally {

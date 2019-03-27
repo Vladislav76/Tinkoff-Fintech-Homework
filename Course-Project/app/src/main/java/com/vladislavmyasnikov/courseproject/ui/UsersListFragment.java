@@ -132,7 +132,7 @@ public class UsersListFragment extends Fragment {
     private User generateNewUser() {
         Random random = new Random();
         int surnameId = random.nextInt(999999);
-        return new User("User", Integer.toString(surnameId), random.nextInt(500));
+        return new User("User", Integer.toString(surnameId), "", random.nextInt(500));
     }
 
     private List<User> getMixedList() {

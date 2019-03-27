@@ -10,6 +10,7 @@
     <string name="cancel_action">Отменить</string>
     <string name="leave_action">Уйти</string>
     <string name="stay_action">Остаться</string>
+    <string name="login_action">Войти</string>
 
     <!--temp strings-->
     <string name="list_rearrangement_action">Перестроить</string>
@@ -39,9 +40,13 @@
     <string name="name_hint">Не указано</string>
     <string name="surname_hint">Не указано</string>
     <string name="patronymic_hint">Не указано</string>
+    <string name="input_email_hint">Ваша почта</string>
+    <string name="input_password_hint">Ваш пароль</string>
 
     <string name="action_confirmation_message">Если уйти с экрана редактирования, изменения не сохранятся. Уйти?</string>
     <string name="empty_input_message">Все поля должны быть заполнены</string>
     <string name="incorrect_input_message">В ФИО могут быть только буквы, причем первая должна быть заглавной</string>
+    <string name="incorrect_authorization_data_message">Неправильный адрес электронной почты или пароль</string>
     <string name="permission_read_contacts_message">Нет разрешения на чтение контактов</string>
+    <string name="no_internet_message">Нет подключения к интернету</string>
 </resources>

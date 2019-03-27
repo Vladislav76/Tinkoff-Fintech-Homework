@@ -3,16 +3,27 @@ package com.vladislavmyasnikov.courseproject.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.gson.annotations.SerializedName;
+
 import androidx.annotation.NonNull;
 
 public class User implements Parcelable {
 
-    private int mId;
-    private String mName;
-    private String mSurname;
-    private int mPoints;
-
     private static int NEXT_USER_ID;
+
+    @SerializedName("id")
+    private int mId;
+
+    @SerializedName("first_name")
+    private String mFirstName;
+
+    @SerializedName("last_name")
+    private String mLastName;
+
+    @SerializedName("middle_name")
+    private String mMiddleName;
+
+    private int mPoints;
 
     private static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
         public User createFromParcel(Parcel in) {
@@ -24,23 +35,26 @@ public class User implements Parcelable {
         }
     };
 
-    public User(@NonNull String name, @NonNull String surname, int points) {
-        mName = name;
-        mSurname = surname;
+    public User(@NonNull String firstName, @NonNull String lastName, String middleName, int points) {
+        mFirstName = firstName;
+        mLastName = lastName;
+        mMiddleName = middleName;
         mPoints = points;
         mId = generateId();
     }
 
     public User(User original) {
         mId = original.getId();
-        mName = original.getName();
-        mSurname = original.getSurname();
+        mFirstName = original.getFirstName();
+        mLastName = original.getLastName();
+        mMiddleName = original.getMiddleName();
         mPoints = original.getPoints();
     }
 
     private User(Parcel in) {
-        mName = in.readString();
-        mSurname = in.readString();
+        mFirstName = in.readString();
+        mLastName = in.readString();
+        mMiddleName = in.readString();
         mPoints = in.readInt();
         mId = generateId();
     }
@@ -56,8 +70,9 @@ public class User implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeString(mName);
-        parcel.writeString(mSurname);
+        parcel.writeString(mFirstName);
+        parcel.writeString(mLastName);
+        parcel.writeString(mMiddleName);
         parcel.writeInt(mPoints);
     }
 
@@ -66,12 +81,16 @@ public class User implements Parcelable {
         return mId;
     }
 
-    public String getName() {
-        return mName;
+    public String getFirstName() {
+        return mFirstName;
     }
 
-    public String getSurname() {
-        return mSurname;
+    public String getLastName() {
+        return mLastName;
+    }
+
+    public String getMiddleName() {
+        return mMiddleName;
     }
 
     public int getPoints() {
@@ -79,12 +98,16 @@ public class User implements Parcelable {
     }
 
     /* SETTERS */
-    public void setName(String name) {
-        mName = name;
+    public void setFirstName(String name) {
+        mFirstName = name;
     }
 
-    public void setSurname(String surname) {
-        mSurname = surname;
+    public void setLastName(String name) {
+        mLastName = name;
+    }
+
+    public void setMiddleName(String name) {
+        mMiddleName = name;
     }
 
     public void setPoints(int points) {
