@@ -23,6 +23,9 @@ public class User implements Parcelable {
     @SerializedName("middle_name")
     private String mMiddleName;
 
+    @SerializedName("avatar")
+    private String mAvatar;
+
     private int mPoints;
 
     private static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
@@ -95,6 +98,10 @@ public class User implements Parcelable {
 
     public int getPoints() {
         return mPoints;
+    }
+
+    public String getAvatar() {
+        return mAvatar;
     }
 
     /* SETTERS */

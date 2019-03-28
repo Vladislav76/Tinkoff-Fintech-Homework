@@ -5,10 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vladislavmyasnikov.courseproject.R;
@@ -21,11 +24,20 @@ import androidx.fragment.app.Fragment;
 
 public class ProfileEditingFragment extends Fragment implements OnBackButtonListener {
 
-    private EditText mNameField;
-    private EditText mSurnameField;
-    private EditText mPatronymicField;
-    private boolean isFinished;
+    private static final String FIRST_NAME_ARG = "first_name_arg";
+    private static final String LAST_NAME_ARG = "last_name_arg";
+    private static final String MIDDLE_NAME_ARG = "middle_name_arg";
+
+    private static final int QUIT_REQUEST_CODE = 1;
+    private static final int CORRECT_INPUT_DATA = 0;
+    private static final int NOT_FULL_INPUT_DATA = 1;
+    private static final int INCORRECT_INPUT_DATA = 2;
+
+    private EditText mFirstNameField;
+    private EditText mLastNameField;
+    private EditText mMiddleNameField;
     private OnFragmentListener mFragmentListener;
+    private boolean isFinished;
 
     private View.OnClickListener mCancelButtonListener = new View.OnClickListener() {
         @Override
@@ -38,11 +50,11 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         public void onClick(View v) {
             switch (areDataCorrect()) {
                 case CORRECT_INPUT_DATA:
-                    SharedPreferences preferences = getActivity().getSharedPreferences(ProfileFragment.PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
+                    SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.USER_STORAGE_NAME, Context.MODE_PRIVATE);
                     preferences.edit()
-                            .putString(ProfileFragment.USER_NAME, mNameField.getText().toString())
-                            .putString(ProfileFragment.USER_SURNAME, mSurnameField.getText().toString())
-                            .putString(ProfileFragment.USER_PATRONYMIC, mPatronymicField.getText().toString())
+                            .putString(MainActivity.USER_FIRST_NAME, mFirstNameField.getText().toString())
+                            .putString(MainActivity.USER_LAST_NAME, mLastNameField.getText().toString())
+                            .putString(MainActivity.USER_MIDDLE_NAME, mMiddleNameField.getText().toString())
                             .apply();
                     isFinished = true;
                     getActivity().onBackPressed();
@@ -56,15 +68,15 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
             }
         }
     };
-
-    private static final String NAME_ARG = "name_arg";
-    private static final String SURNAME_ARG = "surname_arg";
-    private static final String PATRONYMIC_ARG = "patronymic_arg";
-
-    private static final int QUIT_REQUEST_CODE = 1;
-    private static final int CORRECT_INPUT_DATA = 0;
-    private static final int NOT_FULL_INPUT_DATA = 1;
-    private static final int INCORRECT_INPUT_DATA = 2;
+    private TextView.OnEditorActionListener mOnEditorActionListener = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                v.clearFocus();
+            }
+            return false;
+        }
+    };
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -78,25 +90,29 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile_editing, container, false);
-        view.findViewById(R.id.save_button).setOnClickListener(mSaveButtonListener);
-        view.findViewById(R.id.cancel_button).setOnClickListener(mCancelButtonListener);
-
-        mNameField = view.findViewById(R.id.name_field);
-        mSurnameField = view.findViewById(R.id.surname_field);
-        mPatronymicField = view.findViewById(R.id.patronymic_field);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_profile_editing, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         mFragmentListener.setToolbarTitle(R.string.profile_editing_toolbar_title);
+
+        mFirstNameField = view.findViewById(R.id.name_field);
+        mLastNameField = view.findViewById(R.id.surname_field);
+        mMiddleNameField = view.findViewById(R.id.patronymic_field);
+
+        mFirstNameField.setOnEditorActionListener(mOnEditorActionListener);
+        mLastNameField.setOnEditorActionListener(mOnEditorActionListener);
+        mMiddleNameField.setOnEditorActionListener(mOnEditorActionListener);
+
+        view.findViewById(R.id.save_button).setOnClickListener(mSaveButtonListener);
+        view.findViewById(R.id.cancel_button).setOnClickListener(mCancelButtonListener);
+
         if (savedInstanceState == null) {
             Bundle args = getArguments();
-            mNameField.setText(args.getString(NAME_ARG));
-            mSurnameField.setText(args.getString(SURNAME_ARG));
-            mPatronymicField.setText(args.getString(PATRONYMIC_ARG));
+            mFirstNameField.setText(args.getString(FIRST_NAME_ARG));
+            mLastNameField.setText(args.getString(LAST_NAME_ARG));
+            mMiddleNameField.setText(args.getString(MIDDLE_NAME_ARG));
         }
     }
 
@@ -131,19 +147,19 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
     private boolean areDataChanged() {
         Bundle args = getArguments();
-        String initialName = args.getString(NAME_ARG);
-        String initialSurname = args.getString(SURNAME_ARG);
-        String initialPatronymic = args.getString(PATRONYMIC_ARG);
+        String initialName = args.getString(FIRST_NAME_ARG);
+        String initialSurname = args.getString(LAST_NAME_ARG);
+        String initialPatronymic = args.getString(MIDDLE_NAME_ARG);
 
-        return !initialName.equals(mNameField.getText().toString()) ||
-                !initialSurname.equals(mSurnameField.getText().toString()) ||
-                !initialPatronymic.equals(mPatronymicField.getText().toString());
+        return !initialName.equals(mFirstNameField.getText().toString()) ||
+                !initialSurname.equals(mLastNameField.getText().toString()) ||
+                !initialPatronymic.equals(mMiddleNameField.getText().toString());
     }
 
     private int areDataCorrect() {
-        String name = mNameField.getText().toString();
-        String surname = mSurnameField.getText().toString();
-        String patronymic = mPatronymicField.getText().toString();
+        String name = mFirstNameField.getText().toString();
+        String surname = mLastNameField.getText().toString();
+        String patronymic = mMiddleNameField.getText().toString();
 
         if (name.equals("") || surname.equals("") || patronymic.equals("")) {
             return NOT_FULL_INPUT_DATA;
@@ -159,9 +175,9 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
 
     public static ProfileEditingFragment newInstance(String name, String surname, String patronymic) {
         Bundle args = new Bundle();
-        args.putString(NAME_ARG, name);
-        args.putString(SURNAME_ARG, surname);
-        args.putString(PATRONYMIC_ARG, patronymic);
+        args.putString(FIRST_NAME_ARG, name);
+        args.putString(LAST_NAME_ARG, surname);
+        args.putString(MIDDLE_NAME_ARG, patronymic);
 
         ProfileEditingFragment fragment = new ProfileEditingFragment();
         fragment.setArguments(args);

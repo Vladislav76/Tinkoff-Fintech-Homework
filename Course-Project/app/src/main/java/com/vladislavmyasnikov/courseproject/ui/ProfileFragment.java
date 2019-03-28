@@ -6,8 +6,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.ui.callbacks.OnFragmentListener;
 
@@ -16,23 +18,18 @@ import androidx.fragment.app.Fragment;
 
 public class ProfileFragment extends Fragment {
 
-    public static final String USER_NAME = "user_name";
-    public static final String USER_SURNAME = "user_surname";
-    public static final String USER_PATRONYMIC = "user_patronymic";
-    public static final String PERSISTENT_STORAGE_NAME = "pref";
-
-    private TextView mNameField;
-    private TextView mSurnameField;
-    private TextView mPatronymicField;
+    private TextView mFirstNameField;
+    private TextView mLastNameField;
+    private TextView mMiddleNameField;
     private OnFragmentListener mFragmentListener;
 
     private View.OnClickListener mEditButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            String name = mNameField.getText().toString();
-            String surname = mSurnameField.getText().toString();
-            String patronymic = mPatronymicField.getText().toString();
-            ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(name, surname, patronymic);
+            String firstName = mFirstNameField.getText().toString();
+            String lastName = mLastNameField.getText().toString();
+            String middleName = mMiddleNameField.getText().toString();
+            ProfileEditingFragment fragment = ProfileEditingFragment.newInstance(firstName, lastName, middleName);
             mFragmentListener.addFragmentOnTop(fragment);
         }
     };
@@ -49,21 +46,28 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_profile, container, false);
-        view.findViewById(R.id.edit_button).setOnClickListener(mEditButtonListener);
-        mNameField = view.findViewById(R.id.name_field);
-        mSurnameField = view.findViewById(R.id.surname_field);
-        mPatronymicField = view.findViewById(R.id.patronymic_field);
-        return view;
+        return inflater.inflate(R.layout.fragment_profile, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         mFragmentListener.setToolbarTitle(R.string.profile_toolbar_title);
-        SharedPreferences preferences = getActivity().getSharedPreferences(PERSISTENT_STORAGE_NAME, Context.MODE_PRIVATE);
-        mNameField.setText(preferences.getString(USER_NAME, ""));
-        mSurnameField.setText(preferences.getString(USER_SURNAME, ""));
-        mPatronymicField.setText(preferences.getString(USER_PATRONYMIC, ""));
+
+        mFirstNameField = view.findViewById(R.id.name_field);
+        mLastNameField = view.findViewById(R.id.surname_field);
+        mMiddleNameField = view.findViewById(R.id.patronymic_field);
+
+        view.findViewById(R.id.edit_button).setOnClickListener(mEditButtonListener);
+
+        SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.USER_STORAGE_NAME, Context.MODE_PRIVATE);
+        mFirstNameField.setText(preferences.getString(MainActivity.USER_FIRST_NAME, ""));
+        mLastNameField.setText(preferences.getString(MainActivity.USER_LAST_NAME, ""));
+        mMiddleNameField.setText(preferences.getString(MainActivity.USER_MIDDLE_NAME, ""));
+        String avatarUrl = preferences.getString(MainActivity.USER_AVATAR_URL, null);
+        if (avatarUrl != null) {
+            ImageView avatarView = view.findViewById(R.id.avatar);
+            Glide.with(this).load("https://fintech.tinkoff.ru" + avatarUrl).into(avatarView);
+        }
     }
 
     @Override
