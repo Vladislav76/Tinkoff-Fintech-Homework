@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.interfaces;
+package com.vladislavmyasnikov.courseproject.data.network;
 
 import com.vladislavmyasnikov.courseproject.data.models.Login;
 import com.vladislavmyasnikov.courseproject.data.models.Result;

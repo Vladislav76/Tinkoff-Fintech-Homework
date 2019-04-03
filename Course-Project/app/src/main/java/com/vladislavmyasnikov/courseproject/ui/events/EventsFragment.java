@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 
 public class EventsFragment extends Fragment {
 

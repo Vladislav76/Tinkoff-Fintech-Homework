@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.utilities.DataUpdater;
-import com.vladislavmyasnikov.courseproject.interfaces.OnRefreshLayoutListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnRefreshLayoutListener;
 import com.vladislavmyasnikov.courseproject.ui.components.UserView;
 
 public class AcademicPerformanceFragment extends Fragment {
@@ -54,7 +54,7 @@ public class AcademicPerformanceFragment extends Fragment {
         if (getParentFragment() instanceof OnRefreshLayoutListener) {
             mRefreshLayoutListener = (OnRefreshLayoutListener) getParentFragment();
         } else {
-            throw new IllegalStateException(getParentFragment() + " must implement OnFragmentListener");
+            throw new IllegalStateException(getParentFragment() + " must implement OnRefreshLayoutListener");
         }
     }
 

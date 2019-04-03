@@ -11,8 +11,10 @@ import android.widget.Toast;
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity;
 import com.vladislavmyasnikov.courseproject.data.models.Result;
-import com.vladislavmyasnikov.courseproject.interfaces.OnItemClickCallback;
-import com.vladislavmyasnikov.courseproject.services.NetworkService;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultListener;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultCallback;
+import com.vladislavmyasnikov.courseproject.data.network.NetworkService;
 import com.vladislavmyasnikov.courseproject.ui.adapters.LectureAdapter;
 import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity;
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment;
@@ -27,13 +29,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LectureListFragment extends GeneralFragment implements Callback<Result> {
+public class LectureListFragment extends GeneralFragment implements RequestResultListener<Result> {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private LectureListViewModel mLectureListViewModel;
+    private RequestResultCallback<Result> mRequestResultCallback = new RequestResultCallback<>(this);
     private OnItemClickCallback mItemClickCallback = new OnItemClickCallback() {
         @Override
         public void onClick(int id, String name) {
@@ -100,10 +102,16 @@ public class LectureListFragment extends GeneralFragment implements Callback<Res
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRequestResultCallback.setRequestResultListener(null);
+    }
+
     private void refreshData() {
         SharedPreferences preferences = getActivity().getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE);
         String token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null);
-        NetworkService.getInstance().getFintechService().getLectures(token).enqueue(this);
+        NetworkService.getInstance().getFintechService().getLectures(token).enqueue(mRequestResultCallback);
     }
 
     public static LectureListFragment newInstance() {

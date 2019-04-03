@@ -9,11 +9,13 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.services.NetworkService;
 import com.vladislavmyasnikov.courseproject.data.models.Result;
 import com.vladislavmyasnikov.courseproject.data.models.User;
-import com.vladislavmyasnikov.courseproject.interfaces.OnBackButtonListener;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultListener;
+import com.vladislavmyasnikov.courseproject.data.network.NetworkService;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultCallback;
 import com.vladislavmyasnikov.courseproject.ui.courses.CoursesFragment;
 import com.vladislavmyasnikov.courseproject.ui.events.EventsFragment;
 import com.vladislavmyasnikov.courseproject.ui.profile.ProfileFragment;
@@ -24,11 +26,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity
-        implements BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener, Callback<Result> {
+public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener, RequestResultListener<Result> {
 
     public static final String USER_STORAGE_NAME = "user_storage";
     public static final String USER_FIRST_NAME = "user_first_name";
@@ -36,10 +36,11 @@ public class MainActivity extends AppCompatActivity
     public static final String USER_MIDDLE_NAME = "user_middle_name";
     public static final String USER_AVATAR_URL = "user_avatar_url";
 
+    private static final String BACK_STACK_ROOT_TAG = "root_fragment";
+
     private Toolbar mToolbar;
     private BottomNavigationView mMainPanel;
-
-    private static final String BACK_STACK_ROOT_TAG = "root_fragment";
+    private RequestResultCallback<Result> mRequestResultCallback = new RequestResultCallback<>(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity
 
             SharedPreferences preferences = getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE);
             String token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null);
-            NetworkService.getInstance().getFintechService().getUser(token).enqueue(this);
+            NetworkService.getInstance().getFintechService().getUser(token).enqueue(mRequestResultCallback);
 
             Log.d("MAIN_ACTIVITY", token);
         }
@@ -126,7 +127,6 @@ public class MainActivity extends AppCompatActivity
                 fragmentManager.popBackStackImmediate();
             }
         } else {
-            setResult(RESULT_OK);
             supportFinishAfterTransition();
         }
     }
@@ -155,5 +155,11 @@ public class MainActivity extends AppCompatActivity
                     .putString(USER_AVATAR_URL, avatar)
                     .apply();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRequestResultCallback.setRequestResultListener(null);
     }
 }

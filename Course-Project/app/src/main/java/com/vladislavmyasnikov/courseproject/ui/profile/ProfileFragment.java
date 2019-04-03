@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 import com.vladislavmyasnikov.courseproject.ui.main.MainActivity;
 
 import androidx.annotation.NonNull;

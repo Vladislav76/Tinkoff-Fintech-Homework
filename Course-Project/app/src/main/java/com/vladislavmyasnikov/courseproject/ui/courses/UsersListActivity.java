@@ -13,7 +13,7 @@ import android.widget.Toast;
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.data.models.User;
 import com.vladislavmyasnikov.courseproject.services.ContactReadingIntentService;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 
 import java.util.ArrayList;
 

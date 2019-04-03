@@ -101,7 +101,8 @@ public class TaskEntity implements Identifiable {
                 mLectureId == task.mLectureId &&
                 mTitle.equals(task.mTitle) &&
                 mStatus.equals(task.mStatus) &&
-                mDeadline.equals(task.mDeadline) &&
+                ((mDeadline == null && task.mDeadline == null) ||
+                        mDeadline != null && task.mDeadline != null && mDeadline.equals(task.mDeadline)) &&
                 mMark == task.mMark &&
                 mMaxScore == task.mMaxScore;
     }

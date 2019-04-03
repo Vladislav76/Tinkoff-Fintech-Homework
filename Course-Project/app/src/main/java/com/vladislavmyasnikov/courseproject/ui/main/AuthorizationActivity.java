@@ -9,23 +9,24 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.services.NetworkService;
 import com.vladislavmyasnikov.courseproject.data.models.Login;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultListener;
+import com.vladislavmyasnikov.courseproject.data.network.NetworkService;
+import com.vladislavmyasnikov.courseproject.data.network.RequestResultCallback;
 
 import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.Headers;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AuthorizationActivity extends AppCompatActivity implements Callback<Void> {
+public class AuthorizationActivity extends AppCompatActivity implements RequestResultListener<Void> {
 
     public static final String COOKIES_STORAGE_NAME = "cookies_storage";
     public static final String AUTHORIZATION_TOKEN = "authorization_token";
 
-    private static final int START_WORK_CODE = 1;
     private TextInputEditText mEmailInputField;
     private TextInputEditText mPasswordInputField;
+    private RequestResultCallback<Void> mRequestResultCallback = new RequestResultCallback<>(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +35,6 @@ public class AuthorizationActivity extends AppCompatActivity implements Callback
 
         mEmailInputField = findViewById(R.id.input_email_field);
         mPasswordInputField = findViewById(R.id.input_password_field);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == START_WORK_CODE && resultCode == RESULT_OK) {
-            finish();
-        }
     }
 
     @Override
@@ -66,15 +60,23 @@ public class AuthorizationActivity extends AppCompatActivity implements Callback
         }
     }
 
+    private void startWork() {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+        mRequestResultCallback.setRequestResultListener(null);
+        finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRequestResultCallback.setRequestResultListener(null);
+    }
+
     public void onLoginClicked(View view) {
         String email = mEmailInputField.getText().toString();
         String password = mPasswordInputField.getText().toString();
 
-        NetworkService.getInstance().getFintechService().getAccess(new Login(email, password)).enqueue(this);
-    }
-
-    private void startWork() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivityForResult(intent, START_WORK_CODE);
+        NetworkService.getInstance().getFintechService().getAccess(new Login(email, password)).enqueue(mRequestResultCallback);
     }
 }

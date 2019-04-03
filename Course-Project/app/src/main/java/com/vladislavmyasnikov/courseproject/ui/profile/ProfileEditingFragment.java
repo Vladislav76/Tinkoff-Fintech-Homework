@@ -15,8 +15,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.interfaces.OnBackButtonListener;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 import com.vladislavmyasnikov.courseproject.ui.main.MainActivity;
 
 import androidx.annotation.NonNull;

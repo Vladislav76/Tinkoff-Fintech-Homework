@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 import com.vladislavmyasnikov.courseproject.R;
 import com.vladislavmyasnikov.courseproject.data.models.User;
 import com.vladislavmyasnikov.courseproject.ui.adapters.UserAdapter;
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator;
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration;
 

@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.interfaces;
+package com.vladislavmyasnikov.courseproject.ui.main.interfaces;
 
 public interface OnBackButtonListener {
 

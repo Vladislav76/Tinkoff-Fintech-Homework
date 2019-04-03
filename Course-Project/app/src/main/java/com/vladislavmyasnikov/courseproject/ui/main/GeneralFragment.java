@@ -2,7 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.main;
 
 import android.content.Context;
 
-import com.vladislavmyasnikov.courseproject.interfaces.OnFragmentListener;
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

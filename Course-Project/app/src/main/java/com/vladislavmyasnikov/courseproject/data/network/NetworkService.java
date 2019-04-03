@@ -1,8 +1,6 @@
-package com.vladislavmyasnikov.courseproject.services;
+package com.vladislavmyasnikov.courseproject.data.network;
 
 import android.os.SystemClock;
-
-import com.vladislavmyasnikov.courseproject.interfaces.FintechService;
 
 import java.io.IOException;
 
@@ -19,6 +17,7 @@ public class NetworkService {
     private static NetworkService sInstance;
 
     private Retrofit mRetrofit;
+    private FintechService mFintechService;
 
     private NetworkService() {
         OkHttpClient httpClient = new OkHttpClient.Builder()
@@ -37,6 +36,8 @@ public class NetworkService {
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(httpClient)
                 .build();
+
+        mFintechService = mRetrofit.create(FintechService.class);
     }
 
     public static NetworkService getInstance() {
@@ -51,6 +52,6 @@ public class NetworkService {
     }
 
     public FintechService getFintechService() {
-        return mRetrofit.create(FintechService.class);
+        return mFintechService;
     }
 }
