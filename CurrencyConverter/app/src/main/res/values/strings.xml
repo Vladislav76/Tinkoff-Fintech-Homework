@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Конвертер валют</string>
+    <string name="convert_from_text">Конвертировать из</string>
+    <string name="convert_to_text">Конвертировать в</string>
+    <string name="convert_text">Конвертировать</string>
+    <string name="result_text">Результат</string>
+
+    <string name="get_currencies_list_query">https://free.currencyconverterapi.com/api/v6/currencies</string>
+</resources>
