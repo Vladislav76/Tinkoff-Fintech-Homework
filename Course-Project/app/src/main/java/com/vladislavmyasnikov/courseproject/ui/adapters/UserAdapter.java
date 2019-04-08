@@ -6,8 +6,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.vladislavmyasnikov.courseproject.R;
-import com.vladislavmyasnikov.courseproject.models.User;
+import com.vladislavmyasnikov.courseproject.data.models.User;
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView;
+import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback;
 
 import java.util.List;
 
@@ -28,9 +29,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
             mUsers = users;
             notifyItemRangeInserted(0, mUsers.size());
         } else {
-            final DiffUtil.Callback callback = new DiffCallback(mUsers, users);
+            DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtilCallback(mUsers, users));
             mUsers = users;
-            DiffUtil.calculateDiff(callback).dispatchUpdatesTo(this);
+            diffResult.dispatchUpdatesTo(this);
         }
     }
 
@@ -134,40 +135,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.GridUserViewHo
             super.bind(user);
             String text = user.getPoints() + " points";
             mUserPointsView.setText(text);
-        }
-    }
-
-    static class DiffCallback extends DiffUtil.Callback {
-        private List<User> mOldList;
-        private List<User> mNewList;
-
-        DiffCallback (List<User> oldList, List<User> newList) {
-            mOldList = oldList;
-            mNewList = newList;
-        }
-
-        @Override
-        public int getOldListSize() {
-            return mOldList.size();
-        }
-
-        @Override
-        public int getNewListSize() {
-            return mNewList.size();
-        }
-
-        @Override
-        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-            return mOldList.get(oldItemPosition).getId() == mNewList.get(newItemPosition).getId();
-        }
-
-        @Override
-        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            User oldUser = mOldList.get(oldItemPosition);
-            User newUser = mNewList.get(newItemPosition);
-            return oldUser.getFirstName().equals(newUser.getFirstName()) &&
-                    oldUser.getLastName().equals(newUser.getLastName()) &&
-                    oldUser.getPoints() == newUser.getPoints();
         }
     }
 }

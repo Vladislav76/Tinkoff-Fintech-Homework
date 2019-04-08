@@ -14,10 +14,10 @@
         android:theme="@style/AppTheme">
 
         <service
-            android:name=".core.services.ContactReadingIntentService"
+            android:name=".services.ContactReadingIntentService"
             android:exported="false" />
 
-        <activity android:name=".ui.AuthorizationActivity">
+        <activity android:name=".ui.main.AuthorizationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -25,11 +25,11 @@
         </activity>
 
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.main.MainActivity"
             android:screenOrientation="unspecified"/>
 
         <activity
-            android:name=".ui.UsersListActivity"
+            android:name=".ui.courses.UsersListActivity"
             android:screenOrientation="portrait" />
     </application>
 </manifest>
