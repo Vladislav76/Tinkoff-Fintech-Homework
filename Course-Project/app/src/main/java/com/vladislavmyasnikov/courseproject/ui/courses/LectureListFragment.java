@@ -109,9 +109,9 @@ public class LectureListFragment extends GeneralFragment implements RequestResul
     }
 
     private void refreshData() {
-        SharedPreferences preferences = getActivity().getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE);
-        String token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null);
-        NetworkService.getInstance().getFintechService().getLectures(token).enqueue(mRequestResultCallback);
+        SharedPreferences preferences = getActivity().getSharedPreferences(AuthorizationActivity.Companion.getCOOKIES_STORAGE_NAME(), Context.MODE_PRIVATE);
+        String token = preferences.getString(AuthorizationActivity.Companion.getAUTHORIZATION_TOKEN(), null);
+        NetworkService.Companion.getInstance().getFintechService().getLectures(token).enqueue(mRequestResultCallback);
     }
 
     public static LectureListFragment newInstance() {

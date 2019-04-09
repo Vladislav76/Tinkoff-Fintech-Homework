@@ -11,6 +11,9 @@
     <string name="leave_action">Уйти</string>
     <string name="stay_action">Остаться</string>
     <string name="login_action">Войти</string>
+    <string name="search_action">Найти</string>
+    <string name="sort_by_name_action">По имени</string>
+    <string name="sort_by_points_action">По баллам</string>
 
     <!--temp strings-->
     <string name="list_rearrangement_action">Перестроить</string>
@@ -52,4 +55,10 @@
     <string name="permission_read_contacts_message">Нет разрешения на чтение контактов</string>
     <string name="no_internet_message">Нет подключения к интернету</string>
     <string name="not_ok_status_message">Ошибка при получении данных</string>
+
+    <plurals name="numberOfPoints">
+        <item quantity="one">"%.2f балл"</item>
+        <item quantity="few">%.2f балла</item>
+        <item quantity="other">%.2f баллов</item>
+    </plurals>
 </resources>

@@ -31,7 +31,7 @@ public class LectureListViewModel extends AndroidViewModel {
     public LectureListViewModel(Application application) {
         super(application);
 
-        mDataRepository = DataRepository.getInstance(application);
+        mDataRepository = DataRepository.Companion.getInstance(application);
         mLectures.addSource(mDataRepository.loadLectures(), new Observer<List<LectureEntity>>() {
             @Override
             public void onChanged(List<LectureEntity> lectureEntities) {
@@ -73,7 +73,7 @@ public class LectureListViewModel extends AndroidViewModel {
                 Log.d("LECTURE_LIST_VIEW_MODEL", "Incorrect string format for converting to the Date class");
             }
             finally {
-                entities.add(new TaskEntity(taskInfo.id, task.title, taskInfo.status, date, taskInfo.mark, task.maxScore, lectureId));
+                entities.add(new TaskEntity(taskInfo.id, task.title, taskInfo.status, taskInfo.mark, date, task.maxScore, lectureId));
             }
         }
         return entities;

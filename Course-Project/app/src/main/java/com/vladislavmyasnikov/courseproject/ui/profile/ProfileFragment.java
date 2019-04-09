@@ -60,11 +60,11 @@ public class ProfileFragment extends Fragment {
 
         view.findViewById(R.id.edit_button).setOnClickListener(mEditButtonListener);
 
-        SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.USER_STORAGE_NAME, Context.MODE_PRIVATE);
-        mFirstNameField.setText(preferences.getString(MainActivity.USER_FIRST_NAME, ""));
-        mLastNameField.setText(preferences.getString(MainActivity.USER_LAST_NAME, ""));
-        mMiddleNameField.setText(preferences.getString(MainActivity.USER_MIDDLE_NAME, ""));
-        String avatarUrl = preferences.getString(MainActivity.USER_AVATAR_URL, null);
+        SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.Companion.getUSER_STORAGE_NAME(), Context.MODE_PRIVATE);
+        mFirstNameField.setText(preferences.getString(MainActivity.Companion.getUSER_FIRST_NAME(), ""));
+        mLastNameField.setText(preferences.getString(MainActivity.Companion.getUSER_LAST_NAME(), ""));
+        mMiddleNameField.setText(preferences.getString(MainActivity.Companion.getUSER_MIDDLE_NAME(), ""));
+        String avatarUrl = preferences.getString(MainActivity.Companion.getUSER_AVATAR_URL(), null);
         if (avatarUrl != null) {
             ImageView avatarView = view.findViewById(R.id.avatar);
             Glide.with(this).load("https://fintech.tinkoff.ru" + avatarUrl).into(avatarView);

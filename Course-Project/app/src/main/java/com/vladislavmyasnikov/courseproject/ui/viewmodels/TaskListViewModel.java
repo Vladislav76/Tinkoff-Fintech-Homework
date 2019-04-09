@@ -19,7 +19,7 @@ public class TaskListViewModel extends AndroidViewModel {
 
     public TaskListViewModel(Application application) {
         super(application);
-        mDataRepository = DataRepository.getInstance(application);
+        mDataRepository = DataRepository.Companion.getInstance(application);
     }
 
     public void init(int lectureId) {

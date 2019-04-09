@@ -43,7 +43,7 @@ public class AcademicPerformanceFragment extends Fragment {
     private View.OnClickListener mOnTitleListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            Intent intent = new Intent(getContext(), UsersListActivity.class);
+            Intent intent = new Intent(getContext(), StudentListActivity.class);
             startActivity(intent);
         }
     };

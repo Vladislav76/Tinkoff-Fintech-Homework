@@ -51,11 +51,11 @@ public class ProfileEditingFragment extends Fragment implements OnBackButtonList
         public void onClick(View v) {
             switch (areDataCorrect()) {
                 case CORRECT_INPUT_DATA:
-                    SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.USER_STORAGE_NAME, Context.MODE_PRIVATE);
+                    SharedPreferences preferences = getActivity().getSharedPreferences(MainActivity.Companion.getUSER_STORAGE_NAME(), Context.MODE_PRIVATE);
                     preferences.edit()
-                            .putString(MainActivity.USER_FIRST_NAME, mFirstNameField.getText().toString())
-                            .putString(MainActivity.USER_LAST_NAME, mLastNameField.getText().toString())
-                            .putString(MainActivity.USER_MIDDLE_NAME, mMiddleNameField.getText().toString())
+                            .putString(MainActivity.Companion.getUSER_FIRST_NAME(), mFirstNameField.getText().toString())
+                            .putString(MainActivity.Companion.getUSER_LAST_NAME(), mLastNameField.getText().toString())
+                            .putString(MainActivity.Companion.getUSER_MIDDLE_NAME(), mMiddleNameField.getText().toString())
                             .apply();
                     isFinished = true;
                     getActivity().onBackPressed();
