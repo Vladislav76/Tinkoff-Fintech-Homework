@@ -4,30 +4,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
-
-import java.text.DateFormat
-import java.util.Date
-import java.util.Locale
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    private var mTasks: List<TaskEntity>? = null
+    private var mTasks: List<TaskEntity> = emptyList()
 
     fun updateList(tasks: List<TaskEntity>) {
-        if (mTasks == null) {
-            mTasks = tasks
-            notifyItemRangeInserted(0, tasks.size)
-        } else {
-            val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mTasks, tasks))
-            mTasks = tasks
-            diffResult.dispatchUpdatesTo(this)
-        }
+        val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mTasks, tasks))
+        mTasks = tasks
+        diffResult.dispatchUpdatesTo(this)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -37,35 +29,27 @@ class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: TaskViewHolder, position: Int) {
-        holder.bind(mTasks!![position])
+        holder.bind(mTasks[position])
     }
 
-    override fun getItemCount(): Int {
-        return if (mTasks == null) 0 else mTasks!!.size
-    }
+    override fun getItemCount(): Int = mTasks.size
 
-    internal class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val mNameView: TextView
-        private val mDeadlineView: TextView
-        private val mStatusView: TextView
-        private val mMarkView: TextView
 
-        init {
-            mNameView = view.findViewById(R.id.name_field)
-            mDeadlineView = view.findViewById(R.id.deadline_field)
-            mStatusView = view.findViewById(R.id.status_field)
-            mMarkView = view.findViewById(R.id.mark_field)
-        }
+
+    class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val mNameView = view.findViewById<TextView>(R.id.name_field)
+        private val mDeadlineView = view.findViewById<TextView>(R.id.deadline_field)
+        private val mStatusView = view.findViewById<TextView>(R.id.status_field)
+        private val mMarkView = view.findViewById<TextView>(R.id.mark_field)
 
         fun bind(task: TaskEntity) {
             mNameView.text = task.title
             mStatusView.text = task.status
             mMarkView.text = String.format(Locale.getDefault(), "%.2f/%.2f", task.mark, task.maxScore)
 
-            val formatter = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.US)
-            val date = task.deadline
-            if (date != null) {
-                mDeadlineView.text = formatter.format(date)
+            val format = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.getDefault())
+            if (task.deadline != null) {
+                mDeadlineView.text = format.format(task.deadline)
             }
         }
     }

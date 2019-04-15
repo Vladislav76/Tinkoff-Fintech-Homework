@@ -26,7 +26,7 @@ class AcademicPerformanceFragment : Fragment() {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             val data = msg.data
-            val points = data.getIntArray(DataUpdater.getUPDATED_POINTS_DATA())
+            val points = data.getIntArray(DataUpdater.UPDATED_POINTS_DATA)
             if (points != null && mRefreshLayoutListener != null) {
                 mUser1View!!.setBadgeCount(points[0])
                 mUser2View!!.setBadgeCount(points[1])

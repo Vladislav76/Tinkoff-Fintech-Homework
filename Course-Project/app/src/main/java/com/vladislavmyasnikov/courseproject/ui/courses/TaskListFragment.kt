@@ -27,7 +27,7 @@ class TaskListFragment : GeneralFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mFragmentListener!!.setToolbarTitle(arguments!!.getString(TITLE_ARG)!!)
+        mFragmentListener?.setToolbarTitle(arguments!!.getString(TITLE_ARG)!!)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         val adapter = TaskAdapter()
@@ -43,10 +43,12 @@ class TaskListFragment : GeneralFragment() {
         mTaskListViewModel!!.init(arguments!!.getInt(LECTURE_ID_ARG))
     }
 
+
+
     companion object {
 
-        private val LECTURE_ID_ARG = "lecture_id_arg"
-        private val TITLE_ARG = "title_arg"
+        private const val LECTURE_ID_ARG = "lecture_id_arg"
+        private const val TITLE_ARG = "title_arg"
 
         fun newInstance(lectureId: Int, title: String): TaskListFragment {
             val args = Bundle()

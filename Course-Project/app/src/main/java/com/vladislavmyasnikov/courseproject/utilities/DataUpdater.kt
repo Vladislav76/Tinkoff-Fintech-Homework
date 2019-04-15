@@ -21,12 +21,14 @@ class DataUpdater : Thread() {
         }
         data.putIntArray(UPDATED_POINTS_DATA, points)
         message.data = data
-        mHandler!!.sendMessage(message)
+        mHandler?.sendMessage(message)
     }
+
+
 
     companion object {
 
-        val UPDATED_POINTS_DATA = "updated_points_data"
+        const val UPDATED_POINTS_DATA = "updated_points_data"
 
         fun newInstance(handler: Handler, dataSize: Int): DataUpdater {
             val dataUpdater = DataUpdater()

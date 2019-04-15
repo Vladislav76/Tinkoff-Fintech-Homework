@@ -1,105 +1,124 @@
-package com.vladislavmyasnikov.courseproject.data.models
+package com.vladislavmyasnikov.courseproject.data.models;
 
-import android.os.Parcel
-import android.os.Parcelable
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import com.google.gson.annotations.SerializedName
+import com.google.gson.annotations.SerializedName;
 
-class User : Parcelable, Identifiable {
+import androidx.annotation.NonNull;
+
+public class User implements Parcelable, Identifiable {
+
+    private static int NEXT_USER_ID;
 
     @SerializedName("id")
-    override var id: Int = 0
-        private set(value: Int) {
-            super.id = value
-        }
+    private int mId;
 
     @SerializedName("first_name")
-    var firstName: String? = null
-        private set
+    private String mFirstName;
 
     @SerializedName("last_name")
-    var lastName: String? = null
-        private set
+    private String mLastName;
 
     @SerializedName("middle_name")
-    var middleName: String? = null
-        private set
+    private String mMiddleName;
 
     @SerializedName("avatar")
-    val avatar: String
+    private String mAvatar;
 
-    var points: Int = 0
-        private set
+    private int mPoints;
 
-    constructor(firstName: String, lastName: String, middleName: String, points: Int) {
-        this.firstName = firstName
-        this.lastName = lastName
-        this.middleName = middleName
-        this.points = points
-        id = generateId()
-    }
-
-    constructor(original: User) {
-        id = original.id
-        firstName = original.firstName
-        lastName = original.lastName
-        middleName = original.middleName
-        points = original.points
-        avatar = original.avatar
-    }
-
-    private constructor(`in`: Parcel) {
-        firstName = `in`.readString()
-        lastName = `in`.readString()
-        middleName = `in`.readString()
-        points = `in`.readInt()
-        id = generateId()
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(firstName)
-        parcel.writeString(lastName)
-        parcel.writeString(middleName)
-        parcel.writeInt(points)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
+    private static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+        public User createFromParcel(Parcel in) {
+            return new User(in);
         }
 
-        if (other == null || javaClass != other.javaClass) {
-            return false
+        public User[] newArray(int size) {
+            return new User[size];
         }
+    };
 
-        val user = other as User?
-        return id == user!!.id &&
-                points == user.points &&
-                firstName == user.firstName &&
-                lastName == user.lastName &&
-                middleName == user.middleName
+    public User(@NonNull String firstName, @NonNull String lastName, String middleName, int points) {
+        mFirstName = firstName;
+        mLastName = lastName;
+        mMiddleName = middleName;
+        mPoints = points;
+        mId = generateId();
     }
 
-    companion object {
+    public User(User original) {
+        mId = original.mId;
+        mFirstName = original.mFirstName;
+        mLastName = original.mLastName;
+        mMiddleName = original.mMiddleName;
+        mPoints = original.mPoints;
+        mAvatar = original.mAvatar;
+    }
 
-        private var NEXT_USER_ID: Int = 0
+    private User(Parcel in) {
+        mFirstName = in.readString();
+        mLastName = in.readString();
+        mMiddleName = in.readString();
+        mPoints = in.readInt();
+        mId = generateId();
+    }
 
-        private val CREATOR = object : Parcelable.Creator {
-            override fun createFromParcel(`in`: Parcel): User {
-                return User(`in`)
-            }
+    private static int generateId() {
+        return NEXT_USER_ID++;
+    }
 
-            override fun newArray(size: Int): Array<User> {
-                return arrayOfNulls(size)
-            }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int flags) {
+        parcel.writeString(mFirstName);
+        parcel.writeString(mLastName);
+        parcel.writeString(mMiddleName);
+        parcel.writeInt(mPoints);
+    }
+
+    public int getId() {
+        return mId;
+    }
+
+    public String getFirstName() {
+        return mFirstName;
+    }
+
+    public String getLastName() {
+        return mLastName;
+    }
+
+    public String getMiddleName() {
+        return mMiddleName;
+    }
+
+    public int getPoints() {
+        return mPoints;
+    }
+
+    public String getAvatar() {
+        return mAvatar;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
         }
 
-        private fun generateId(): Int {
-            return NEXT_USER_ID++
+        if (other == null || getClass() != other.getClass()) {
+            return false;
         }
+
+        User user = (User) other;
+        return mId == user.mId &&
+                mPoints == user.mPoints &&
+                mFirstName.equals(user.mFirstName) &&
+                mLastName.equals(user.mLastName) &&
+                mMiddleName.equals(user.mMiddleName);
     }
 }
