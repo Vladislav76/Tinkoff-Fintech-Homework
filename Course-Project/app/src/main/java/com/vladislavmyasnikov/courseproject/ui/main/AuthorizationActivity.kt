@@ -27,8 +27,6 @@ class AuthorizationActivity : AppCompatActivity(), RequestResultListener<Void> {
 
         mEmailInputField = findViewById(R.id.input_email_field)
         mPasswordInputField = findViewById(R.id.input_password_field)
-
-        startWork()
     }
 
     override fun onFailure(call: Call<Void>, e: Throwable) {

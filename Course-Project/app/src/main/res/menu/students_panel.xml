@@ -6,18 +6,18 @@
         android:id="@+id/search_action"
         android:title="@string/search_action"
         android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="ifRoom|collapseActionView"
+        app:showAsAction="always|collapseActionView"
         app:actionViewClass="androidx.appcompat.widget.SearchView"/>
 
     <item
         android:id="@+id/sort_by_name_action"
         android:title="@string/sort_by_name_action"
         android:icon="@drawable/ic_sort_by_alpha_24dp"
-        app:showAsAction="withText"/>
+        app:showAsAction="ifRoom|withText"/>
 
     <item
         android:id="@+id/sort_by_points_action"
         android:title="@string/sort_by_points_action"
         android:icon="@drawable/ic_sort_24dp"
-        app:showAsAction="withText"/>
+        app:showAsAction="ifRoom|withText"/>
 </menu>

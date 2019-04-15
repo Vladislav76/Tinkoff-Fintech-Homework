@@ -105,7 +105,6 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
         val searchView = searchItem.actionView as SearchView
 
         if (mSearchQuery != null) {
-            searchView.maxWidth = Integer.MAX_VALUE
             searchItem.expandActionView()
             searchView.setQuery(mSearchQuery, true)
         }
