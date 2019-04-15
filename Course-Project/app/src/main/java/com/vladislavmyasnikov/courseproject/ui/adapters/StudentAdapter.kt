@@ -18,22 +18,21 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
 
     private var mStudents: List<StudentEntity> = listOf()
     private var mSourceStudents: List<StudentEntity> = listOf()
-    private var mFilteredStudents: List<StudentEntity> = listOf()
     private var mViewType: Int = LINEAR_USER_VIEW
 
     private val filter = object : Filter() {
         override fun performFiltering(query: CharSequence): FilterResults {
-            mFilteredStudents = if (query.isEmpty()) mSourceStudents else mSourceStudents.filter { it.name.contains(query, ignoreCase = true) }
-            return FilterResults().also { it.values = mFilteredStudents }
+            val students = if (query.isEmpty()) mSourceStudents else mSourceStudents.filter { it.name.contains(query, ignoreCase = true) }
+            return FilterResults().also { it.values = students }
         }
 
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-            mFilteredStudents = filterResults.values as List<StudentEntity>
-            sortByPoints(mFilteredStudents)
+            val students = filterResults.values as List<StudentEntity>
+            sortByPoints(students)
         }
     }
 
-    private fun updateList(students: List<StudentEntity>) {
+    fun updateList(students: List<StudentEntity>) {
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mStudents, students))
         mStudents = students
         diffResult.dispatchUpdatesTo(this)
@@ -41,7 +40,6 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
 
     fun setStudentList(students: List<StudentEntity>) {
         mSourceStudents = students
-        updateList(students)
     }
 
     fun sortByDefault() {

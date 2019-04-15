@@ -30,6 +30,6 @@
 
         <activity
             android:name=".ui.courses.StudentListActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="unspecified" />
     </application>
 </manifest>

@@ -3,6 +3,7 @@ package com.vladislavmyasnikov.courseproject.ui.courses
 import android.content.Context
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -46,6 +47,7 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
     private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
     private var mAdapter: StudentAdapter? = null
     private var mSortType: Int = UNSORTED
+    private var mSearchQuery: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
@@ -73,20 +75,27 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
         recyclerView.itemAnimator = CustomItemAnimator()
         recyclerView.addItemDecoration(CustomItemDecoration(10))
 
+        if (savedInstanceState != null) {
+            mSortType = savedInstanceState.getInt(SORT_TYPE)
+            mSearchQuery = savedInstanceState.getString(SEARCH_QUERY)
+        }
+
         mStudentListViewModel = ViewModelProviders.of(this).get(StudentListViewModel::class.java)
         mStudentListViewModel!!.students.observe(this, Observer { students ->
             if (students != null) {
-                when (mSortType) {
-                    SORTED_BY_NAME -> mAdapter?.sortByName(students)
-                    SORTED_BY_POINTS -> mAdapter?.sortByPoints(students)
-                    UNSORTED -> mAdapter?.setStudentList(students)
+                mAdapter?.setStudentList(students)
+                if (mSearchQuery != null) {
+                    mAdapter?.filter?.filter(mSearchQuery)
+                } else {
+                    when (mSortType) {
+                        SORTED_BY_NAME -> mAdapter?.sortByName(students)
+                        SORTED_BY_POINTS -> mAdapter?.sortByPoints(students)
+                        UNSORTED -> mAdapter?.updateList(students)
+                    }
                 }
             }
         })
 
-        if (savedInstanceState != null) {
-            mSortType = savedInstanceState.getInt(SORT_TYPE)
-        }
         refreshData()
     }
 
@@ -94,7 +103,12 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
         inflater.inflate(R.menu.students_panel, menu)
         val searchItem: MenuItem = menu.findItem(R.id.search_action)
         val searchView = searchItem.actionView as SearchView
-        searchView.maxWidth = Integer.MAX_VALUE
+
+        if (mSearchQuery != null) {
+            searchView.maxWidth = Integer.MAX_VALUE
+            searchItem.expandActionView()
+            searchView.setQuery(mSearchQuery, true)
+        }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
@@ -102,14 +116,23 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
             }
 
             override fun onQueryTextChange(s: String): Boolean {
-                if (s.isEmpty()) {
-                    mAdapter?.sortByDefault()
-                    when (mSortType) {
-                        SORTED_BY_NAME -> mAdapter?.sortByName()
-                        SORTED_BY_POINTS -> mAdapter?.sortByPoints()
-                    }
-                } else {
-                    mAdapter?.filter?.filter(s)
+                mAdapter?.filter?.filter(s)
+                mSearchQuery = s
+                return true
+            }
+        })
+
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                mSearchQuery = null
+                when (mSortType) {
+                    SORTED_BY_NAME -> mAdapter?.sortByName()
+                    SORTED_BY_POINTS -> mAdapter?.sortByPoints()
+                    UNSORTED -> mAdapter?.sortByDefault()
                 }
                 return true
             }
@@ -139,6 +162,7 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
         savedInstanceState.putInt(SORT_TYPE, mSortType)
+        savedInstanceState.putString(SEARCH_QUERY, mSearchQuery)
     }
 
     override fun onDestroy() {
@@ -180,6 +204,7 @@ class StudentListFragment : GeneralFragment(), RequestResultListener<List<Result
     companion object {
 
         private const val SORT_TYPE = "sort_type"
+        private const val SEARCH_QUERY = "search_query"
         private const val SORTED_BY_NAME = 1
         private const val SORTED_BY_POINTS = 2
         private const val UNSORTED = 3
