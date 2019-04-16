@@ -6,7 +6,7 @@ import java.util.*
 class DateConverter {
 
     @TypeConverter
-    fun timestampToDate(value: Long?): Date? = if (value == null) null else Date(value)
+    fun timestampToDate(value: Long?): Date? = value?.let { Date(it) }
 
     @TypeConverter
     fun dateToTimestamp(date: Date?): Long? = date?.time

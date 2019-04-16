@@ -1,6 +1,7 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -10,12 +11,18 @@ import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
 import com.vladislavmyasnikov.courseproject.data.models.Lecture
 import com.vladislavmyasnikov.courseproject.data.models.TaskInfo
+import com.vladislavmyasnikov.courseproject.data.network.Lectures
+import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class LectureListViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val mApplication = application
     private val mDataRepository = DataRepository.getInstance(application)
     private val mLectures = MediatorLiveData<List<LectureEntity>>()
 
@@ -26,17 +33,32 @@ class LectureListViewModel(application: Application) : AndroidViewModel(applicat
         mLectures.addSource(mDataRepository.loadLectures()) { lectureEntities -> mLectures.postValue(lectureEntities) }
     }
 
-    fun updateLectures(lectures: List<Lecture>) {
-        mDataRepository.insertLectures(convertLecturesToEntities(lectures))
-        for (lecture in lectures) {
-            mDataRepository.insertTasks(convertTasksToEntities(lecture.tasks!!, lecture.id))
-        }
+    fun updateLectures() {
+        val preferences = mApplication.getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        val token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null) ?: ""
+
+        mDataRepository.loadLectures(token, object : Callback<Lectures> {
+            override fun onFailure(call: Call<Lectures>, e: Throwable) {
+            }
+
+            override fun onResponse(call: Call<Lectures>, response: Response<Lectures>) {
+                val result = response.body()
+                if (response.message() == "OK" && result != null) {
+                    Thread {
+                        mDataRepository.insertLectures(convertLecturesToEntities(result.lectures))
+                        for (lecture in result.lectures) {
+                            mDataRepository.insertTasks(convertTasksToEntities(lecture.tasks, lecture.id))
+                        }
+                    }.start()
+                }
+            }
+        })
     }
 
     private fun convertLecturesToEntities(lectures: List<Lecture>): List<LectureEntity> {
         val entities = ArrayList<LectureEntity>()
         for (lecture in lectures) {
-            entities.add(LectureEntity(lecture.id, lecture.title!!))
+            entities.add(LectureEntity(lecture.id, lecture.title))
         }
         return entities
     }
@@ -53,7 +75,7 @@ class LectureListViewModel(application: Application) : AndroidViewModel(applicat
             } catch (e: ParseException) {
                 Log.d("LECTURE_LIST_VIEW_MODEL", "Incorrect string format for converting to the Date class")
             } finally {
-                entities.add(TaskEntity(taskInfo.id, task!!.title!!, taskInfo.status!!, taskInfo.mark, date, task.maxScore, lectureId))
+                entities.add(TaskEntity(taskInfo.id, task!!.title, taskInfo.status, taskInfo.mark, date, task.maxScore, lectureId))
             }
         }
         return entities

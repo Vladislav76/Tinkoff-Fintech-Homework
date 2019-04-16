@@ -3,9 +3,7 @@ package com.vladislavmyasnikov.courseproject.ui.profile
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,20 +11,16 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener
+import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.main.MainActivity
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener
 
-class ProfileEditingFragment : Fragment(), OnBackButtonListener {
+class ProfileEditingFragment : GeneralFragment(), OnBackButtonListener {
 
     private var mFirstNameField: EditText? = null
     private var mLastNameField: EditText? = null
     private var mMiddleNameField: EditText? = null
-    private var mFragmentListener: OnFragmentListener? = null
     private var isFinished: Boolean = false
 
     private val mCancelButtonListener = View.OnClickListener { activity!!.onBackPressed() }
@@ -46,20 +40,11 @@ class ProfileEditingFragment : Fragment(), OnBackButtonListener {
             INCORRECT_INPUT_DATA -> Toast.makeText(activity, R.string.incorrect_input_message, Toast.LENGTH_SHORT).show()
         }
     }
-    private val mOnEditorActionListener = TextView.OnEditorActionListener { v, actionId, event ->
+    private val mOnEditorActionListener = TextView.OnEditorActionListener { v, actionId, _ ->
         if (actionId == EditorInfo.IME_ACTION_DONE) {
             v.clearFocus()
         }
         false
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        if (context is OnFragmentListener) {
-            mFragmentListener = context
-        } else {
-            throw IllegalStateException("$context must implement OnFragmentListener")
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -109,11 +94,6 @@ class ProfileEditingFragment : Fragment(), OnBackButtonListener {
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        mFragmentListener = null
-    }
-
     private fun areDataChanged(): Boolean {
         val args = arguments
         val initialName = args!!.getString(FIRST_NAME_ARG)
@@ -142,16 +122,17 @@ class ProfileEditingFragment : Fragment(), OnBackButtonListener {
         return !s.matches("[A-ZА-ЯЁ][a-zA-Zа-яА-ЯёЁ]*$".toRegex())
     }
 
+
+
     companion object {
 
-        private val FIRST_NAME_ARG = "first_name_arg"
-        private val LAST_NAME_ARG = "last_name_arg"
-        private val MIDDLE_NAME_ARG = "middle_name_arg"
-
-        private val QUIT_REQUEST_CODE = 1
-        private val CORRECT_INPUT_DATA = 0
-        private val NOT_FULL_INPUT_DATA = 1
-        private val INCORRECT_INPUT_DATA = 2
+        private const val FIRST_NAME_ARG = "first_name_arg"
+        private const val LAST_NAME_ARG = "last_name_arg"
+        private const val MIDDLE_NAME_ARG = "middle_name_arg"
+        private const val QUIT_REQUEST_CODE = 1
+        private const val CORRECT_INPUT_DATA = 0
+        private const val NOT_FULL_INPUT_DATA = 1
+        private const val INCORRECT_INPUT_DATA = 2
 
         fun newInstance(name: String, surname: String, patronymic: String): ProfileEditingFragment {
             val args = Bundle()

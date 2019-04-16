@@ -1,16 +1,12 @@
 package com.vladislavmyasnikov.courseproject.ui.main
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
 
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.Result
-import com.vladislavmyasnikov.courseproject.data.models.User
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener
 import com.vladislavmyasnikov.courseproject.data.network.RequestResultListener
@@ -23,12 +19,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import com.vladislavmyasnikov.courseproject.data.network.UserInfo
 import retrofit2.Call
 import retrofit2.Response
 
-class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener, RequestResultListener<Result> {
+class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener, RequestResultListener<UserInfo> {
 
-    private var mToolbar: Toolbar? = null
+    private lateinit var mToolbar: Toolbar
     private val mRequestResultCallback = RequestResultCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,11 +36,11 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         mainPanel.setOnNavigationItemSelectedListener(this)
 
         mToolbar = findViewById(R.id.toolbar)
-        mToolbar?.title = ""
+        mToolbar.title = ""
         setSupportActionBar(mToolbar)
 
         if (savedInstanceState == null) {
-            onNavigationItemSelected(mainPanel.menu.getItem(0))
+            mainPanel.selectedItemId = R.id.courses_tab
 
             val preferences = getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
             val token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null)
@@ -65,7 +62,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             }
             fragmentManager.popBackStack(BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE)
             fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, fragment!!, tag)
+                    .replace(R.id.content_frame, fragment, tag)
                     .addToBackStack(BACK_STACK_ROOT_TAG)
                     .commit()
         } else {
@@ -84,11 +81,11 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     }
 
     override fun setToolbarTitle(titleId: Int) {
-        mToolbar?.setTitle(titleId)
+        mToolbar.setTitle(titleId)
     }
 
     override fun setToolbarTitle(title: CharSequence) {
-        mToolbar?.title = title
+        mToolbar.title = title
     }
 
     override fun onBackPressed() {
@@ -104,11 +101,11 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
     }
 
-    override fun onFailure(call: Call<Result>, e: Throwable) {
+    override fun onFailure(call: Call<UserInfo>, e: Throwable) {
         Toast.makeText(this, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
     }
 
-    override fun onResponse(call: Call<Result>, response: Response<Result>) {
+    override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
         val result = response.body()
         if (response.message() == "OK" && result != null && result.user != null) {
 
@@ -130,17 +127,17 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
     public override fun onDestroy() {
         super.onDestroy()
-        mRequestResultCallback.setRequestResultListener(null)
+        mRequestResultCallback.listener = null
     }
 
+
+
     companion object {
-
-        val USER_STORAGE_NAME = "user_storage"
-        val USER_FIRST_NAME = "user_first_name"
-        val USER_LAST_NAME = "user_last_name"
-        val USER_MIDDLE_NAME = "user_middle_name"
-        val USER_AVATAR_URL = "user_avatar_url"
-
-        private val BACK_STACK_ROOT_TAG = "root_fragment"
+        const val USER_STORAGE_NAME = "user_storage"
+        const val USER_FIRST_NAME = "user_first_name"
+        const val USER_LAST_NAME = "user_last_name"
+        const val USER_MIDDLE_NAME = "user_middle_name"
+        const val USER_AVATAR_URL = "user_avatar_url"
+        private const val BACK_STACK_ROOT_TAG = "root_fragment"
     }
 }

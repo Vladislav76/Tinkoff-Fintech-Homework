@@ -4,36 +4,33 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnRefreshLayoutListener
-import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnRefreshLayoutListener
 
 class CoursesFragment : GeneralFragment(), OnRefreshLayoutListener {
 
-    private var mAcademicPerformanceFragment: AcademicPerformanceFragment? = null
-    private var mSwipeRefreshLayout: SwipeRefreshLayout? = null
+    private lateinit var mAcademicPerformanceFragment: AcademicPerformanceFragment
+    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_courses, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        mFragmentListener!!.setToolbarTitle(R.string.courses_toolbar_title)
+        mFragmentListener?.setToolbarTitle(R.string.courses_toolbar_title)
 
         addChildFragment(CONTENT_FRAME_1_TAG)
         addChildFragment(CONTENT_FRAME_2_TAG)
         addChildFragment(CONTENT_FRAME_3_TAG)
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-        mSwipeRefreshLayout!!.setOnRefreshListener { mAcademicPerformanceFragment!!.updateBadges() }
+        mSwipeRefreshLayout.setOnRefreshListener { mAcademicPerformanceFragment.updateBadges() }
     }
 
     override fun stopRefreshing() {
-        mSwipeRefreshLayout!!.isRefreshing = false
+        mSwipeRefreshLayout.isRefreshing = false
     }
 
     private fun addChildFragment(tag: String) {
@@ -58,15 +55,15 @@ class CoursesFragment : GeneralFragment(), OnRefreshLayoutListener {
                 }
                 else -> return
             }
-            fragmentManager.beginTransaction().replace(containerId, fragment!!).commit()
+            fragmentManager.beginTransaction().replace(containerId, fragment).commit()
         }
     }
 
     companion object {
 
-        private val CONTENT_FRAME_1_TAG = "content_frame_1"
-        private val CONTENT_FRAME_2_TAG = "content_frame_2"
-        private val CONTENT_FRAME_3_TAG = "content_frame_3"
+        private const val CONTENT_FRAME_1_TAG = "content_frame_1"
+        private const val CONTENT_FRAME_2_TAG = "content_frame_2"
+        private const val CONTENT_FRAME_3_TAG = "content_frame_3"
 
         fun newInstance(): CoursesFragment {
             return CoursesFragment()

@@ -1,15 +1,12 @@
 package com.vladislavmyasnikov.courseproject.ui.components
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-
-import com.vladislavmyasnikov.courseproject.R
-
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.vladislavmyasnikov.courseproject.R
 
 class UserView : ConstraintLayout {
 
@@ -47,24 +44,24 @@ class UserView : ConstraintLayout {
 
     fun setBadgeCount(value: Int) {
         if (value == 0) {
-            mBadgeView!!.visibility = View.GONE
+            mBadgeView?.visibility = View.GONE
         } else if (mBadgeCount == 0) {
-            mBadgeView!!.visibility = View.VISIBLE
+            mBadgeView?.visibility = View.VISIBLE
         }
 
         mBadgeCount = value
-        mBadgeView!!.text = Integer.toString(value)
+        mBadgeView?.text = value.toString()
     }
 
     fun setIconBackgroundColor(colorId: Int) {
-        mUserIconView!!.setColorFilter(colorId)
+        mUserIconView?.setColorFilter(colorId)
     }
 
     fun setText(name: CharSequence?) {
-        mUserNameView!!.text = name
+        mUserNameView?.text = name
     }
 
     fun setText(resId: Int) {
-        mUserNameView!!.setText(resId)
+        mUserNameView?.setText(resId)
     }
 }

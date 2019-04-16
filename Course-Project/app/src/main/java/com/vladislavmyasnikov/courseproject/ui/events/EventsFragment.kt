@@ -9,7 +9,7 @@ import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 
 class EventsFragment : GeneralFragment() {
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_events, container, false)
     }
 

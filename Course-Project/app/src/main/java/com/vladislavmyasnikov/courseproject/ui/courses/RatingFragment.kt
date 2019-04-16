@@ -12,16 +12,18 @@ class RatingFragment : GeneralFragment() {
 
     private val mOnTitleClickListener = View.OnClickListener {
         val fragment = LectureListFragment.newInstance()
-        mFragmentListener!!.addFragmentOnTop(fragment)
+        mFragmentListener?.addFragmentOnTop(fragment)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_rating, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<View>(R.id.title).setOnClickListener(mOnTitleClickListener)
     }
+
+
 
     companion object {
 

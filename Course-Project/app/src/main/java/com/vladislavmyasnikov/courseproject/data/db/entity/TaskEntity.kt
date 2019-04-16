@@ -1,15 +1,12 @@
 package com.vladislavmyasnikov.courseproject.data.db.entity
 
-import com.vladislavmyasnikov.courseproject.data.models.Identifiable
-
-import java.util.Date
-
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
-
 import androidx.room.ForeignKey.CASCADE
+import androidx.room.PrimaryKey
+import com.vladislavmyasnikov.courseproject.data.models.Identifiable
+import java.util.*
 
 @Entity(tableName = "tasks",
         foreignKeys = [ForeignKey(entity = LectureEntity::class, parentColumns = ["id"], childColumns = ["lecture_id"], onDelete = CASCADE)])

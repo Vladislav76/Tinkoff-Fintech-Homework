@@ -9,14 +9,14 @@ import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListene
 
 class StudentListActivity : AppCompatActivity(), OnFragmentListener {
 
-    private var mToolbar: Toolbar? = null
+    private lateinit var mToolbar: Toolbar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_container)
 
         mToolbar = findViewById(R.id.toolbar)
-        mToolbar?.title = ""
+        mToolbar.title = ""
         setSupportActionBar(mToolbar)
 
         val fragmentManager = supportFragmentManager
@@ -28,11 +28,11 @@ class StudentListActivity : AppCompatActivity(), OnFragmentListener {
     }
 
     override fun setToolbarTitle(titleId: Int) {
-        mToolbar?.setTitle(titleId)
+        mToolbar.setTitle(titleId)
     }
 
     override fun setToolbarTitle(title: CharSequence) {
-        mToolbar?.title = title
+        mToolbar.title = title
     }
 
     override fun addFragmentOnTop(fragment: Fragment) {}

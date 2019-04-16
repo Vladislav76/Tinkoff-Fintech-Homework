@@ -16,7 +16,7 @@ class ActionConfirmationDialogFragment : DialogFragment() {
         return AlertDialog.Builder(activity)
                 .setMessage(R.string.action_confirmation_message)
                 .setNegativeButton(R.string.stay_action, null)
-                .setPositiveButton(R.string.leave_action) { dialog, which -> sendResult(Activity.RESULT_OK) }
+                .setPositiveButton(R.string.leave_action) { _, _ -> sendResult(Activity.RESULT_OK) }
                 .create()
     }
 

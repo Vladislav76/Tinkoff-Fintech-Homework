@@ -4,22 +4,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
-import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
-import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
+import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
 
 class TaskListFragment : GeneralFragment() {
 
-    private var mTaskListViewModel: TaskListViewModel? = null
+    private val mTaskListViewModel: TaskListViewModel by lazy {
+        ViewModelProviders.of(this).get(TaskListViewModel::class.java)
+    }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView = RecyclerView(inflater.context)
         recyclerView.id = R.id.recycler_view
 
@@ -34,13 +34,10 @@ class TaskListFragment : GeneralFragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        mTaskListViewModel = ViewModelProviders.of(this).get(TaskListViewModel::class.java)
-        mTaskListViewModel!!.tasks.observe(this, Observer { tasks ->
-            if (tasks != null) {
-                adapter.updateList(tasks)
-            }
+        mTaskListViewModel.tasks.observe(this, Observer { tasks ->
+            adapter.updateList(tasks)
         })
-        mTaskListViewModel!!.init(arguments!!.getInt(LECTURE_ID_ARG))
+        mTaskListViewModel.init(arguments!!.getInt(LECTURE_ID_ARG))
     }
 
 

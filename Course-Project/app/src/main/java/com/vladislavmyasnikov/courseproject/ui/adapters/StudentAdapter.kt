@@ -62,10 +62,6 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
         }
     }
 
-    fun setViewType(viewType: Int) {
-        mViewType = viewType
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridUserViewHolder =
             if (viewType == LINEAR_USER_VIEW) {
                 LinearUserViewHolder(createView(parent, viewType))
@@ -82,7 +78,6 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
     override fun getItemViewType(position: Int): Int = mViewType
 
     override fun getFilter(): Filter = filter
-
 
     private fun createView(parent: ViewGroup, viewType: Int): View {
         val inflater = LayoutInflater.from(parent.context)
@@ -120,10 +115,12 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
         }
     }
 
+
+
     companion object {
 
-        val LINEAR_USER_VIEW = 1
-        val GRID_USER_VIEW = 2
+        const val LINEAR_USER_VIEW = 1
+        const val GRID_USER_VIEW = 2
 
         fun getColor(displayName: String?): Int {
             val values = intArrayOf(0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF)

@@ -1,13 +1,11 @@
 package com.vladislavmyasnikov.courseproject.ui.components
 
 import android.content.Context
-import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
-
 import com.vladislavmyasnikov.courseproject.R
 
 class InitialsRoundView : FrameLayout {
@@ -40,10 +38,10 @@ class InitialsRoundView : FrameLayout {
     }
 
     fun setText(initials: CharSequence?) {
-        mInitialsView!!.text = initials
+        mInitialsView?.text = initials
     }
 
     fun setIconColor(color: Int) {
-        mIconView!!.setColorFilter(color)
+        mIconView?.setColorFilter(color)
     }
 }

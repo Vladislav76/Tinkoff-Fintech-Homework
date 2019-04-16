@@ -45,11 +45,11 @@ class AcademicPerformanceFragment : Fragment() {
         if (parentFragment is OnRefreshLayoutListener) {
             mRefreshLayoutListener = parentFragment as OnRefreshLayoutListener?
         } else {
-            throw IllegalStateException(parentFragment!!.toString() + " must implement OnRefreshLayoutListener")
+            throw IllegalStateException(parentFragment.toString() + " must implement OnRefreshLayoutListener")
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_academic_performance, container, false)
     }
 
@@ -68,9 +68,11 @@ class AcademicPerformanceFragment : Fragment() {
         DataUpdater.newInstance(mHandler, CURRENT_HARDCODED_NUMBER_OF_USER_ICONS).start()
     }
 
+
+
     companion object {
 
-        private val CURRENT_HARDCODED_NUMBER_OF_USER_ICONS = 2
+        private const val CURRENT_HARDCODED_NUMBER_OF_USER_ICONS = 2
 
         fun newInstance(): AcademicPerformanceFragment {
             return AcademicPerformanceFragment()
