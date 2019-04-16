@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.courses
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -67,7 +68,15 @@ class StudentListFragment : GeneralFragment() {
                     UNSORTED -> mAdapter.updateList(students)
                 }
             }
-            mSwipeRefreshLayout.isRefreshing = false
+        })
+
+        mStudentListViewModel.updatingDataState.observe(this, Observer { message ->
+            if (message != null) {
+                if (message != "") {
+                    Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+                }
+                mSwipeRefreshLayout.isRefreshing = false
+            }
         })
 
         mSwipeRefreshLayout.isRefreshing = true
@@ -137,6 +146,11 @@ class StudentListFragment : GeneralFragment() {
         super.onSaveInstanceState(savedInstanceState)
         savedInstanceState.putInt(SORT_TYPE, mSortType)
         savedInstanceState.putString(SEARCH_QUERY, mSearchQuery)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mStudentListViewModel.resetUpdatingDataState()
     }
 
 

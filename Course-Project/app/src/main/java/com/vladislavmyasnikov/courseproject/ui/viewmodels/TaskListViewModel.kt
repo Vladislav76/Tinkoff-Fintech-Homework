@@ -3,19 +3,21 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import com.vladislavmyasnikov.courseproject.data.DataRepository
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
 
 class TaskListViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mDataRepository = DataRepository.getInstance(application)
-    private val mTasks = MediatorLiveData<List<TaskEntity>>()
+    private val mLectureId = MutableLiveData<Int>()
 
-    val tasks: LiveData<List<TaskEntity>>
-        get() = mTasks
+    val tasks: LiveData<List<TaskEntity>> = Transformations.switchMap(mLectureId) {
+        id -> mDataRepository.loadTasks(id)
+    }
 
-    fun init(lectureId: Int) {
-        mTasks.addSource(mDataRepository.loadTasks(lectureId)) { tasks -> mTasks.postValue(tasks) }
+    fun loadTasksByLectureId(id: Int) {
+        mLectureId.value = id
     }
 }

@@ -37,7 +37,7 @@ class TaskListFragment : GeneralFragment() {
         mTaskListViewModel.tasks.observe(this, Observer { tasks ->
             adapter.updateList(tasks)
         })
-        mTaskListViewModel.init(arguments!!.getInt(LECTURE_ID_ARG))
+        mTaskListViewModel.loadTasksByLectureId(arguments!!.getInt(LECTURE_ID_ARG))
     }
 
 
