@@ -1,19 +1,18 @@
 package com.vladislavmyasnikov.courseproject.data
 
 import android.app.Application
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.room.Room
+import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
-import com.vladislavmyasnikov.courseproject.data.models.Lecture
-import com.vladislavmyasnikov.courseproject.data.models.Student
-import com.vladislavmyasnikov.courseproject.data.models.TaskInfo
-import com.vladislavmyasnikov.courseproject.data.network.Lectures
-import com.vladislavmyasnikov.courseproject.data.network.NetworkService
-import com.vladislavmyasnikov.courseproject.data.network.Students
+import com.vladislavmyasnikov.courseproject.data.models.*
+import com.vladislavmyasnikov.courseproject.data.network.*
+import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
 import retrofit2.Callback
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -22,6 +21,7 @@ import java.util.concurrent.Executors
 
 class DataRepository private constructor(application: Application) {
 
+    private val mApplication = application
     private val mLocalDatabase = Room.databaseBuilder(application, LocalDatabase::class.java, DATABASE_NAME).build()
     private val mNetworkService = NetworkService.getInstance()
     private val mExecutor = Executors.newSingleThreadExecutor()
@@ -44,12 +44,44 @@ class DataRepository private constructor(application: Application) {
     /*
      * Loading data from server
      */
-    fun loadLectures(token: String, callback: Callback<Lectures>) {
-        mNetworkService.fintechService.getLectures(token).enqueue(callback)
+    fun loadLectures(callback: Callback<Lectures>) {
+        mNetworkService.fintechService.getLectures(loadToken()).enqueue(callback)
     }
 
-    fun loadStudents(token: String, callback: Callback<List<Students>>) {
-        mNetworkService.fintechService.getStudents(token).enqueue(callback)
+    fun loadStudents(callback: Callback<List<Students>>) {
+        mNetworkService.fintechService.getStudents(loadToken()).enqueue(callback)
+    }
+
+    fun loadProfile(callback: Callback<ProfileInfo>) {
+        mNetworkService.fintechService.getProfile(loadToken()).enqueue(callback)
+    }
+
+    fun getAccess(data: Login, callback: Callback<Void>) {
+        mNetworkService.fintechService.getAccess(data).enqueue(callback)
+    }
+
+    /*
+     * Loading data from Shared Preferences
+     */
+    fun loadCookieData(): CookieData? {
+        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        val token = preferences.getString(AUTHORIZATION_TOKEN, null)
+        val time = preferences.getString(TOKEN_EXPIRATION_TIME, null)
+        return if (token == null || time == null) null else CookieData(token, time)
+    }
+
+    fun loadProfile(): Profile? {
+        val preferences = mApplication.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
+        val firstName = preferences.getString(USER_FIRST_NAME, null)
+        val lastName = preferences.getString(USER_LAST_NAME, null)
+        val middleName = preferences.getString(USER_MIDDLE_NAME, null)
+        val avatarUrl = preferences.getString(USER_AVATAR_URL, null) ?: ""
+        return if (firstName == null || lastName == null || middleName == null) null else Profile(firstName, lastName, middleName, avatarUrl)
+    }
+
+    private fun loadToken(): String {
+        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        return preferences.getString(AUTHORIZATION_TOKEN, null) ?: ""
     }
 
     /*
@@ -67,9 +99,40 @@ class DataRepository private constructor(application: Application) {
         mExecutor.execute { mLocalDatabase.studentDao().insertStudents(convertStudentsToEntities(students)) }
     }
 
+    /*
+     * Saving data into Shared Preferences
+     */
+    fun saveCookieData(data: CookieData) {
+        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        preferences.edit()
+                .putString(AUTHORIZATION_TOKEN, data.token)
+                .putString(TOKEN_EXPIRATION_TIME, data.time)
+                .apply()
+    }
+
+    fun saveUserData(profile: Profile) {
+        val preferences = mApplication.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
+        preferences.edit()
+                .putString(USER_FIRST_NAME, profile.firstName)
+                .putString(USER_LAST_NAME, profile.lastName)
+                .putString(USER_MIDDLE_NAME, profile.middleName)
+                .putString(USER_AVATAR_URL, profile.avatarUrl)
+                .apply()
+    }
+
 
 
     companion object {
+
+        const val COOKIES_STORAGE_NAME = "cookies_storage"
+        const val AUTHORIZATION_TOKEN = "authorization_token"
+        const val TOKEN_EXPIRATION_TIME = "token_expiration_time"
+        const val USER_STORAGE_NAME = "user_storage"
+        const val USER_FIRST_NAME = "user_first_name"
+        const val USER_LAST_NAME = "user_last_name"
+        const val USER_MIDDLE_NAME = "user_middle_name"
+        const val USER_AVATAR_URL = "user_avatar_url"
+        const val CASH_LIFE_TIME_IN_MILLISECONDS = 10_000
 
         private const val DATABASE_NAME = "local_database"
         private var sInstance: DataRepository? = null

@@ -1,32 +1,22 @@
 package com.vladislavmyasnikov.courseproject.ui.main
 
-import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
-import android.widget.Toast
-
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener
-import com.vladislavmyasnikov.courseproject.data.network.RequestResultListener
-import com.vladislavmyasnikov.courseproject.data.network.NetworkService
-import com.vladislavmyasnikov.courseproject.data.network.RequestResultCallback
-import com.vladislavmyasnikov.courseproject.ui.courses.CoursesFragment
-import com.vladislavmyasnikov.courseproject.ui.events.EventsFragment
-import com.vladislavmyasnikov.courseproject.ui.profile.ProfileFragment
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import com.vladislavmyasnikov.courseproject.data.network.UserInfo
-import retrofit2.Call
-import retrofit2.Response
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.ui.courses.CoursesFragment
+import com.vladislavmyasnikov.courseproject.ui.events.EventsFragment
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnBackButtonListener
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnFragmentListener
+import com.vladislavmyasnikov.courseproject.ui.profile.ProfileFragment
 
-class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener, RequestResultListener<UserInfo> {
+class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener, OnFragmentListener {
 
     private lateinit var mToolbar: Toolbar
-    private val mRequestResultCallback = RequestResultCallback(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,10 +31,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
 
         if (savedInstanceState == null) {
             mainPanel.selectedItemId = R.id.courses_tab
-
-            val preferences = getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
-            val token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null)
-            NetworkService.getInstance().fintechService.getUser(token!!).enqueue(mRequestResultCallback)
         }
     }
 
@@ -101,43 +87,9 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
     }
 
-    override fun onFailure(call: Call<UserInfo>, e: Throwable) {
-        Toast.makeText(this, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-    }
-
-    override fun onResponse(call: Call<UserInfo>, response: Response<UserInfo>) {
-        val result = response.body()
-        if (response.message() == "OK" && result != null && result.user != null) {
-
-            val user = result.user
-            val firstName = user.firstName
-            val lastName = user.lastName
-            val middleName = user.middleName
-            val avatar = user.avatar
-
-            val preferences = getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
-            preferences.edit()
-                    .putString(USER_FIRST_NAME, firstName)
-                    .putString(USER_LAST_NAME, lastName)
-                    .putString(USER_MIDDLE_NAME, middleName)
-                    .putString(USER_AVATAR_URL, avatar)
-                    .apply()
-        }
-    }
-
-    public override fun onDestroy() {
-        super.onDestroy()
-        mRequestResultCallback.listener = null
-    }
-
 
 
     companion object {
-        const val USER_STORAGE_NAME = "user_storage"
-        const val USER_FIRST_NAME = "user_first_name"
-        const val USER_LAST_NAME = "user_last_name"
-        const val USER_MIDDLE_NAME = "user_middle_name"
-        const val USER_AVATAR_URL = "user_avatar_url"
         private const val BACK_STACK_ROOT_TAG = "root_fragment"
     }
 }

@@ -1,53 +1,70 @@
 package com.vladislavmyasnikov.courseproject.ui.profile
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import com.vladislavmyasnikov.courseproject.ui.main.MainActivity
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 
 class ProfileFragment : GeneralFragment() {
 
-    private var mFirstNameField: TextView? = null
-    private var mLastNameField: TextView? = null
-    private var mMiddleNameField: TextView? = null
-
-    private val mEditButtonListener = View.OnClickListener {
-        val firstName = mFirstNameField!!.text.toString()
-        val lastName = mLastNameField!!.text.toString()
-        val middleName = mMiddleNameField!!.text.toString()
-        val fragment = ProfileEditingFragment.newInstance(firstName, lastName, middleName)
-        mFragmentListener?.addFragmentOnTop(fragment)
+    private val mProfileViewModel: ProfileViewModel by lazy {
+        ViewModelProviders.of(this).get(ProfileViewModel::class.java)
     }
+    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_profile, container, false)
+        val view = inflater.inflate(R.layout.fragment_profile, container, false)
+
+        mSwipeRefreshLayout = SwipeRefreshLayout(inflater.context)
+        mSwipeRefreshLayout.id = R.id.swipe_refresh_layout
+        mSwipeRefreshLayout.addView(view)
+
+        return mSwipeRefreshLayout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.profile_toolbar_title)
 
-        mFirstNameField = view.findViewById(R.id.name_field)
-        mLastNameField = view.findViewById(R.id.surname_field)
-        mMiddleNameField = view.findViewById(R.id.patronymic_field)
+        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.updateProfile() }
 
-        view.findViewById<View>(R.id.edit_button).setOnClickListener(mEditButtonListener)
+        val firstNameField = view.findViewById<TextView>(R.id.name_field)
+        val lastNameField = view.findViewById<TextView>(R.id.surname_field)
+        val middleNameField = view.findViewById<TextView>(R.id.patronymic_field)
+        val avatarView = view.findViewById<ImageView>(R.id.avatar)
 
-        val preferences = activity!!.getSharedPreferences(MainActivity.USER_STORAGE_NAME, Context.MODE_PRIVATE)
-        mFirstNameField!!.text = preferences.getString(MainActivity.USER_FIRST_NAME, "")
-        mLastNameField!!.text = preferences.getString(MainActivity.USER_LAST_NAME, "")
-        mMiddleNameField!!.text = preferences.getString(MainActivity.USER_MIDDLE_NAME, "")
-        val avatarUrl = preferences.getString(MainActivity.USER_AVATAR_URL, null)
-        if (avatarUrl != null) {
-            val avatarView = view.findViewById<ImageView>(R.id.avatar)
-            Glide.with(this).load("https://fintech.tinkoff.ru$avatarUrl").into(avatarView)
-        }
+        mProfileViewModel.profileData.observe(this, Observer { profile ->
+            firstNameField.text = profile.firstName
+            lastNameField.text = profile.lastName
+            middleNameField.text = profile.middleName
+            mProfileViewModel.profileAvatar?.into(avatarView)
+        })
+
+        mProfileViewModel.messageState.observe(this, Observer { message ->
+            if (message != null) {
+                if (message != "") {
+                    Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+                }
+                mSwipeRefreshLayout.isRefreshing = false
+            }
+        })
+
+        mProfileViewModel.uploadProfile()
+        mProfileViewModel.updateProfile()
+        mSwipeRefreshLayout.isRefreshing = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mProfileViewModel.resetMessageState()
     }
 
 

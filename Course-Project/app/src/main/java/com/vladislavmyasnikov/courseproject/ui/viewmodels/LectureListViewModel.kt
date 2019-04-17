@@ -1,7 +1,6 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,51 +8,56 @@ import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.DataRepository
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.network.Lectures
-import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.atomic.AtomicBoolean
 
 class LectureListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val mApplication = application
-    private val mDataRepository = DataRepository.getInstance(application)
-    private val mMessageString = mApplication.resources.getString(R.string.not_ok_status_message)
-    private val mUpdatingDataState = MutableLiveData<String>()
-
-    val lectures: LiveData<List<LectureEntity>> = mDataRepository.loadLectures()
-    val updatingDataState: LiveData<String>
-        get() = mUpdatingDataState
-
-    fun resetUpdatingDataState() {
-        mUpdatingDataState.value = null
-    }
+    private val dataRepository = DataRepository.getInstance(application)
+    private val failMessage = application.resources.getString(R.string.not_ok_status_message)
+    private val mutableMessageState = MutableLiveData<String>()
+    private val isRequestAllowed = AtomicBoolean(true)
+    val lectures: LiveData<List<LectureEntity>> = dataRepository.loadLectures()
+    val messageState: LiveData<String> = mutableMessageState
+    var recentRequestTime: Long = 0
 
     fun updateLectures() {
-        val preferences = mApplication.getSharedPreferences(AuthorizationActivity.COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
-        val token = preferences.getString(AuthorizationActivity.AUTHORIZATION_TOKEN, null) ?: ""
+        if (System.currentTimeMillis() - recentRequestTime > DataRepository.CASH_LIFE_TIME_IN_MILLISECONDS) {
+            loadData()
+        } else {
+            mutableMessageState.value = ""
+        }
+    }
 
-        mDataRepository.loadLectures(token, object : Callback<Lectures> {
-            override fun onFailure(call: Call<Lectures>, e: Throwable) {
-                mUpdatingDataState.value = mMessageString
-                println("onFailure")
-            }
+    fun resetMessageState() {
+        mutableMessageState.value = null
+    }
 
-            override fun onResponse(call: Call<Lectures>, response: Response<Lectures>) {
-                val result = response.body()
-                if (response.message() == "OK" && result != null) {
-                    mDataRepository.insertLectures(result.lectures)
-                    for (lecture in result.lectures) {
-                        mDataRepository.insertTasks(lecture.tasks, lecture.id)
-                    }
-                    mUpdatingDataState.value = ""
-                    println("success!")
-
-                } else {
-                    println("not ok")
-                    mUpdatingDataState.value = mMessageString
+    private fun loadData() {
+        if (isRequestAllowed.compareAndSet(true, false)) {
+            dataRepository.loadLectures(object : Callback<Lectures> {
+                override fun onFailure(call: Call<Lectures>, e: Throwable) {
+                    mutableMessageState.value = failMessage
+                    isRequestAllowed.set(true)
                 }
-            }
-        })
+
+                override fun onResponse(call: Call<Lectures>, response: Response<Lectures>) {
+                    val result = response.body()
+                    if (response.message() == "OK" && result != null) {
+                        dataRepository.insertLectures(result.lectures)
+                        for (lecture in result.lectures) {
+                            dataRepository.insertTasks(lecture.tasks, lecture.id)
+                        }
+                        mutableMessageState.value = ""
+                        recentRequestTime = System.currentTimeMillis()
+                    } else {
+                        mutableMessageState.value = failMessage
+                    }
+                    isRequestAllowed.set(true)
+                }
+            })
+        }
     }
 }

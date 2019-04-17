@@ -70,7 +70,7 @@ class StudentListFragment : GeneralFragment() {
             }
         })
 
-        mStudentListViewModel.updatingDataState.observe(this, Observer { message ->
+        mStudentListViewModel.messageState.observe(this, Observer { message ->
             if (message != null) {
                 if (message != "") {
                     Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
@@ -150,7 +150,7 @@ class StudentListFragment : GeneralFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mStudentListViewModel.resetUpdatingDataState()
+        mStudentListViewModel.resetMessageState()
     }
 
 

@@ -55,7 +55,7 @@ class LectureListFragment : GeneralFragment() {
             adapter.updateList(lectures)
         })
 
-        mLectureListViewModel.updatingDataState.observe(this, Observer { message ->
+        mLectureListViewModel.messageState.observe(this, Observer { message ->
             if (message != null) {
                 if (message != "") {
                     Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
@@ -70,7 +70,7 @@ class LectureListFragment : GeneralFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mLectureListViewModel.resetUpdatingDataState()
+        mLectureListViewModel.resetMessageState()
     }
 
 
