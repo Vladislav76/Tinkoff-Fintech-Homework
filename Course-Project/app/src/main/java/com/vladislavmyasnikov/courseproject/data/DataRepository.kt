@@ -133,6 +133,7 @@ class DataRepository private constructor(application: Application) {
         const val USER_MIDDLE_NAME = "user_middle_name"
         const val USER_AVATAR_URL = "user_avatar_url"
         const val CASH_LIFE_TIME_IN_MILLISECONDS = 10_000
+        const val MINIMAL_PASSWORD_LENGTH = 8
 
         private const val DATABASE_NAME = "local_database"
         private var sInstance: DataRepository? = null

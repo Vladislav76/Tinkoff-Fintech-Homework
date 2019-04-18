@@ -52,6 +52,8 @@
     <string name="empty_input_message">Все поля должны быть заполнены</string>
     <string name="incorrect_input_message">В ФИО могут быть только буквы, причем первая должна быть заглавной</string>
     <string name="incorrect_authorization_data_message">Неправильный адрес электронной почты или пароль</string>
+    <string name="incorrect_input_email_message">Некорректный адрес электронной почты</string>
+    <string name="incorrect_input_password_message">Пароль должен содержать не менее 8 символов</string>
     <string name="permission_read_contacts_message">Нет разрешения на чтение контактов</string>
     <string name="no_internet_message">Нет подключения к интернету</string>
     <string name="not_ok_status_message">Ошибка при обновлении данных</string>

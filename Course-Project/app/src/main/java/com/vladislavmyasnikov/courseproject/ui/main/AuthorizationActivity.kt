@@ -28,7 +28,10 @@ class AuthorizationActivity : AppCompatActivity() {
 
         mEmailInputField = findViewById(R.id.input_email_field)
         mPasswordInputField = findViewById(R.id.input_password_field)
+    }
 
+    override fun onStart() {
+        super.onStart()
         mLoginViewModel.loginState.observe(this, Observer {
             when (it) {
                 is Left -> Toast.makeText(this, it.value, Toast.LENGTH_SHORT).show()
