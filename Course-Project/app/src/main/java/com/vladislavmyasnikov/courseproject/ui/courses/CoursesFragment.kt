@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnRefreshLayoutListener
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStartListener
+import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStopListener
 
-class CoursesFragment : GeneralFragment(), OnRefreshLayoutListener {
+class CoursesFragment : GeneralFragment(), UpdateStopListener {
 
-    private lateinit var mAcademicPerformanceFragment: AcademicPerformanceFragment
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private val mUpdateStartListeners: MutableList<UpdateStartListener> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_courses, container, false)
@@ -26,23 +28,25 @@ class CoursesFragment : GeneralFragment(), OnRefreshLayoutListener {
         addChildFragment(CONTENT_FRAME_3_TAG)
 
         mSwipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
-        mSwipeRefreshLayout.setOnRefreshListener { mAcademicPerformanceFragment.updateBadges() }
+        mSwipeRefreshLayout.setOnRefreshListener { mUpdateStartListeners.forEach { it.startUpdate() } }
     }
 
-    override fun stopRefreshing() {
-        mSwipeRefreshLayout.isRefreshing = false
+    override fun stopUpdate(message: String) {
+        mSwipeRefreshLayout.isRefreshing = false  //TODO: when all listeners stop updating
+        if (message != "") {
+            Toast.makeText(activity!!, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun addChildFragment(tag: String) {
         val fragmentManager = childFragmentManager
-        var fragment = fragmentManager.findFragmentByTag(CONTENT_FRAME_1_TAG)
+        var fragment = fragmentManager.findFragmentByTag(tag)
         val containerId: Int
 
         if (fragment == null) {
             when (tag) {
                 CONTENT_FRAME_1_TAG -> {
-                    mAcademicPerformanceFragment = AcademicPerformanceFragment.newInstance()
-                    fragment = mAcademicPerformanceFragment
+                    fragment = AcademicPerformanceFragment.newInstance()
                     containerId = R.id.content_frame_1
                 }
                 CONTENT_FRAME_2_TAG -> {
@@ -57,7 +61,12 @@ class CoursesFragment : GeneralFragment(), OnRefreshLayoutListener {
             }
             fragmentManager.beginTransaction().replace(containerId, fragment).commit()
         }
+        if (fragment is UpdateStartListener) {
+            mUpdateStartListeners.add(fragment)
+        }
     }
+
+
 
     companion object {
 

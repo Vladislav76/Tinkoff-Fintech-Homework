@@ -46,7 +46,7 @@ class StudentListFragment : GeneralFragment() {
         mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.updateStudents() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        mAdapter = StudentAdapter(activity!!)
+        mAdapter = StudentAdapter(activity!!, StudentAdapter.ViewType.LINEAR_VIEW)
         recyclerView.adapter = mAdapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.itemAnimator = CustomItemAnimator()

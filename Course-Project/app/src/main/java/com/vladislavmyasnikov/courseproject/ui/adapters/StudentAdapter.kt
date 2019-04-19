@@ -14,11 +14,10 @@ import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
-class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter.GridUserViewHolder>(), Filterable {
+class StudentAdapter(private val context: Context, private val viewType: ViewType) : RecyclerView.Adapter<StudentAdapter.ViewHolder>(), Filterable {
 
     private var mStudents: List<StudentEntity> = listOf()
     private var mSourceStudents: List<StudentEntity> = listOf()
-    private var mViewType: Int = LINEAR_USER_VIEW
 
     private val filter = object : Filter() {
         override fun performFiltering(query: CharSequence): FilterResults {
@@ -62,54 +61,42 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GridUserViewHolder =
-            if (viewType == LINEAR_USER_VIEW) {
-                LinearUserViewHolder(createView(parent, viewType))
-            } else {
-                GridUserViewHolder(createView(parent, viewType))
+    override fun onCreateViewHolder(parent: ViewGroup, viewTypeOrdinal: Int): ViewHolder =
+            when (ViewType.values()[viewTypeOrdinal]) {
+                ViewType.LINEAR_VIEW, ViewType.COMPACT_VIEW -> ViewHolder(createView(parent, viewTypeOrdinal))
             }
 
-    override fun onBindViewHolder(holder: GridUserViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(mStudents[position], context)
     }
 
     override fun getItemCount(): Int = mStudents.size
 
-    override fun getItemViewType(position: Int): Int = mViewType
+    override fun getItemViewType(position: Int): Int = viewType.ordinal
 
     override fun getFilter(): Filter = filter
 
-    private fun createView(parent: ViewGroup, viewType: Int): View {
+    private fun createView(parent: ViewGroup, viewTypeOrdinal: Int): View {
         val inflater = LayoutInflater.from(parent.context)
-        val layoutItemId: Int =
-                when (viewType) {
-                    LINEAR_USER_VIEW -> R.layout.item_linear_user
-                    else -> R.layout.item_grid_user
-                }
+        val layoutItemId = when (ViewType.values()[viewTypeOrdinal]) {
+            ViewType.LINEAR_VIEW -> R.layout.item_linear_user
+            ViewType.COMPACT_VIEW -> R.layout.item_compact_user
+        }
         return inflater.inflate(layoutItemId, parent, false)
     }
 
 
 
-    open class GridUserViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    open class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val mNameView = view.findViewById<TextView>(R.id.user_name_field)
+        private val mPointsView = view.findViewById<TextView>(R.id.user_points_field)
         private val mIconView = view.findViewById<InitialsRoundView>(R.id.user_icon)
 
         open fun bind(student: StudentEntity, context: Context) {
-            val initials: String = student.name.split(" ").map { it[0] }.joinToString(separator = "")
             mNameView.text = student.name
-            mIconView.setText(initials)
             mIconView.setIconColor(getColor(student.name))
-        }
-    }
-
-
-
-    class LinearUserViewHolder(view: View) : GridUserViewHolder(view) {
-        private val mPointsView = view.findViewById<TextView>(R.id.user_points_field)
-
-        override fun bind(student: StudentEntity, context: Context) {
-            super.bind(student, context)
+            val initials: String = student.name.split(" ").map { it[0] }.joinToString(separator = "")
+            mIconView.setText(initials)
             val points = context.resources.getQuantityString(R.plurals.numberOfPoints, Math.floor(student.mark).toInt(), student.mark)
             mPointsView.text = points.toString()
         }
@@ -117,10 +104,13 @@ class StudentAdapter(val context: Context) : RecyclerView.Adapter<StudentAdapter
 
 
 
-    companion object {
+    enum class ViewType {
+        LINEAR_VIEW, COMPACT_VIEW
+    }
 
-        const val LINEAR_USER_VIEW = 1
-        const val GRID_USER_VIEW = 2
+
+
+    companion object {
 
         fun getColor(displayName: String?): Int {
             val values = intArrayOf(0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF)

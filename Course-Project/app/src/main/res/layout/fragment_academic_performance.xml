@@ -43,26 +43,11 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <com.vladislavmyasnikov.courseproject.ui.components.UserView
-                android:id="@+id/user_1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:text="Михаил"
-                app:iconBackgroundColor="@color/black"
-                app:badgeCount="10"/>
-
-            <com.vladislavmyasnikov.courseproject.ui.components.UserView
-                android:id="@+id/user_2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:text="Вы"
-                app:iconBackgroundColor="@color/green"
-                app:badgeCount="8"/>
-        </LinearLayout>
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
