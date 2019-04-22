@@ -10,7 +10,9 @@ import android.widget.Toast
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 
@@ -41,30 +43,39 @@ class ProfileFragment : GeneralFragment() {
         val middleNameField = view.findViewById<TextView>(R.id.patronymic_field)
         val avatarView = view.findViewById<ImageView>(R.id.avatar)
 
-        mProfileViewModel.profileData.observe(this, Observer { profile ->
-            firstNameField.text = profile.firstName
-            lastNameField.text = profile.lastName
-            middleNameField.text = profile.middleName
-            mProfileViewModel.profileAvatar?.into(avatarView)
-        })
-
-        mProfileViewModel.messageState.observe(this, Observer { message ->
-            if (message != null) {
-                if (message != "") {
-                    Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
-                }
-                mSwipeRefreshLayout.isRefreshing = false
+        mProfileViewModel.profile.observe(this, Observer { profile ->
+            if (profile != null) {
+                firstNameField.text = profile.firstName
+                lastNameField.text = profile.lastName
+                middleNameField.text = profile.middleName
+                val profileAvatar = Glide.with(this).load("https://fintech.tinkoff.ru${profile.avatarUrl}")
+                profileAvatar.into(avatarView)
             }
         })
 
-        mProfileViewModel.uploadProfile()
-        mProfileViewModel.updateProfile()
-        mSwipeRefreshLayout.isRefreshing = true
+        mProfileViewModel.responseMessage.observe(this, Observer {
+            if (it != null) {
+                when (it) {
+                    ResponseMessage.SUCCESS -> mSwipeRefreshLayout.isRefreshing = false
+                    ResponseMessage.LOADING -> mSwipeRefreshLayout.isRefreshing = true
+                    ResponseMessage.NO_INTERNET -> {
+                        Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        mSwipeRefreshLayout.isRefreshing = false
+                    }
+                    ResponseMessage.ERROR -> mSwipeRefreshLayout.isRefreshing = false //TODO: logout
+                }
+            }
+        })
+
+        if (savedInstanceState == null) {
+            mSwipeRefreshLayout.isRefreshing = true
+            mProfileViewModel.updateProfile()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mProfileViewModel.resetMessageState()
+        mProfileViewModel.resetResponseMessage()
     }
 
 

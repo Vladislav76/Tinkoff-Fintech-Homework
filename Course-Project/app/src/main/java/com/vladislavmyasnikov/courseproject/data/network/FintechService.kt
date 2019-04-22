@@ -1,6 +1,7 @@
 package com.vladislavmyasnikov.courseproject.data.network
 
 import com.google.gson.annotations.SerializedName
+import com.vladislavmyasnikov.courseproject.data.models.Course
 import com.vladislavmyasnikov.courseproject.data.models.Lecture
 import com.vladislavmyasnikov.courseproject.data.models.Profile
 import com.vladislavmyasnikov.courseproject.data.models.Student
@@ -17,6 +18,9 @@ interface FintechService {
 
     @GET("user")
     fun getProfile(@Header("Cookie") token: String): Call<ProfileInfo>
+
+    @GET("connections")
+    fun getCourses(@Header("Cookie") token: String): Call<CourseInfo>
 
     @GET("course/android_spring_2019/homeworks")
     fun getLectures(@Header("Cookie") token: String): Call<Lectures>
@@ -36,3 +40,5 @@ class Lectures(@SerializedName("homeworks") val lectures: List<Lecture>)
 class Students(@SerializedName("grades") val students: List<Student>)
 
 class ProfileInfo(@SerializedName("user") val profile: Profile?)
+
+class CourseInfo(@SerializedName("courses") val courses: List<Course>)

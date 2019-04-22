@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
@@ -70,17 +71,24 @@ class StudentListFragment : GeneralFragment() {
             }
         })
 
-        mStudentListViewModel.messageState.observe(this, Observer { message ->
-            if (message != null) {
-                if (message != "") {
-                    Toast.makeText(activity, message, Toast.LENGTH_SHORT).show()
+        mStudentListViewModel.responseMessage.observe(this, Observer {
+            if (it != null) {
+                when (it) {
+                    ResponseMessage.SUCCESS -> mSwipeRefreshLayout.isRefreshing = false
+                    ResponseMessage.LOADING -> mSwipeRefreshLayout.isRefreshing = true
+                    ResponseMessage.NO_INTERNET -> {
+                        Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        mSwipeRefreshLayout.isRefreshing = false
+                    }
+                    ResponseMessage.ERROR -> mSwipeRefreshLayout.isRefreshing = false
                 }
-                mSwipeRefreshLayout.isRefreshing = false
             }
         })
 
-        mSwipeRefreshLayout.isRefreshing = true
-        mStudentListViewModel.updateStudents()
+        if (savedInstanceState == null) {
+            mSwipeRefreshLayout.isRefreshing = true
+            mStudentListViewModel.updateStudents()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -150,7 +158,7 @@ class StudentListFragment : GeneralFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mStudentListViewModel.resetMessageState()
+        mStudentListViewModel.resetResponseMessage()
     }
 
 

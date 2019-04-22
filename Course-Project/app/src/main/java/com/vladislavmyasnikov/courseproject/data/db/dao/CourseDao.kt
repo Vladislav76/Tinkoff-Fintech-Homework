@@ -1,19 +1,18 @@
 package com.vladislavmyasnikov.courseproject.data.db.dao
 
-import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
-
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.vladislavmyasnikov.courseproject.data.db.entity.CourseEntity
 
 @Dao
-interface LectureDao {
+interface CourseDao {
 
-    @Query("SELECT * FROM lectures ORDER BY id")
-    fun loadLectures(): LiveData<List<LectureEntity>>
+    @Query("SELECT * FROM courses LIMIT 1")
+    fun loadFirstCourse(): LiveData<CourseEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertLectures(lectures: List<LectureEntity>)
+    fun insertCourse(course: CourseEntity)
 }

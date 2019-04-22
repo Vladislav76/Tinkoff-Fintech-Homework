@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.Left
+import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
+import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.models.Right
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
 
@@ -28,21 +30,28 @@ class AuthorizationActivity : AppCompatActivity() {
 
         mEmailInputField = findViewById(R.id.input_email_field)
         mPasswordInputField = findViewById(R.id.input_password_field)
-    }
 
-    override fun onStart() {
-        super.onStart()
-        mLoginViewModel.loginState.observe(this, Observer {
+        mLoginViewModel.responseMessage.observe(this, Observer {
             when (it) {
-                is Left -> Toast.makeText(this, it.value, Toast.LENGTH_SHORT).show()
-                is Right -> startWork()
+                LoginResponseMessage.SUCCESS -> startWork()
+                LoginResponseMessage.LOADING -> Toast.makeText(this, "loading", Toast.LENGTH_SHORT).show()
+                LoginResponseMessage.ERROR -> Toast.makeText(this, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                LoginResponseMessage.NO_INTERNET -> Toast.makeText(this, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                LoginResponseMessage.INCORRECT_EMAIL -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
+                LoginResponseMessage.INCORRECT_PASSWORD -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
+                else -> {}
             }
         })
     }
 
+    override fun onStart() {
+        super.onStart()
+
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        mLoginViewModel.resetLoginState()
+        mLoginViewModel.resetResponseMessage()
     }
 
     fun onLoginClicked(view: View) {
