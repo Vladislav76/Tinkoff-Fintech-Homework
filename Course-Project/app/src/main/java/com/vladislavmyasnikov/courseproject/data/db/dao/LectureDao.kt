@@ -1,12 +1,11 @@
 package com.vladislavmyasnikov.courseproject.data.db.dao
 
-import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
-
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 
 @Dao
 interface LectureDao {

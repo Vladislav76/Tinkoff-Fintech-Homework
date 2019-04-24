@@ -1,27 +1,30 @@
 package com.vladislavmyasnikov.courseproject.data.repositories
 
-import android.app.Application
+import android.content.Context
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.models.Lecture
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
+import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.Lectures
-import com.vladislavmyasnikov.courseproject.data.network.NetworkService
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class LectureRepository private constructor(application: Application) {
+class LectureRepository @Inject constructor(private val applicationContext: Context, private val localDataSource: LocalDatabase, private val remoteDataSource: FintechService, private val memory: Memory) {
 
-    private val localDataSource = LocalDatabase.getInstance(application)
-    private val remoteDataSource = NetworkService.getInstance()
-    private val memory = Memory.getInstance(application)
     private val executor = Executors.newSingleThreadExecutor()
-    private val taskRepository = TaskRepository.getInstance(application)
     private var recentRequestTime: Long = 0
+    private val taskRepository: TaskRepository by lazy {
+        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(applicationContext)).build()
+        TaskRepository(component.getDatabase())
+    }
     val lectures = localDataSource.lectureDao().loadLectures()
 
     fun refreshLectures(callback: LoadLecturesCallback) {
@@ -36,7 +39,7 @@ class LectureRepository private constructor(application: Application) {
     private fun isCacheNotDirty() = System.currentTimeMillis() - recentRequestTime < CASH_LIFE_TIME_IN_MS
 
     private fun loadRemoteLectures(callback: LoadLecturesCallback) {
-        remoteDataSource.fintechService.getLectures(memory.loadToken()).enqueue(object : Callback<Lectures> {
+        remoteDataSource.getLectures(memory.loadToken()).enqueue(object : Callback<Lectures> {
             override fun onFailure(call: Call<Lectures>, e: Throwable) {
                 callback.onResponseReceived(ResponseMessage.NO_INTERNET)
             }
@@ -68,13 +71,7 @@ class LectureRepository private constructor(application: Application) {
 
     companion object {
 
-        private var INSTANCE: LectureRepository? = null
         private const val CASH_LIFE_TIME_IN_MS = 10_000
-
-        fun getInstance(application: Application): LectureRepository =
-                LectureRepository.INSTANCE ?: synchronized(LectureRepository::class.java) {
-                    LectureRepository.INSTANCE ?: LectureRepository(application).also { LectureRepository.INSTANCE = it }
-                }
 
         private fun convertLecturesToEntities(lectures: List<Lecture>): List<LectureEntity> {
             val entities = ArrayList<LectureEntity>()

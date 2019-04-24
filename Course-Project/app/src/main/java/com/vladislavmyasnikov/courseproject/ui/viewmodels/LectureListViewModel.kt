@@ -7,10 +7,16 @@ import androidx.lifecycle.MutableLiveData
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.LectureRepository
+import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 
 class LectureListViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val lectureRepository = LectureRepository.getInstance(application)
+    private val lectureRepository: LectureRepository by lazy {
+        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(application)).build()
+        LectureRepository(application, component.getDatabase(), component.getNetworkService(), component.getMemory())
+    }
+
     private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
     val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
     val lectures: LiveData<List<LectureEntity>> = lectureRepository.lectures

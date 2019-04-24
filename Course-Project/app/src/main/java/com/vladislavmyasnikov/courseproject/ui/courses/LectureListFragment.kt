@@ -12,9 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.Left
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.models.Right
 import com.vladislavmyasnikov.courseproject.ui.adapters.LectureAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment

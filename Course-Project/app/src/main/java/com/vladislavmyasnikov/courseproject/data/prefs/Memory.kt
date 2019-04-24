@@ -5,20 +5,19 @@ import android.content.Context
 import com.vladislavmyasnikov.courseproject.data.models.Profile
 import com.vladislavmyasnikov.courseproject.data.models.UserCourse
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
+import javax.inject.Inject
 
-class Memory private constructor(application: Application) {
-
-    private val mApplication = application
+class Memory @Inject constructor(private val applicationContext: Context) {
 
     fun loadCookieData(): CookieData? {
-        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
         val token = preferences.getString(AUTHORIZATION_TOKEN, null)
         val time = preferences.getString(TOKEN_EXPIRATION_TIME, null)
         return if (token == null || time == null) null else CookieData(token, time)
     }
 
     fun loadProfile(): Profile? {
-        val preferences = mApplication.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
         val firstName = preferences.getString(USER_FIRST_NAME, null)
         val lastName = preferences.getString(USER_LAST_NAME, null)
         val middleName = preferences.getString(USER_MIDDLE_NAME, null)
@@ -27,18 +26,18 @@ class Memory private constructor(application: Application) {
     }
 
     fun loadCourse(): UserCourse? {
-        val preferences = mApplication.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
         val url = preferences.getString(COURSE_URL, null)
         return null //???
     }
 
     fun loadToken(): String {
-        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
         return preferences.getString(AUTHORIZATION_TOKEN, null) ?: ""
     }
 
     fun saveCookieData(data: CookieData) {
-        val preferences = mApplication.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COOKIES_STORAGE_NAME, Context.MODE_PRIVATE)
         preferences.edit()
                 .putString(AUTHORIZATION_TOKEN, data.token)
                 .putString(TOKEN_EXPIRATION_TIME, data.time)
@@ -46,7 +45,7 @@ class Memory private constructor(application: Application) {
     }
 
     fun saveUserData(profile: Profile) {
-        val preferences = mApplication.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(USER_STORAGE_NAME, Context.MODE_PRIVATE)
         preferences.edit()
                 .putString(USER_FIRST_NAME, profile.firstName)
                 .putString(USER_LAST_NAME, profile.lastName)
@@ -56,7 +55,7 @@ class Memory private constructor(application: Application) {
     }
 
     fun saveCourseData(title: String, url: String) {
-        val preferences = mApplication.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
         preferences.edit()
                 .putString(COURSE_TITLE, title)
                 .putString(COURSE_URL, url)
@@ -64,7 +63,7 @@ class Memory private constructor(application: Application) {
     }
 
     fun saveCourseData(count: Int, past: Int, remaining: Int) {
-        val preferences = mApplication.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
+        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
         preferences.edit()
                 .putInt(LECTURE_COUNT, count)
                 .putInt(PAST_LECTURE_COUNT, past)

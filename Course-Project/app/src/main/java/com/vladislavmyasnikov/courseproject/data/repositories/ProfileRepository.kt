@@ -1,22 +1,20 @@
 package com.vladislavmyasnikov.courseproject.data.repositories
 
-import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.vladislavmyasnikov.courseproject.data.models.Profile
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.network.NetworkService
+import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.ProfileInfo
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class ProfileRepository private constructor(application: Application) {
+class ProfileRepository @Inject constructor(private val remoteDataSource: FintechService, private val memory: Memory) {
 
-    private val remoteDataSource = NetworkService.getInstance()
-    private val memory = Memory.getInstance(application)
     private val executor = Executors.newSingleThreadExecutor()
     private var recentRequestTime: Long = 0
     private val mutableProfile = MutableLiveData<Profile>()
@@ -36,7 +34,7 @@ class ProfileRepository private constructor(application: Application) {
     }
 
     private fun loadRemoteProfile(callback: LoadProfileCallback) {
-        remoteDataSource.fintechService.getProfile(memory.loadToken()).enqueue(object : Callback<ProfileInfo> {
+        remoteDataSource.getProfile(memory.loadToken()).enqueue(object : Callback<ProfileInfo> {
             override fun onFailure(call: Call<ProfileInfo>, e: Throwable) {
                 callback.onResponseReceived(ResponseMessage.NO_INTERNET)
             }
@@ -69,13 +67,7 @@ class ProfileRepository private constructor(application: Application) {
 
     companion object {
 
-        private var INSTANCE: ProfileRepository? = null
         private const val CASH_LIFE_TIME_IN_MS = 10_000
-
-        fun getInstance(application: Application): ProfileRepository =
-                ProfileRepository.INSTANCE ?: synchronized(ProfileRepository::class.java) {
-                    ProfileRepository.INSTANCE ?: ProfileRepository(application).also { ProfileRepository.INSTANCE = it }
-                }
     }
 
 

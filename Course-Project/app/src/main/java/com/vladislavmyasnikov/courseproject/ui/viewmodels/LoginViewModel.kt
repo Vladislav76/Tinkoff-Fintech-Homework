@@ -7,13 +7,18 @@ import androidx.lifecycle.MutableLiveData
 import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.LoginRepository
+import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val loginRepository = LoginRepository.getInstance(application)
+    private val loginRepository: LoginRepository by lazy {
+        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(application)).build()
+        LoginRepository(component.getMemory(), component.getNetworkService())
+    }
     private val mutableResponseMessage = MutableLiveData<LoginResponseMessage>()
     val responseMessage: LiveData<LoginResponseMessage> = mutableResponseMessage
 

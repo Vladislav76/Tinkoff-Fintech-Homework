@@ -1,6 +1,5 @@
 package com.vladislavmyasnikov.courseproject.data.repositories
 
-import android.app.Application
 import android.util.Log
 import androidx.lifecycle.LiveData
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
@@ -10,10 +9,10 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.Executors
+import javax.inject.Inject
 
-class TaskRepository private constructor(application: Application)  {
+class TaskRepository @Inject constructor(private val localDataSource: LocalDatabase)  {
 
-    private val localDataSource = LocalDatabase.getInstance(application)
     private val executor = Executors.newSingleThreadExecutor()
 
     fun getTasksByLectureId(lectureId: Int): LiveData<List<TaskEntity>> {
@@ -27,13 +26,6 @@ class TaskRepository private constructor(application: Application)  {
 
 
     companion object {
-
-        private var INSTANCE: TaskRepository? = null
-
-        fun getInstance(application: Application): TaskRepository =
-                TaskRepository.INSTANCE ?: synchronized(TaskRepository::class.java) {
-                    TaskRepository.INSTANCE ?: TaskRepository(application).also { TaskRepository.INSTANCE = it }
-                }
 
         private fun convertTasksToEntities(tasks: List<TaskInfo>, lectureId: Int): List<TaskEntity> {
             val entities = ArrayList<TaskEntity>()
