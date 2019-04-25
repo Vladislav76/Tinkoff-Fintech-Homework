@@ -1,24 +1,19 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.LoginRepository
-import com.vladislavmyasnikov.courseproject.di.components.DaggerRepositoryComponent
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
-import com.vladislavmyasnikov.courseproject.ui.main.App
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import javax.inject.Inject
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
+class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
 
-    private val loginRepository: LoginRepository by lazy {
-        App.instance.repositoryComponent.getLoginRepository()
-    }
     private val mutableResponseMessage = MutableLiveData<LoginResponseMessage>()
     val responseMessage: LiveData<LoginResponseMessage> = mutableResponseMessage
 
@@ -75,6 +70,20 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: ParseException) {
                 false
             }
+        }
+    }
+}
+
+
+
+class LoginViewModelFactory @Inject constructor(private val loginRepository: LoginRepository) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
+            LoginViewModel(loginRepository) as T
+        } else {
+            throw IllegalArgumentException("ViewModel not found")
         }
     }
 }

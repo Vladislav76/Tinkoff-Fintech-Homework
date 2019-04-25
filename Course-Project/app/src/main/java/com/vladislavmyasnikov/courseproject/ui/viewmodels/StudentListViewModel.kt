@@ -1,19 +1,16 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.StudentRepository
-import com.vladislavmyasnikov.courseproject.ui.main.App
+import javax.inject.Inject
 
-class StudentListViewModel(application: Application) : AndroidViewModel(application) {
+class StudentListViewModel(private val studentRepository: StudentRepository) : ViewModel() {
 
-    private val studentRepository: StudentRepository by lazy {
-        App.instance.repositoryComponent.getStudentRepository()
-    }
     private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
     val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
     val students: LiveData<List<StudentEntity>> = studentRepository.students
@@ -30,6 +27,20 @@ class StudentListViewModel(application: Application) : AndroidViewModel(applicat
     fun resetResponseMessage() {
         if (mutableResponseMessage.value != ResponseMessage.LOADING) {
             mutableResponseMessage.value = null
+        }
+    }
+}
+
+
+
+class StudentListViewModelFactory @Inject constructor(private val studentRepository: StudentRepository) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(StudentListViewModel::class.java)) {
+            StudentListViewModel(studentRepository) as T
+        } else {
+            throw IllegalArgumentException("ViewModel not found")
         }
     }
 }

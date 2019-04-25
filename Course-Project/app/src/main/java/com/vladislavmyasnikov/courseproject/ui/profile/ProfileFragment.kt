@@ -8,22 +8,28 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.components.DaggerProfileFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
+import com.vladislavmyasnikov.courseproject.di.modules.ViewModelModule
+import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModelFactory
 import javax.inject.Inject
+import javax.inject.Provider
 
 class ProfileFragment : GeneralFragment() {
 
     @Inject
-    lateinit var mProfileViewModel: ProfileViewModel
+    lateinit var mProfileViewModelFactory: ProfileViewModelFactory
+
+    private lateinit var mProfileViewModel: ProfileViewModel
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
@@ -40,8 +46,9 @@ class ProfileFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.profile_toolbar_title)
 
-        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        val injector = DaggerProfileFragmentInjector.builder().appComponent(App.appComponent).build()
         injector.injectProfileFragment(this)
+        mProfileViewModel = ViewModelProviders.of(this, mProfileViewModelFactory).get(ProfileViewModel::class.java)
 
         mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.updateProfile() }
 

@@ -5,9 +5,9 @@ import com.vladislavmyasnikov.courseproject.di.modules.ViewModelModule
 import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
 import dagger.Component
 
-@Component(modules = [ViewModelModule::class])
+@Component(dependencies = [AppComponent::class], modules = [ViewModelModule::class])
 @ActivityScope
-interface ActivityInjector {
+interface AuthorizationActivityInjector {
 
     fun injectAuthorizationActivity(activity: AuthorizationActivity)
 }

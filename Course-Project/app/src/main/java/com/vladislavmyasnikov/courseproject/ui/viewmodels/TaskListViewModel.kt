@@ -1,19 +1,12 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.*
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
 import com.vladislavmyasnikov.courseproject.data.repositories.TaskRepository
-import com.vladislavmyasnikov.courseproject.ui.main.App
+import javax.inject.Inject
 
-class TaskListViewModel(application: Application) : AndroidViewModel(application) {
+class TaskListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
 
-    private val taskRepository: TaskRepository by lazy {
-        App.instance.repositoryComponent.getTaskRepository()
-    }
     private val mLectureId = MutableLiveData<Int>()
 
     val tasks: LiveData<List<TaskEntity>> = Transformations.switchMap(mLectureId) {
@@ -22,5 +15,19 @@ class TaskListViewModel(application: Application) : AndroidViewModel(application
 
     fun loadTasksByLectureId(id: Int) {
         mLectureId.value = id
+    }
+}
+
+
+
+class TaskListViewModelFactory @Inject constructor(private val taskRepository: TaskRepository) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(TaskListViewModel::class.java)) {
+            TaskListViewModel(taskRepository) as T
+        } else {
+            throw IllegalArgumentException("ViewModel not found")
+        }
     }
 }

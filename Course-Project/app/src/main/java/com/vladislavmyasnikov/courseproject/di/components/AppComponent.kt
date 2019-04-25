@@ -7,7 +7,7 @@ import javax.inject.Singleton
 
 @Component(modules = [RepositoryModule::class])
 @Singleton
-interface RepositoryComponent {
+interface AppComponent {
 
     fun getLectureRepository(): LectureRepository
     fun getTaskRepository(): TaskRepository

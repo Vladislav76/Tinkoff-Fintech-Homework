@@ -9,21 +9,28 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.components.DaggerTaskListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
+import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModelFactory
 import javax.inject.Inject
 
 class TaskListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var taskListViewModel: TaskListViewModel
+    lateinit var viewModelFactory: TaskListViewModelFactory
 
     @Inject
     lateinit var adapter: TaskAdapter
+
+    private lateinit var taskListViewModel: TaskListViewModel
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView = RecyclerView(inflater.context)
@@ -35,8 +42,9 @@ class TaskListFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(arguments!!.getString(TITLE_ARG)!!)
 
-        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        val injector = DaggerTaskListFragmentInjector.builder().appComponent(App.appComponent).build()
         injector.injectTaskListFragment(this)
+        taskListViewModel = ViewModelProviders.of(this, viewModelFactory).get(TaskListViewModel::class.java)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.adapter = adapter

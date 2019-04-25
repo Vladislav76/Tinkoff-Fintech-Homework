@@ -13,23 +13,26 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.components.DaggerLectureListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.LectureAdapter
+import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.AuthorizationActivity
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModelFactory
 import javax.inject.Inject
 
 class LectureListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var lectureListViewModel: LectureListViewModel
+    lateinit var viewModelFactory: LectureListViewModelFactory
 
     @Inject
     lateinit var adapter: LectureAdapter
+
+    private lateinit var lectureListViewModel: LectureListViewModel
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
@@ -54,8 +57,9 @@ class LectureListFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.lectures_toolbar_title)
 
-        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        val injector = DaggerLectureListFragmentInjector.builder().appComponent(App.appComponent).build()
         injector.injectLectureListFragment(this)
+        lectureListViewModel = ViewModelProviders.of(this, viewModelFactory).get(LectureListViewModel::class.java)
 
         mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.updateLectures() }
 

@@ -1,21 +1,15 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.LectureRepository
-import com.vladislavmyasnikov.courseproject.di.components.DaggerRepositoryComponent
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
-import com.vladislavmyasnikov.courseproject.ui.main.App
+import javax.inject.Inject
 
-class LectureListViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val lectureRepository: LectureRepository by lazy {
-        App.instance.repositoryComponent.getLectureRepository()
-    }
+class LectureListViewModel(private val lectureRepository: LectureRepository) : ViewModel() {
 
     private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
     val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
@@ -33,6 +27,20 @@ class LectureListViewModel(application: Application) : AndroidViewModel(applicat
     fun resetResponseMessage() {
         if (mutableResponseMessage.value != ResponseMessage.LOADING) {
             mutableResponseMessage.value = null
+        }
+    }
+}
+
+
+
+class LectureListViewModelFactory @Inject constructor(private val lectureRepository: LectureRepository) : ViewModelProvider.Factory {
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        return if (modelClass.isAssignableFrom(LectureListViewModel::class.java)) {
+            LectureListViewModel(lectureRepository) as T
+        } else {
+            throw IllegalArgumentException("ViewModel not found")
         }
     }
 }

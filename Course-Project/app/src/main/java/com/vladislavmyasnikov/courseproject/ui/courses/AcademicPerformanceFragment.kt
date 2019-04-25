@@ -13,22 +13,25 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.components.DaggerAcademicPerformanceFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
-import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
+import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStartListener
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStopListener
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import javax.inject.Inject
 
 class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
 
     @Inject
-    lateinit var mStudentListViewModel: StudentListViewModel
+    lateinit var studentListViewModelFactory: StudentListViewModelFactory
 
     @Inject
     lateinit var mAdapter: StudentAdapter
+
+    private lateinit var mStudentListViewModel: StudentListViewModel
 
     private var mUpdateStopListener: UpdateStopListener? = null
 
@@ -54,8 +57,9 @@ class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<View>(R.id.title).setOnClickListener(mOnTitleListener)
 
-        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        val injector = DaggerAcademicPerformanceFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectAcademicPerformanceFragment(this)
+        mStudentListViewModel = ViewModelProviders.of(this, studentListViewModelFactory).get(StudentListViewModel::class.java)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         mAdapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW

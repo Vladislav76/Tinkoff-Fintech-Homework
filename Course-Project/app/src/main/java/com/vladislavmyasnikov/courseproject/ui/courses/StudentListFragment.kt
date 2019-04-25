@@ -5,29 +5,35 @@ import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
+import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import javax.inject.Inject
 
 class StudentListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var mStudentListViewModel: StudentListViewModel
+    lateinit var viewModelFactory: StudentListViewModelFactory
 
     @Inject
     lateinit var mAdapter: StudentAdapter
+
+    private lateinit var mStudentListViewModel: StudentListViewModel
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
     private var mSortType: Int = UNSORTED
@@ -49,8 +55,9 @@ class StudentListFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.academic_performance_toolbar_title)
 
-        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectStudentListFragment(this)
+        mStudentListViewModel = ViewModelProviders.of(this, viewModelFactory).get(StudentListViewModel::class.java)
 
         mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.updateStudents() }
 

@@ -3,6 +3,7 @@ package com.vladislavmyasnikov.courseproject.di.modules
 import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -29,5 +30,6 @@ class FragmentActivityModule(private val fragmentActivity: FragmentActivity) {
 class FragmentModule(private val fragment: Fragment) {
 
     @Provides
+    @FragmentScope
     fun provideFragment(): Fragment = fragment
 }

@@ -1,34 +1,32 @@
 package com.vladislavmyasnikov.courseproject.di.modules
 
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProviders
+import com.vladislavmyasnikov.courseproject.data.repositories.*
 import com.vladislavmyasnikov.courseproject.di.annotations.ActivityScope
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.*
 import dagger.Module
 import dagger.Provides
 
-@Module(includes = [FragmentActivityModule::class, FragmentModule::class])
+@Module
 class ViewModelModule {
 
     @Provides
     @ActivityScope
-    fun provideLoginViewModel(fragmentActivity: FragmentActivity): LoginViewModel = ViewModelProviders.of(fragmentActivity).get(LoginViewModel::class.java)
+    fun provideLoginViewModelFactory(repository: LoginRepository) = LoginViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideStudentListViewModel(fragment: Fragment): StudentListViewModel = ViewModelProviders.of(fragment).get(StudentListViewModel::class.java)
+    fun provideTaskListViewModelFactory(repository: TaskRepository) = TaskListViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideTaskListViewModel(fragment: Fragment): TaskListViewModel = ViewModelProviders.of(fragment).get(TaskListViewModel::class.java)
+    fun provideLectureListViewModelFactory(repository: LectureRepository) = LectureListViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideLectureListViewModel(fragment: Fragment): LectureListViewModel = ViewModelProviders.of(fragment).get(LectureListViewModel::class.java)
+    fun provideStudentListViewModelFactory(repository: StudentRepository) = StudentListViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideProfileViewModel(fragment: Fragment): ProfileViewModel = ViewModelProviders.of(fragment).get(ProfileViewModel::class.java)
+    fun provideProfileViewModelFactory(repository: ProfileRepository) = ProfileViewModelFactory(repository)
 }
