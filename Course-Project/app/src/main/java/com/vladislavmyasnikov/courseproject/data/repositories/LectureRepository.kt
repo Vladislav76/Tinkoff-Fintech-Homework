@@ -1,6 +1,5 @@
 package com.vladislavmyasnikov.courseproject.data.repositories
 
-import android.content.Context
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.models.Lecture
@@ -8,8 +7,6 @@ import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.Lectures
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
-import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -17,14 +14,10 @@ import java.util.*
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class LectureRepository @Inject constructor(private val applicationContext: Context, private val localDataSource: LocalDatabase, private val remoteDataSource: FintechService, private val memory: Memory) {
+class LectureRepository @Inject constructor(private val taskRepository: TaskRepository, private val localDataSource: LocalDatabase, private val remoteDataSource: FintechService, private val memory: Memory) {
 
     private val executor = Executors.newSingleThreadExecutor()
     private var recentRequestTime: Long = 0
-    private val taskRepository: TaskRepository by lazy {
-        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(applicationContext)).build()
-        TaskRepository(component.getDatabase())
-    }
     val lectures = localDataSource.lectureDao().loadLectures()
 
     fun refreshLectures(callback: LoadLecturesCallback) {

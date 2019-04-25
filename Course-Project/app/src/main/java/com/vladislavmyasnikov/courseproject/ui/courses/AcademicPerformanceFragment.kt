@@ -13,17 +13,23 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
+import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStartListener
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStopListener
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
+import javax.inject.Inject
 
 class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
 
-    private val mStudentListViewModel: StudentListViewModel by lazy {
-        ViewModelProviders.of(this).get(StudentListViewModel::class.java)
-    }
-    private lateinit var mAdapter: StudentAdapter
+    @Inject
+    lateinit var mStudentListViewModel: StudentListViewModel
+
+    @Inject
+    lateinit var mAdapter: StudentAdapter
+
     private var mUpdateStopListener: UpdateStopListener? = null
 
     private val mOnTitleListener = View.OnClickListener {
@@ -48,8 +54,11 @@ class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<View>(R.id.title).setOnClickListener(mOnTitleListener)
 
+        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        injector.injectAcademicPerformanceFragment(this)
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        mAdapter = StudentAdapter(activity!!, StudentAdapter.ViewType.COMPACT_VIEW)
+        mAdapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW
         recyclerView.adapter = mAdapter
 
         mStudentListViewModel.students.observe(this, Observer { students ->

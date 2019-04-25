@@ -9,15 +9,21 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
+import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
+import javax.inject.Inject
 
 class TaskListFragment : GeneralFragment() {
 
-    private val mTaskListViewModel: TaskListViewModel by lazy {
-        ViewModelProviders.of(this).get(TaskListViewModel::class.java)
-    }
+    @Inject
+    lateinit var taskListViewModel: TaskListViewModel
+
+    @Inject
+    lateinit var adapter: TaskAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView = RecyclerView(inflater.context)
@@ -29,15 +35,17 @@ class TaskListFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(arguments!!.getString(TITLE_ARG)!!)
 
+        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        injector.injectTaskListFragment(this)
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        val adapter = TaskAdapter()
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        mTaskListViewModel.tasks.observe(this, Observer { tasks ->
+        taskListViewModel.tasks.observe(this, Observer { tasks ->
             adapter.updateList(tasks)
         })
-        mTaskListViewModel.loadTasksByLectureId(arguments!!.getInt(LECTURE_ID_ARG))
+        taskListViewModel.loadTasksByLectureId(arguments!!.getInt(LECTURE_ID_ARG))
     }
 
 

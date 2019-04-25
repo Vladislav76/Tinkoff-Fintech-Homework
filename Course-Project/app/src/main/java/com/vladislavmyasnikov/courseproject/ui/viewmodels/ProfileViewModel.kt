@@ -7,14 +7,14 @@ import androidx.lifecycle.MutableLiveData
 import com.vladislavmyasnikov.courseproject.data.models.Profile
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories.ProfileRepository
-import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
+import com.vladislavmyasnikov.courseproject.di.components.DaggerRepositoryComponent
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.ui.main.App
 
 class ProfileViewModel(application: Application) : AndroidViewModel(application) {
 
     private val profileRepository: ProfileRepository by lazy {
-        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(application)).build()
-        ProfileRepository(component.getNetworkService(), component.getMemory())
+        App.instance.repositoryComponent.getProfileRepository()
     }
     private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
     val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage

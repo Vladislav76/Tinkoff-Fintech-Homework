@@ -14,10 +14,15 @@ import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
-class StudentAdapter(private val context: Context, private val viewType: ViewType) : RecyclerView.Adapter<StudentAdapter.ViewHolder>(), Filterable {
+class StudentAdapter(private val context: Context) : RecyclerView.Adapter<StudentAdapter.ViewHolder>(), Filterable {
 
     private var mStudents: List<StudentEntity> = listOf()
     private var mSourceStudents: List<StudentEntity> = listOf()
+    var viewType: ViewType = ViewType.LINEAR_VIEW
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     private val filter = object : Filter() {
         override fun performFiltering(query: CharSequence): FilterResults {

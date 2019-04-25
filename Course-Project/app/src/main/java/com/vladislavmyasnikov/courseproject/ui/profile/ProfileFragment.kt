@@ -13,14 +13,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
+import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
+import javax.inject.Inject
 
 class ProfileFragment : GeneralFragment() {
 
-    private val mProfileViewModel: ProfileViewModel by lazy {
-        ViewModelProviders.of(this).get(ProfileViewModel::class.java)
-    }
+    @Inject
+    lateinit var mProfileViewModel: ProfileViewModel
+
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -35,6 +39,9 @@ class ProfileFragment : GeneralFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.profile_toolbar_title)
+
+        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        injector.injectProfileFragment(this)
 
         mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.updateProfile() }
 

@@ -18,5 +18,5 @@ class DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(context: Context, @Named("database_name") name: String) = Room.databaseBuilder(context, LocalDatabase::class.java, name).build()
+    fun provideDatabase(@Named("application_context") context: Context, @Named("database_name") name: String) = Room.databaseBuilder(context, LocalDatabase::class.java, name).build()
 }

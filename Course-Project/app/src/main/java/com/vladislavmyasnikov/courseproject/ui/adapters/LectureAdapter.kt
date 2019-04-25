@@ -11,8 +11,9 @@ import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
-class LectureAdapter(private val mCallback: OnItemClickCallback) : RecyclerView.Adapter<LectureAdapter.LectureViewHolder>() {
+class LectureAdapter : RecyclerView.Adapter<LectureAdapter.LectureViewHolder>() {
 
+    var callback: OnItemClickCallback? = null
     private var mLectures: List<LectureEntity> = emptyList()
 
     fun updateList(lectures: List<LectureEntity>) {
@@ -28,7 +29,7 @@ class LectureAdapter(private val mCallback: OnItemClickCallback) : RecyclerView.
 
         holder.itemView.setOnClickListener {
             val lecture = mLectures[holder.adapterPosition]
-            mCallback.onClick(lecture.id, lecture.title)
+            callback?.onClick(lecture.id, lecture.title)
         }
         return holder
     }

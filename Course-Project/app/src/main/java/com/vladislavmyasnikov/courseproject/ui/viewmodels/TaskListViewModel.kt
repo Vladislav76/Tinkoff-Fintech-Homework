@@ -7,14 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
 import com.vladislavmyasnikov.courseproject.data.repositories.TaskRepository
-import com.vladislavmyasnikov.courseproject.di.components.DaggerDataSourceComponent
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.ui.main.App
 
 class TaskListViewModel(application: Application) : AndroidViewModel(application) {
 
     private val taskRepository: TaskRepository by lazy {
-        val component = DaggerDataSourceComponent.builder().contextModule(ContextModule(application)).build()
-        TaskRepository(component.getDatabase())
+        App.instance.repositoryComponent.getTaskRepository()
     }
     private val mLectureId = MutableLiveData<Int>()
 

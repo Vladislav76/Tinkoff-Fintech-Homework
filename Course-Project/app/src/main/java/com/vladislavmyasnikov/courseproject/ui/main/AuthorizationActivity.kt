@@ -6,20 +6,18 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.Left
 import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.models.Right
+import com.vladislavmyasnikov.courseproject.di.components.DaggerActivityInjector
+import com.vladislavmyasnikov.courseproject.di.modules.FragmentActivityModule
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
+import javax.inject.Inject
 
 class AuthorizationActivity : AppCompatActivity() {
 
-    private val mLoginViewModel: LoginViewModel by lazy {
-        ViewModelProviders.of(this).get(LoginViewModel::class.java)
-    }
+    @Inject
+    lateinit var mLoginViewModel: LoginViewModel
 
     private lateinit var mEmailInputField: TextInputEditText
     private lateinit var mPasswordInputField: TextInputEditText
@@ -27,6 +25,9 @@ class AuthorizationActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_authorization)
+
+        val component = DaggerActivityInjector.builder().fragmentActivityModule(FragmentActivityModule(this)).build()
+        component.injectAuthorizationActivity(this)
 
         mEmailInputField = findViewById(R.id.input_email_field)
         mPasswordInputField = findViewById(R.id.input_password_field)

@@ -11,20 +11,25 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
+import com.vladislavmyasnikov.courseproject.di.components.DaggerFragmentInjector
+import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
+import javax.inject.Inject
 
 class StudentListFragment : GeneralFragment() {
 
-    private val mStudentListViewModel: StudentListViewModel by lazy {
-        ViewModelProviders.of(this).get(StudentListViewModel::class.java)
-    }
+    @Inject
+    lateinit var mStudentListViewModel: StudentListViewModel
+
+    @Inject
+    lateinit var mAdapter: StudentAdapter
 
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private lateinit var mAdapter: StudentAdapter
     private var mSortType: Int = UNSORTED
     private var mSearchQuery: String? = null
 
@@ -44,10 +49,12 @@ class StudentListFragment : GeneralFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mFragmentListener?.setToolbarTitle(R.string.academic_performance_toolbar_title)
 
+        val injector = DaggerFragmentInjector.builder().fragmentModule(FragmentModule(this)).contextModule(ContextModule(activity!!)).build()
+        injector.injectStudentListFragment(this)
+
         mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.updateStudents() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        mAdapter = StudentAdapter(activity!!, StudentAdapter.ViewType.LINEAR_VIEW)
         recyclerView.adapter = mAdapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.itemAnimator = CustomItemAnimator()
