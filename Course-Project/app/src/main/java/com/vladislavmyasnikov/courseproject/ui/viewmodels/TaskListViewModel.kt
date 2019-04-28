@@ -1,8 +1,8 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.*
-import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
-import com.vladislavmyasnikov.courseproject.data.repositories.TaskRepository
+import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.TaskRepository
 import javax.inject.Inject
 
 class TaskListViewModel(private val taskRepository: TaskRepository) : ViewModel() {

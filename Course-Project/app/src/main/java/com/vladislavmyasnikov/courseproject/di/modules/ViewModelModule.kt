@@ -1,6 +1,6 @@
 package com.vladislavmyasnikov.courseproject.di.modules
 
-import com.vladislavmyasnikov.courseproject.data.repositories.*
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
 import com.vladislavmyasnikov.courseproject.di.annotations.ActivityScope
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.*

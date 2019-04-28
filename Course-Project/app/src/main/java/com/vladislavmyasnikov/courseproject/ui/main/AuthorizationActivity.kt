@@ -50,11 +50,6 @@ class AuthorizationActivity : AppCompatActivity() {
         })
     }
 
-    override fun onStart() {
-        super.onStart()
-
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         mLoginViewModel.resetResponseMessage()

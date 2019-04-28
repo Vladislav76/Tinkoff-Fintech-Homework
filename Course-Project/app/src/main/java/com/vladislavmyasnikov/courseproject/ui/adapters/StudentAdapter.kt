@@ -10,7 +10,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 

@@ -1,19 +1,23 @@
-package com.vladislavmyasnikov.courseproject.data.repositories
+package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.vladislavmyasnikov.courseproject.data.models.Profile
+import com.vladislavmyasnikov.courseproject.data.network.entities.Profile
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.ProfileInfo
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class ProfileRepository @Inject constructor(private val remoteDataSource: FintechService, private val memory: Memory) {
+class ProfileRepository @Inject constructor(
+        private val remoteDataSource: FintechService,
+        private val memory: Memory
+) : IProfileRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
     private var recentRequestTime: Long = 0
@@ -56,7 +60,7 @@ class ProfileRepository @Inject constructor(private val remoteDataSource: Fintec
 
     private fun saveProfile(profile: Profile, callback: LoadProfileCallback) {
         executor.execute {
-            memory.saveUserData(profile)
+            memory.saveProfileData(profile)
             callback.onResponseReceived(ResponseMessage.SUCCESS)
         }
     }

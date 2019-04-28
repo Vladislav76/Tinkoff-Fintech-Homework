@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories.LectureRepository
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.LectureRepository
 import javax.inject.Inject
 
 class LectureListViewModel(private val lectureRepository: LectureRepository) : ViewModel() {

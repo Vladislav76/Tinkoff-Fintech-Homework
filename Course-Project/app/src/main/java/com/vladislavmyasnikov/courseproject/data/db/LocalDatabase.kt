@@ -10,10 +10,10 @@ import com.vladislavmyasnikov.courseproject.data.db.dao.CourseDao
 import com.vladislavmyasnikov.courseproject.data.db.dao.LectureDao
 import com.vladislavmyasnikov.courseproject.data.db.dao.StudentDao
 import com.vladislavmyasnikov.courseproject.data.db.dao.TaskDao
-import com.vladislavmyasnikov.courseproject.data.db.entity.CourseEntity
-import com.vladislavmyasnikov.courseproject.data.db.entity.LectureEntity
-import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
-import com.vladislavmyasnikov.courseproject.data.db.entity.TaskEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.CourseEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
 
 @Database(entities = [LectureEntity::class, TaskEntity::class, StudentEntity::class, CourseEntity::class], version = 1, exportSchema = false)
 @TypeConverters(DateConverter::class)

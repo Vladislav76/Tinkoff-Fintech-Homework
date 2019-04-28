@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories.LoginRepository
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.LoginRepository
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

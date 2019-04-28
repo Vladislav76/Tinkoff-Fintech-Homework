@@ -1,17 +1,21 @@
-package com.vladislavmyasnikov.courseproject.data.repositories
+package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
 import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.Login
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class LoginRepository @Inject constructor(private val memory: Memory, private val remoteDataSource: FintechService) {
+class LoginRepository @Inject constructor(
+        private val memory: Memory,
+        private val remoteDataSource: FintechService
+) : ILoginRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
 

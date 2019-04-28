@@ -4,9 +4,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.models.Profile
+import com.vladislavmyasnikov.courseproject.data.network.entities.Profile
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories.ProfileRepository
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.ProfileRepository
 import javax.inject.Inject
 
 class ProfileViewModel(private val profileRepository: ProfileRepository) : ViewModel() {

@@ -1,12 +1,13 @@
-package com.vladislavmyasnikov.courseproject.data.repositories
+package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
-import com.vladislavmyasnikov.courseproject.data.db.entity.StudentEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.models.Student
+import com.vladislavmyasnikov.courseproject.data.network.entities.Student
 import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.network.Students
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -14,7 +15,11 @@ import java.util.*
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class StudentRepository @Inject constructor(private val localDataSource: LocalDatabase, private val remoteDataSource: FintechService,  private val memory: Memory) {
+class StudentRepository @Inject constructor(
+        private val localDataSource: LocalDatabase,
+        private val remoteDataSource: FintechService,
+        private val memory: Memory
+) : IStudentRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
     private var recentRequestTime: Long = 0

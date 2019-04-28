@@ -3,7 +3,7 @@ package com.vladislavmyasnikov.courseproject.di.modules
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.network.FintechService
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
-import com.vladislavmyasnikov.courseproject.data.repositories.*
+import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton

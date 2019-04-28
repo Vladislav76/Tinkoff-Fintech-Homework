@@ -1,6 +1,6 @@
 package com.vladislavmyasnikov.courseproject.utilities
 
-import com.vladislavmyasnikov.courseproject.data.models.Identifiable
+import com.vladislavmyasnikov.courseproject.domain.models.Identifiable
 
 import androidx.recyclerview.widget.DiffUtil
 

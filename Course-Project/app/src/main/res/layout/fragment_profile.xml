@@ -78,13 +78,4 @@
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@id/patronymic_label"
         app:layout_constraintTop_toBottomOf="@id/surname_label" />
-
-    <Button
-        android:id="@+id/edit_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/edit_action"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

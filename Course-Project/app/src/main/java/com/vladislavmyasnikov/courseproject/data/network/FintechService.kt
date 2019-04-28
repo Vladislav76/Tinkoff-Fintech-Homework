@@ -1,10 +1,10 @@
 package com.vladislavmyasnikov.courseproject.data.network
 
 import com.google.gson.annotations.SerializedName
-import com.vladislavmyasnikov.courseproject.data.models.Course
-import com.vladislavmyasnikov.courseproject.data.models.Lecture
-import com.vladislavmyasnikov.courseproject.data.models.Profile
-import com.vladislavmyasnikov.courseproject.data.models.Student
+import com.vladislavmyasnikov.courseproject.data.network.entities.Course
+import com.vladislavmyasnikov.courseproject.data.network.entities.Lecture
+import com.vladislavmyasnikov.courseproject.data.network.entities.Profile
+import com.vladislavmyasnikov.courseproject.data.network.entities.Student
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -30,8 +30,10 @@ interface FintechService {
 }
 
 
-class Login(@SerializedName("email") val email: String,
-            @SerializedName("password") val password: String)
+class Login(
+        @SerializedName("email") val email: String,
+        @SerializedName("password") val password: String
+)
 
 class CookieData(val token: String, val time: String)
 
