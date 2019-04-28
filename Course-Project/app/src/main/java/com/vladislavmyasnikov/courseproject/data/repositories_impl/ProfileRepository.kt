@@ -2,9 +2,9 @@ package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.vladislavmyasnikov.courseproject.data.network.entities.Profile
+import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.network.FintechService
+import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.ProfileInfo
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
@@ -15,14 +15,14 @@ import java.util.concurrent.Executors
 import javax.inject.Inject
 
 class ProfileRepository @Inject constructor(
-        private val remoteDataSource: FintechService,
+        private val remoteDataSource: FintechPortalApi,
         private val memory: Memory
 ) : IProfileRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
     private var recentRequestTime: Long = 0
-    private val mutableProfile = MutableLiveData<Profile>()
-    val profile: LiveData<Profile> = mutableProfile
+    private val mutableProfile = MutableLiveData<ProfileJson>()
+    val profile: LiveData<ProfileJson> = mutableProfile
 
     init {
         mutableProfile.value = memory.loadProfile()
@@ -58,7 +58,7 @@ class ProfileRepository @Inject constructor(
         })
     }
 
-    private fun saveProfile(profile: Profile, callback: LoadProfileCallback) {
+    private fun saveProfile(profile: ProfileJson, callback: LoadProfileCallback) {
         executor.execute {
             memory.saveProfileData(profile)
             callback.onResponseReceived(ResponseMessage.SUCCESS)

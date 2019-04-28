@@ -2,7 +2,7 @@ package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
-import com.vladislavmyasnikov.courseproject.data.network.FintechService
+import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.Login
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 class LoginRepository @Inject constructor(
         private val memory: Memory,
-        private val remoteDataSource: FintechService
+        private val remoteDataSource: FintechPortalApi
 ) : ILoginRepository {
 
     private val executor = Executors.newSingleThreadExecutor()

@@ -8,15 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
+import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
 class LectureAdapter : RecyclerView.Adapter<LectureAdapter.LectureViewHolder>() {
 
     var callback: OnItemClickCallback? = null
-    private var mLectures: List<LectureEntity> = emptyList()
+    private var mLectures: List<Lecture> = emptyList()
 
-    fun updateList(lectures: List<LectureEntity>) {
+    fun updateList(lectures: List<Lecture>) {
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mLectures, lectures))
         mLectures = lectures
         diffResult.dispatchUpdatesTo(this)
@@ -45,7 +46,7 @@ class LectureAdapter : RecyclerView.Adapter<LectureAdapter.LectureViewHolder>() 
     class LectureViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val mNameView = view.findViewById<TextView>(R.id.name_field)
 
-        fun bind(lecture: LectureEntity) {
+        fun bind(lecture: Lecture) {
             mNameView.text = lecture.title
         }
     }

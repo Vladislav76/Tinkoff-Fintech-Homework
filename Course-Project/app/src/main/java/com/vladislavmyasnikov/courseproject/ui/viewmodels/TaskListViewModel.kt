@@ -3,24 +3,21 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 import androidx.lifecycle.*
 import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
 import com.vladislavmyasnikov.courseproject.data.repositories_impl.TaskRepository
+import com.vladislavmyasnikov.courseproject.domain.entities.Task
+import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
+import io.reactivex.Observable
 import javax.inject.Inject
 
-class TaskListViewModel(private val taskRepository: TaskRepository) : ViewModel() {
+class TaskListViewModel(private val taskRepository: ITaskRepository) : ViewModel() {
 
-    private val mLectureId = MutableLiveData<Int>()
-
-    val tasks: LiveData<List<TaskEntity>> = Transformations.switchMap(mLectureId) {
-        id -> taskRepository.getTasksByLectureId(id)
-    }
-
-    fun loadTasksByLectureId(id: Int) {
-        mLectureId.value = id
+    fun loadTasksByLectureId(id: Int): Observable<List<Task>> {
+        return taskRepository.getTasksByLectureId(id)
     }
 }
 
 
 
-class TaskListViewModelFactory @Inject constructor(private val taskRepository: TaskRepository) : ViewModelProvider.Factory {
+class TaskListViewModelFactory @Inject constructor(private val taskRepository: ITaskRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

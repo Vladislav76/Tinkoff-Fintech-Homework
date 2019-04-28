@@ -3,8 +3,8 @@ package com.vladislavmyasnikov.courseproject.data.repositories_impl
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.network.entities.Student
-import com.vladislavmyasnikov.courseproject.data.network.FintechService
+import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
+import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.Students
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
@@ -17,7 +17,7 @@ import javax.inject.Inject
 
 class StudentRepository @Inject constructor(
         private val localDataSource: LocalDatabase,
-        private val remoteDataSource: FintechService,
+        private val remoteDataSource: FintechPortalApi,
         private val memory: Memory
 ) : IStudentRepository {
 
@@ -56,7 +56,7 @@ class StudentRepository @Inject constructor(
         })
     }
 
-    private fun saveStudents(students: List<Student>, callback: LoadStudentsCallback) {
+    private fun saveStudents(students: List<StudentJson>, callback: LoadStudentsCallback) {
         executor.execute {
             val entities = convertStudentsToEntities(students)
             localDataSource.studentDao().insertStudents(entities)
@@ -70,7 +70,7 @@ class StudentRepository @Inject constructor(
 
         private const val CASH_LIFE_TIME_IN_MS = 10_000
 
-        private fun convertStudentsToEntities(students: List<Student>): List<StudentEntity> {
+        private fun convertStudentsToEntities(students: List<StudentJson>): List<StudentEntity> {
             val entities = ArrayList<StudentEntity>()
             for (student in students) {
                 entities.add(StudentEntity(student.id, student.name, student.grades.lastOrNull()!!.mark))

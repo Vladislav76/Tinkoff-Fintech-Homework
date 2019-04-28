@@ -8,15 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
+import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 import java.text.SimpleDateFormat
 import java.util.*
 
 class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
-    private var mTasks: List<TaskEntity> = emptyList()
+    private var mTasks: List<Task> = emptyList()
 
-    fun updateList(tasks: List<TaskEntity>) {
+    fun updateList(tasks: List<Task>) {
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mTasks, tasks))
         mTasks = tasks
         diffResult.dispatchUpdatesTo(this)
@@ -42,7 +43,7 @@ class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
         private val mStatusView = view.findViewById<TextView>(R.id.status_field)
         private val mMarkView = view.findViewById<TextView>(R.id.mark_field)
 
-        fun bind(task: TaskEntity) {
+        fun bind(task: Task) {
             mNameView.text = task.title
             mStatusView.text = task.status
             mMarkView.text = String.format(Locale.getDefault(), "%.2f/%.2f", task.mark, task.maxScore)

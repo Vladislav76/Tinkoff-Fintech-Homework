@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +12,7 @@ import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragm
 import com.vladislavmyasnikov.courseproject.di.components.DaggerTaskListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
+import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
@@ -20,6 +20,10 @@ import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModelFactory
+import io.reactivex.Observer
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableObserver
 import javax.inject.Inject
 
 class TaskListFragment : GeneralFragment() {
@@ -31,6 +35,7 @@ class TaskListFragment : GeneralFragment() {
     lateinit var adapter: TaskAdapter
 
     private lateinit var taskListViewModel: TaskListViewModel
+    private val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val recyclerView = RecyclerView(inflater.context)
@@ -50,10 +55,18 @@ class TaskListFragment : GeneralFragment() {
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        taskListViewModel.tasks.observe(this, Observer { tasks ->
-            adapter.updateList(tasks)
-        })
-        taskListViewModel.loadTasksByLectureId(arguments!!.getInt(LECTURE_ID_ARG))
+        val lectureId = arguments!!.getInt(LECTURE_ID_ARG)
+        disposables.add(taskListViewModel.loadTasksByLectureId(lectureId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { tasks -> adapter.updateList(tasks) },
+                        { error -> println("Error $error") })
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        disposables.clear()
     }
 
 

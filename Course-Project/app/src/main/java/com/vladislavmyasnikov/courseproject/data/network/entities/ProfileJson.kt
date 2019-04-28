@@ -2,7 +2,7 @@ package com.vladislavmyasnikov.courseproject.data.network.entities
 
 import com.google.gson.annotations.SerializedName
 
-class Profile(
+class ProfileJson(
         @SerializedName("id") val id: Int,
         @SerializedName("birthday") val birthday: String,
         @SerializedName("email") val email: String,

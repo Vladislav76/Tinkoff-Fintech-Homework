@@ -1,7 +1,7 @@
 package com.vladislavmyasnikov.courseproject.di.components
 
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
-import com.vladislavmyasnikov.courseproject.data.network.FintechService
+import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.di.modules.DatabaseModule
 import com.vladislavmyasnikov.courseproject.di.modules.MemoryModule
@@ -14,6 +14,6 @@ import javax.inject.Singleton
 interface DataSourceComponent {
 
     fun getMemory(): Memory
-    fun getNetworkService(): FintechService
+    fun getNetworkService(): FintechPortalApi
     fun getDatabase(): LocalDatabase
 }
