@@ -15,7 +15,7 @@ import retrofit2.http.POST
 interface FintechPortalApi {
 
     @POST("signin")
-    fun getAccess(@Body login: Login): Call<Void>
+    fun getAccess(@Body login: Login): Call<Unit>
 
     @GET("user")
     fun getProfile(@Header("Cookie") token: String): Call<ProfileInfo>

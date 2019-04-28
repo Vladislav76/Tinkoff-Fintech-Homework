@@ -1,53 +1,46 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.repositories_impl.LoginRepository
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
+import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.PublishSubject
+import java.io.IOException
 import javax.inject.Inject
 
-class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel() {
+class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel() {
 
-    private val mutableResponseMessage = MutableLiveData<LoginResponseMessage>()
-    val responseMessage: LiveData<LoginResponseMessage> = mutableResponseMessage
+    private val disposables = CompositeDisposable()
+    val accessFetchOutcome: PublishSubject<Outcome<Unit>> = loginRepository.accessFetchOutcome
+    var isLoading: Boolean = false
 
     init {
-        val cookieData = loginRepository.loadCookieData()
-        if (cookieData != null && isTokenNotExpire(cookieData.time)) {
-            mutableResponseMessage.value = LoginResponseMessage.SUCCESS
-        }
+        disposables.add(accessFetchOutcome.subscribe {
+            when (it) {
+                is Outcome.Success -> Log.d("LOGIN_VM", "Access is enabled")
+                is Outcome.Progress -> isLoading = it.loading
+            }
+        })
+    }
+
+    fun getAccess() {
+        loginRepository.getAccess()
     }
 
     fun login(email: String, password: String) {
-            when {
-                isEmailNotCorrect(email) -> { mutableResponseMessage.value = LoginResponseMessage.INCORRECT_EMAIL }
-                isPasswordNotCorrect(password) -> { mutableResponseMessage.value = LoginResponseMessage.INCORRECT_PASSWORD }
-                else -> {
-                    loginRepository.getAccess(email, password, object : LoginRepository.LoadLoginCallback {
-                        override fun onResponseReceived(response: ResponseMessage) {
-                            when (response) {
-                                ResponseMessage.SUCCESS -> mutableResponseMessage.value = LoginResponseMessage.SUCCESS
-                                ResponseMessage.LOADING -> mutableResponseMessage.value = LoginResponseMessage.LOADING
-                                ResponseMessage.ERROR -> mutableResponseMessage.value = LoginResponseMessage.ERROR
-                                ResponseMessage.NO_INTERNET -> mutableResponseMessage.value = LoginResponseMessage.NO_INTERNET
-                            }
-
-                        }
-                    })
-                }
-            }
+        when {
+            isEmailNotCorrect(email) -> accessFetchOutcome.onNext(Outcome.failure(IOException()))
+            isPasswordNotCorrect(password) -> accessFetchOutcome.onNext(Outcome.failure(IOException()))
+            else -> if (!isLoading) loginRepository.login(email, password)
+        }
     }
 
-    fun resetResponseMessage() {
-        if (mutableResponseMessage.value != LoginResponseMessage.LOADING) {
-            mutableResponseMessage.value = null
-        }
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
     }
 
 
@@ -60,23 +53,12 @@ class LoginViewModel(private val loginRepository: LoginRepository) : ViewModel()
         }
 
         private fun isPasswordNotCorrect(s: String): Boolean = s.length < 8
-
-        private fun isTokenNotExpire(s: String): Boolean {
-            return try {
-                val parser = SimpleDateFormat("EEE, d-MMM-yyyy HH:mm:ss zzz", Locale.ENGLISH)
-                val expiryDate = parser.parse(s)
-                val currentDate = Date()
-                expiryDate.after(currentDate)
-            } catch (e: ParseException) {
-                false
-            }
-        }
     }
 }
 
 
 
-class LoginViewModelFactory @Inject constructor(private val loginRepository: LoginRepository) : ViewModelProvider.Factory {
+class LoginViewModelFactory @Inject constructor(private val loginRepository: ILoginRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

@@ -5,6 +5,7 @@ import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
+import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
 import dagger.Module
 import dagger.Provides
@@ -25,7 +26,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideLoginRepository(remoteDataSource: FintechPortalApi, memory: Memory): LoginRepository =
+    fun provideLoginRepository(remoteDataSource: FintechPortalApi, memory: Memory): ILoginRepository =
             LoginRepository(memory, remoteDataSource)
 
     @Provides

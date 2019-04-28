@@ -3,17 +3,19 @@ package com.vladislavmyasnikov.courseproject.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.LoginResponseMessage
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAuthorizationActivityInjector
-import com.vladislavmyasnikov.courseproject.di.modules.FragmentActivityModule
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class AuthorizationActivity : AppCompatActivity() {
@@ -21,10 +23,12 @@ class AuthorizationActivity : AppCompatActivity() {
     @Inject
     lateinit var viewModelFactory: LoginViewModelFactory
 
-    private lateinit var mLoginViewModel: LoginViewModel
-
-    private lateinit var mEmailInputField: TextInputEditText
-    private lateinit var mPasswordInputField: TextInputEditText
+    private lateinit var loginViewModel: LoginViewModel
+    private lateinit var emailInputField: TextInputEditText
+    private lateinit var passwordInputField: TextInputEditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var loginButton: Button
+    private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,33 +36,45 @@ class AuthorizationActivity : AppCompatActivity() {
 
         val component = DaggerAuthorizationActivityInjector.builder().appComponent(App.appComponent).build()
         component.injectAuthorizationActivity(this)
-        mLoginViewModel = ViewModelProviders.of(this, viewModelFactory).get(LoginViewModel::class.java)
+        loginViewModel = ViewModelProviders.of(this, viewModelFactory).get(LoginViewModel::class.java)
 
-        mEmailInputField = findViewById(R.id.input_email_field)
-        mPasswordInputField = findViewById(R.id.input_password_field)
+        emailInputField = findViewById(R.id.input_email_field)
+        passwordInputField = findViewById(R.id.input_password_field)
+        loginButton = findViewById(R.id.login_button)
+        progressBar = findViewById(R.id.progress_bar)
 
-        mLoginViewModel.responseMessage.observe(this, Observer {
-            when (it) {
-                LoginResponseMessage.SUCCESS -> startWork()
-                LoginResponseMessage.LOADING -> Toast.makeText(this, "loading", Toast.LENGTH_SHORT).show()
-                LoginResponseMessage.ERROR -> Toast.makeText(this, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-                LoginResponseMessage.NO_INTERNET -> Toast.makeText(this, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                LoginResponseMessage.INCORRECT_EMAIL -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
-                LoginResponseMessage.INCORRECT_PASSWORD -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
-                else -> {}
-            }
-        })
+        loginButton.setOnClickListener {
+            val email = emailInputField.text.toString()
+            val password = passwordInputField.text.toString()
+            loginViewModel.login(email, password)
+        }
+
+        setLoading(loginViewModel.isLoading)
+
+        disposables.add(loginViewModel.accessFetchOutcome
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is Outcome.Progress -> setLoading(it.loading)
+                        is Outcome.Success -> startWork()
+                        is Outcome.Failure -> Toast.makeText(this, it.e.toString(), Toast.LENGTH_SHORT).show()
+                    }
+                }
+        )
+
+        if (savedInstanceState == null) {
+            loginViewModel.getAccess()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mLoginViewModel.resetResponseMessage()
+        disposables.clear()
     }
 
-    fun onLoginClicked(view: View) {
-        val email = mEmailInputField.text.toString()
-        val password = mPasswordInputField.text.toString()
-        mLoginViewModel.login(email, password)
+    private fun setLoading(isLoading: Boolean) {
+        progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+        loginButton.isEnabled = !isLoading
     }
 
     private fun startWork() {

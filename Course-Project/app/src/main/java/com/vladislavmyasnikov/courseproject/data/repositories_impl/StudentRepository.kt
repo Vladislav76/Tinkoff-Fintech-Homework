@@ -2,6 +2,8 @@ package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
+import com.vladislavmyasnikov.courseproject.data.mapper.StudentEntityToStudentMapper
+import com.vladislavmyasnikov.courseproject.data.mapper.StudentJsonToStudentEntityMapper
 import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
@@ -22,6 +24,8 @@ class StudentRepository @Inject constructor(
 ) : IStudentRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
+    private val jsonToEntityMapper = StudentJsonToStudentEntityMapper
+    private val entityToStudentMapper = StudentEntityToStudentMapper
     private var recentRequestTime: Long = 0
     val students = localDataSource.studentDao().loadStudents()
 
@@ -58,7 +62,7 @@ class StudentRepository @Inject constructor(
 
     private fun saveStudents(students: List<StudentJson>, callback: LoadStudentsCallback) {
         executor.execute {
-            val entities = convertStudentsToEntities(students)
+            val entities = jsonToEntityMapper.map(students)
             localDataSource.studentDao().insertStudents(entities)
             callback.onResponseReceived(ResponseMessage.SUCCESS)
         }
@@ -69,14 +73,6 @@ class StudentRepository @Inject constructor(
     companion object {
 
         private const val CASH_LIFE_TIME_IN_MS = 10_000
-
-        private fun convertStudentsToEntities(students: List<StudentJson>): List<StudentEntity> {
-            val entities = ArrayList<StudentEntity>()
-            for (student in students) {
-                entities.add(StudentEntity(student.id, student.name, student.grades.lastOrNull()!!.mark))
-            }
-            return entities
-        }
     }
 
 
