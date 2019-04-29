@@ -1,26 +1,21 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.LectureRepository
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class LectureListViewModel(private val lectureRepository: ILectureRepository) : ViewModel() {
 
-    private val disposables = CompositeDisposable()
-    val lecturesFetchOutcome: PublishSubject<Outcome<List<Lecture>>> = lectureRepository.lecturesFetchOutcome
+    val lecturesFetchOutcome: Observable<Outcome<List<Lecture>>> = lectureRepository.lecturesFetchOutcome
     var lectures: List<Lecture> = emptyList()
     var isLoading: Boolean = false
+    private val disposables = CompositeDisposable()
 
     init {
         disposables.add(lecturesFetchOutcome.subscribe {

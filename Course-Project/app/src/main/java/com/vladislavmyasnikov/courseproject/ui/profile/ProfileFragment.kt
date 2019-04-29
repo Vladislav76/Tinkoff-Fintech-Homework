@@ -7,22 +7,20 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.di.components.DaggerProfileFragmentInjector
-import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
-import com.vladislavmyasnikov.courseproject.di.modules.ViewModelModule
+import com.vladislavmyasnikov.courseproject.domain.entities.Profile
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
-import javax.inject.Provider
 
 class ProfileFragment : GeneralFragment() {
 
@@ -30,8 +28,12 @@ class ProfileFragment : GeneralFragment() {
     lateinit var mProfileViewModelFactory: ProfileViewModelFactory
 
     private lateinit var mProfileViewModel: ProfileViewModel
-
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var firstNameField: TextView
+    private lateinit var lastNameField: TextView
+    private lateinit var middleNameField: TextView
+    private lateinit var avatarView: ImageView
+    private val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_profile, container, false)
@@ -50,46 +52,45 @@ class ProfileFragment : GeneralFragment() {
         injector.injectProfileFragment(this)
         mProfileViewModel = ViewModelProviders.of(this, mProfileViewModelFactory).get(ProfileViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.updateProfile() }
+        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.refreshProfile() }
 
-        val firstNameField = view.findViewById<TextView>(R.id.name_field)
-        val lastNameField = view.findViewById<TextView>(R.id.surname_field)
-        val middleNameField = view.findViewById<TextView>(R.id.patronymic_field)
-        val avatarView = view.findViewById<ImageView>(R.id.avatar)
+        firstNameField = view.findViewById(R.id.name_field)
+        lastNameField = view.findViewById(R.id.surname_field)
+        middleNameField = view.findViewById(R.id.patronymic_field)
+        avatarView = view.findViewById(R.id.avatar)
 
-        mProfileViewModel.profile.observe(this, Observer { profile ->
-            if (profile != null) {
-                firstNameField.text = profile.firstName
-                lastNameField.text = profile.lastName
-                middleNameField.text = profile.middleName
-                val profileAvatar = Glide.with(this).load("https://fintech.tinkoff.ru${profile.avatarUrl}")
-                profileAvatar.into(avatarView)
-            }
-        })
+        mSwipeRefreshLayout.isRefreshing = mProfileViewModel.isLoading
+        updateContent(mProfileViewModel.profile)
 
-        mProfileViewModel.responseMessage.observe(this, Observer {
-            if (it != null) {
-                when (it) {
-                    ResponseMessage.SUCCESS -> mSwipeRefreshLayout.isRefreshing = false
-                    ResponseMessage.LOADING -> mSwipeRefreshLayout.isRefreshing = true
-                    ResponseMessage.NO_INTERNET -> {
-                        Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                        mSwipeRefreshLayout.isRefreshing = false
+        disposables.add(mProfileViewModel.profileFetchOutcome
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
+                        is Outcome.Success -> updateContent(it.data)
+                        is Outcome.Failure -> Toast.makeText(activity, it.e.toString(), Toast.LENGTH_SHORT).show()
                     }
-                    ResponseMessage.ERROR -> mSwipeRefreshLayout.isRefreshing = false //TODO: logout
                 }
-            }
-        })
+        )
 
         if (savedInstanceState == null) {
-            mSwipeRefreshLayout.isRefreshing = true
-            mProfileViewModel.updateProfile()
+            mProfileViewModel.fetchProfile()
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mProfileViewModel.resetResponseMessage()
+        disposables.clear()
+    }
+
+    private fun updateContent(profile: Profile?) {
+        if (profile != null) {
+            firstNameField.text = profile.firstName
+            lastNameField.text = profile.lastName
+            middleNameField.text = profile.middleName
+            val profileAvatar = Glide.with(this).load("https://fintech.tinkoff.ru${profile.avatarUrl}")
+            profileAvatar.into(avatarView)
+        }
     }
 
 

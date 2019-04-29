@@ -4,9 +4,7 @@ import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
-import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
-import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
-import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
+import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -21,7 +19,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideStudentRepository(localDataSource: LocalDatabase, remoteDataSource: FintechPortalApi, memory: Memory): StudentRepository =
+    fun provideStudentRepository(localDataSource: LocalDatabase, remoteDataSource: FintechPortalApi, memory: Memory): IStudentRepository =
             StudentRepository(localDataSource, remoteDataSource, memory)
 
     @Provides
@@ -31,7 +29,7 @@ class RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideProfileRepository(remoteDataSource: FintechPortalApi, memory: Memory): ProfileRepository =
+    fun provideProfileRepository(remoteDataSource: FintechPortalApi, memory: Memory): IProfileRepository =
             ProfileRepository(remoteDataSource, memory)
 
     @Provides

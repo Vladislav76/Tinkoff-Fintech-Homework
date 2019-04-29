@@ -64,30 +64,10 @@ class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         mAdapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW
         recyclerView.adapter = mAdapter
-
-        mStudentListViewModel.students.observe(this, Observer { students ->
-            val topStudents = students.sortedBy { -it.mark }.take(10)
-            mAdapter.setStudentList(topStudents)
-            mAdapter.updateList(topStudents)
-        })
-
-        mStudentListViewModel.responseMessage.observe(this, Observer {
-            if (it != null) {
-                when (it) {
-                    ResponseMessage.SUCCESS -> mUpdateStopListener?.stopUpdate("success")
-                    ResponseMessage.LOADING -> {}
-                    ResponseMessage.NO_INTERNET -> {
-                        Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                        mUpdateStopListener?.stopUpdate("no internet")
-                    }
-                    ResponseMessage.ERROR -> mUpdateStopListener?.stopUpdate("fail")
-                }
-            }
-        })
     }
 
     override fun startUpdate() {
-        mStudentListViewModel.updateStudents()
+        mStudentListViewModel.refreshStudents()
     }
 
     override fun onDetach() {

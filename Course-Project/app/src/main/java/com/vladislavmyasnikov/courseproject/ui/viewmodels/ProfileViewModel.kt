@@ -1,38 +1,51 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.ProfileRepository
+import com.vladislavmyasnikov.courseproject.domain.entities.Profile
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
+import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-class ProfileViewModel(private val profileRepository: ProfileRepository) : ViewModel() {
+class ProfileViewModel(private val profileRepository: IProfileRepository) : ViewModel() {
 
-    private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
-    val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
-    val profile: LiveData<ProfileJson> = profileRepository.profile
+    val profileFetchOutcome: Observable<Outcome<Profile>> = profileRepository.profileFetchOutcome
+    var profile: Profile? = null
+    var isLoading: Boolean = false
+    private val disposables = CompositeDisposable()
 
-    fun updateProfile() {
-        profileRepository.refreshProfile(object : ProfileRepository.LoadProfileCallback {
-            override fun onResponseReceived(response: ResponseMessage) {
-                mutableResponseMessage.postValue(response)
+    init {
+        disposables.add(profileFetchOutcome.subscribe {
+            when (it) {
+                is Outcome.Success -> {
+                    profile = it.data
+                    Log.d("PROFILE_VM", "Profile is fetched")
+                }
+                is Outcome.Progress -> isLoading = it.loading
             }
         })
     }
 
-    fun resetResponseMessage() {
-        if (mutableResponseMessage.value != ResponseMessage.LOADING) {
-            mutableResponseMessage.value = null
-        }
+    fun fetchProfile() {
+        profileRepository.fetchProfile()
+    }
+
+    fun refreshProfile() {
+        profileRepository.refreshProfile()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
     }
 }
 
 
 
-class ProfileViewModelFactory @Inject constructor(private val profileRepository: ProfileRepository) : ViewModelProvider.Factory {
+class ProfileViewModelFactory @Inject constructor(private val profileRepository: IProfileRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

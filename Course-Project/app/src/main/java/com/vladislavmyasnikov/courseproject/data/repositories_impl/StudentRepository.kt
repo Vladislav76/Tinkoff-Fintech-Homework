@@ -1,19 +1,18 @@
 package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
+import android.util.Log
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
-import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
 import com.vladislavmyasnikov.courseproject.data.mapper.StudentEntityToStudentMapper
 import com.vladislavmyasnikov.courseproject.data.mapper.StudentJsonToStudentEntityMapper
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
-import com.vladislavmyasnikov.courseproject.data.network.Students
+import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.*
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
@@ -24,47 +23,61 @@ class StudentRepository @Inject constructor(
 ) : IStudentRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
-    private val jsonToEntityMapper = StudentJsonToStudentEntityMapper
-    private val entityToStudentMapper = StudentEntityToStudentMapper
+    private val compositeDisposable = CompositeDisposable()
     private var recentRequestTime: Long = 0
-    val students = localDataSource.studentDao().loadStudents()
 
-    fun refreshStudents(callback: LoadStudentsCallback) {
-        callback.onResponseReceived(ResponseMessage.LOADING)
-        if (isCacheNotDirty()) {
-            callback.onResponseReceived(ResponseMessage.SUCCESS)
+    override val studentsFetchOutcome: PublishSubject<Outcome<List<Student>>> = PublishSubject.create<Outcome<List<Student>>>()
+
+    override fun fetchStudents() {
+        studentsFetchOutcome.onNext(Outcome.loading(true))
+
+        compositeDisposable.add(localDataSource.studentDao().loadStudents()
+                .subscribeOn(Schedulers.io())
+                .map(StudentEntityToStudentMapper::map)
+                .doAfterSuccess {
+                    refreshStudents()
+                    Log.d("STUDENT_REPO", "Refreshing data...")
+                }
+                .subscribe({
+                    studentsFetchOutcome.onNext(Outcome.success(it))
+                    studentsFetchOutcome.onNext(Outcome.loading(false))
+                }, {
+                    studentsFetchOutcome.onNext(Outcome.failure(it))
+                    studentsFetchOutcome.onNext(Outcome.loading(false))
+                }))
+    }
+
+    override fun refreshStudents() {
+        if (isCacheDirty()) {
+            studentsFetchOutcome.onNext(Outcome.loading(true))
+            compositeDisposable.add(remoteDataSource.getStudents(memory.loadToken())
+                    .subscribeOn(Schedulers.io())
+                    .map { it[1].students }
+                    .doAfterSuccess { saveStudents(it) }
+                    .map(StudentJsonToStudentEntityMapper::map)
+                    .map(StudentEntityToStudentMapper::map)
+                    .map { it.sortedBy { it.id } }
+                    .subscribe({
+                        recentRequestTime = System.currentTimeMillis()
+                        studentsFetchOutcome.onNext(Outcome.success(it))
+                        studentsFetchOutcome.onNext(Outcome.loading(false))
+                    }, {
+                        recentRequestTime = System.currentTimeMillis()
+                        studentsFetchOutcome.onNext(Outcome.failure(it))
+                        studentsFetchOutcome.onNext(Outcome.loading(false))
+                    }))
         } else {
-            loadRemoteStudents(callback)
+            studentsFetchOutcome.onNext(Outcome.loading(false))
         }
     }
 
-    private fun isCacheNotDirty() = System.currentTimeMillis() - recentRequestTime < CASH_LIFE_TIME_IN_MS
+    private fun isCacheDirty() = System.currentTimeMillis() - recentRequestTime > CASH_LIFE_TIME_IN_MS
 
-    private fun loadRemoteStudents(callback: LoadStudentsCallback) {
-        remoteDataSource.getStudents(memory.loadToken()).enqueue(object : Callback<List<Students>> {
-            override fun onFailure(call: Call<List<Students>>, e: Throwable) {
-                callback.onResponseReceived(ResponseMessage.NO_INTERNET)
-            }
-
-            override fun onResponse(call: Call<List<Students>>, response: Response<List<Students>>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data != null) {
-                        recentRequestTime = System.currentTimeMillis()
-                        saveStudents(data[1].students, callback)
-                    }
-                } else {
-                    callback.onResponseReceived(ResponseMessage.ERROR)
-                }
-            }
-        })
-    }
-
-    private fun saveStudents(students: List<StudentJson>, callback: LoadStudentsCallback) {
+    private fun saveStudents(students: List<StudentJson>) {
         executor.execute {
-            val entities = jsonToEntityMapper.map(students)
+            val entities = StudentJsonToStudentEntityMapper.map(students)
             localDataSource.studentDao().insertStudents(entities)
-            callback.onResponseReceived(ResponseMessage.SUCCESS)
+            Log.d("STUDENT_REPO", "Inserted ${students.size} students from API in DB")
         }
     }
 
@@ -73,12 +86,5 @@ class StudentRepository @Inject constructor(
     companion object {
 
         private const val CASH_LIFE_TIME_IN_MS = 10_000
-    }
-
-
-
-    interface LoadStudentsCallback {
-
-        fun onResponseReceived(response: ResponseMessage)
     }
 }

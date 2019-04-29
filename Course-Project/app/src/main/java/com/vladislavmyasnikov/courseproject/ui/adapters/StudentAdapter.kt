@@ -11,13 +11,14 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
 class StudentAdapter(private val context: Context) : RecyclerView.Adapter<StudentAdapter.ViewHolder>(), Filterable {
 
-    private var mStudents: List<StudentEntity> = listOf()
-    private var mSourceStudents: List<StudentEntity> = listOf()
+    private var mStudents: List<Student> = listOf()
+    private var mSourceStudents: List<Student> = listOf()
     var viewType: ViewType = ViewType.LINEAR_VIEW
         set(value) {
             field = value
@@ -31,18 +32,18 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         }
 
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
-            val students = filterResults.values as List<StudentEntity>
+            val students = filterResults.values as List<Student>
             sortByPoints(students)
         }
     }
 
-    fun updateList(students: List<StudentEntity>) {
+    fun updateList(students: List<Student>) {
         val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mStudents, students))
         mStudents = students
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun setStudentList(students: List<StudentEntity>) {
+    fun setStudentList(students: List<Student>) {
         mSourceStudents = students
     }
 
@@ -50,7 +51,7 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         updateList(mSourceStudents)
     }
 
-    fun sortByName(students: List<StudentEntity>? = null) {
+    fun sortByName(students: List<Student>? = null) {
         if (students == null) {
             updateList(mStudents.sortedBy { it.name })
         } else {
@@ -58,7 +59,7 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         }
     }
 
-    fun sortByPoints(students: List<StudentEntity>? = null) {
+    fun sortByPoints(students: List<Student>? = null) {
         if (students == null) {
             updateList(mStudents.sortedWith(compareBy({ -it.mark }, { it.name })))
         } else {
@@ -97,7 +98,7 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         private val mPointsView = view.findViewById<TextView>(R.id.user_points_field)
         private val mIconView = view.findViewById<InitialsRoundView>(R.id.user_icon)
 
-        open fun bind(student: StudentEntity, context: Context) {
+        open fun bind(student: Student, context: Context) {
             mNameView.text = student.name
             mIconView.setIconColor(getColor(student.name))
             val initials: String = student.name.split(" ").map { it[0] }.joinToString(separator = "")

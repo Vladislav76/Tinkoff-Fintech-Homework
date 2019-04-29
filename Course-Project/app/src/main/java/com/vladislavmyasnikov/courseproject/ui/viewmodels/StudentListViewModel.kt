@@ -1,39 +1,51 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.StudentRepository
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
+import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
+import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
-class StudentListViewModel(private val studentRepository: StudentRepository) : ViewModel() {
+class StudentListViewModel(private val studentRepository: IStudentRepository) : ViewModel() {
 
-    private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
-    val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
-    val students: LiveData<List<StudentEntity>> = studentRepository.students
+    val studentsFetchOutcome: Observable<Outcome<List<Student>>> = studentRepository.studentsFetchOutcome
+    var students: List<Student> = emptyList()
+    var isLoading: Boolean = false
+    private val disposables = CompositeDisposable()
 
-    fun updateStudents() {
-        studentRepository.refreshStudents(object : StudentRepository.LoadStudentsCallback {
-            override fun onResponseReceived(response: ResponseMessage) {
-                mutableResponseMessage.postValue(response)
-                println("response: $response")
+    init {
+        disposables.add(studentsFetchOutcome.subscribe {
+            when (it) {
+                is Outcome.Success -> {
+                    students = it.data
+                    Log.d("STUDENT_LIST_VM", "Student are fetched (size: ${students.size})")
+                }
+                is Outcome.Progress -> isLoading = it.loading
             }
         })
     }
 
-    fun resetResponseMessage() {
-        if (mutableResponseMessage.value != ResponseMessage.LOADING) {
-            mutableResponseMessage.value = null
-        }
+    fun fetchStudents() {
+        studentRepository.fetchStudents()
+    }
+
+    fun refreshStudents() {
+        studentRepository.refreshStudents()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
     }
 }
 
 
 
-class StudentListViewModelFactory @Inject constructor(private val studentRepository: StudentRepository) : ViewModelProvider.Factory {
+class StudentListViewModelFactory @Inject constructor(private val studentRepository: IStudentRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

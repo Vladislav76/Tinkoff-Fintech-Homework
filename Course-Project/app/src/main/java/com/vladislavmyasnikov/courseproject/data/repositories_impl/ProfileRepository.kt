@@ -1,16 +1,17 @@
 package com.vladislavmyasnikov.courseproject.data.repositories_impl
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
+import android.util.Log
+import com.vladislavmyasnikov.courseproject.data.mapper.ProfileJsonToProfileMapper
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
-import com.vladislavmyasnikov.courseproject.data.network.ProfileInfo
+import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
+import com.vladislavmyasnikov.courseproject.domain.entities.Profile
+import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
@@ -20,64 +21,64 @@ class ProfileRepository @Inject constructor(
 ) : IProfileRepository {
 
     private val executor = Executors.newSingleThreadExecutor()
+    private val compositeDisposable = CompositeDisposable()
     private var recentRequestTime: Long = 0
-    private val mutableProfile = MutableLiveData<ProfileJson>()
-    val profile: LiveData<ProfileJson> = mutableProfile
 
-    init {
-        mutableProfile.value = memory.loadProfile()
+    override val profileFetchOutcome: PublishSubject<Outcome<Profile>> = PublishSubject.create<Outcome<Profile>>()
+
+    override fun fetchProfile() {
+        profileFetchOutcome.onNext(Outcome.loading(true))
+        compositeDisposable.add(Single.fromCallable { memory.loadProfile() }
+                .subscribeOn(Schedulers.io())
+                .map(ProfileJsonToProfileMapper::map)
+                .doFinally{
+                    refreshProfile()
+                    Log.d("PROFILE_REPO", "Refreshing data...")
+                }
+                .subscribe({
+                    profileFetchOutcome.onNext(Outcome.success(it))
+                    profileFetchOutcome.onNext(Outcome.loading(false))
+                }, {
+                    profileFetchOutcome.onNext(Outcome.failure(it))
+                    profileFetchOutcome.onNext(Outcome.loading(false))
+                }))
     }
 
-    fun refreshProfile(callback: LoadProfileCallback) {
-        callback.onResponseReceived(ResponseMessage.LOADING)
-        if (isCacheNotDirty()) {
-            callback.onResponseReceived(ResponseMessage.SUCCESS)
+    override fun refreshProfile() {
+        if (isCacheDirty()) {
+            profileFetchOutcome.onNext(Outcome.loading(true))
+            compositeDisposable.add(remoteDataSource.getProfile(memory.loadToken())
+                    .subscribeOn(Schedulers.io())
+                    .map { it.profile }
+                    .doAfterSuccess { saveProfile(it) }
+                    .map(ProfileJsonToProfileMapper::map)
+                    .subscribe({
+                        recentRequestTime = System.currentTimeMillis()
+                        profileFetchOutcome.onNext(Outcome.success(it))
+                        profileFetchOutcome.onNext(Outcome.loading(false))
+                    }, {
+                        recentRequestTime = System.currentTimeMillis()
+                        profileFetchOutcome.onNext(Outcome.failure(it))
+                        profileFetchOutcome.onNext(Outcome.loading(false))
+                    }))
         } else {
-            loadRemoteProfile(callback)
+            profileFetchOutcome.onNext(Outcome.loading(false))
         }
     }
 
-    private fun loadRemoteProfile(callback: LoadProfileCallback) {
-        remoteDataSource.getProfile(memory.loadToken()).enqueue(object : Callback<ProfileInfo> {
-            override fun onFailure(call: Call<ProfileInfo>, e: Throwable) {
-                callback.onResponseReceived(ResponseMessage.NO_INTERNET)
-            }
-
-            override fun onResponse(call: Call<ProfileInfo>, response: Response<ProfileInfo>) {
-                if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data?.profile != null) {
-                        recentRequestTime = System.currentTimeMillis()
-                        mutableProfile.value = data.profile
-                        saveProfile(data.profile, callback)
-                    }
-                } else {
-                    callback.onResponseReceived(ResponseMessage.ERROR)
-                }
-            }
-        })
-    }
-
-    private fun saveProfile(profile: ProfileJson, callback: LoadProfileCallback) {
+    private fun saveProfile(profile: ProfileJson) {
         executor.execute {
             memory.saveProfileData(profile)
-            callback.onResponseReceived(ResponseMessage.SUCCESS)
+            Log.d("PROFILE_REPO", "Saved profile from API in prefs")
         }
     }
 
-    private fun isCacheNotDirty() = System.currentTimeMillis() - recentRequestTime < CASH_LIFE_TIME_IN_MS
+    private fun isCacheDirty() = System.currentTimeMillis() - recentRequestTime > CASH_LIFE_TIME_IN_MS
 
 
 
     companion object {
 
         private const val CASH_LIFE_TIME_IN_MS = 10_000
-    }
-
-
-
-    interface LoadProfileCallback {
-
-        fun onResponseReceived(response: ResponseMessage)
     }
 }

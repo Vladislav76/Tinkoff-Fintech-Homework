@@ -39,7 +39,7 @@ class Memory @Inject constructor(applicationContext: Context) {
             val region = profileStorage.getString(REGION, null) ?: ""
             val faculty = profileStorage.getString(FACULTY, null) ?: ""
             val department = profileStorage.getString(DEPARTMENT, null) ?: ""
-            ProfileJson(id, birthday, email, firstName, lastName, middleName, avatarUrl, phoneMobile, description, region, faculty, department)
+            ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl)
         } else null
     }
 
