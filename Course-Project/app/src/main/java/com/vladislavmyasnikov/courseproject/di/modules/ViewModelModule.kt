@@ -25,7 +25,8 @@ class ViewModelModule {
 
     @Provides
     @FragmentScope
-    fun provideStudentListViewModelFactory(repository: IStudentRepository) = StudentListViewModelFactory(repository)
+    fun provideStudentListViewModelFactory(repository: IStudentRepository, repository2: IProfileRepository) =
+            StudentListViewModelFactory(repository, repository2)
 
     @Provides
     @FragmentScope

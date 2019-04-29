@@ -11,6 +11,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
@@ -18,16 +19,22 @@ import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
+import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModelFactory
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
+import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class StudentListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var viewModelFactory: StudentListViewModelFactory
+    lateinit var studentListVMFactory: StudentListViewModelFactory
 
     @Inject
     lateinit var mAdapter: StudentAdapter
@@ -56,7 +63,7 @@ class StudentListFragment : GeneralFragment() {
 
         val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectStudentListFragment(this)
-        mStudentListViewModel = ViewModelProviders.of(this, viewModelFactory).get(StudentListViewModel::class.java)
+        mStudentListViewModel = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
 
         mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.refreshStudents() }
 
@@ -76,6 +83,7 @@ class StudentListFragment : GeneralFragment() {
 
         disposables.add(mStudentListViewModel.studentsFetchOutcome
                 .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
                 .subscribe {
                     when (it) {
                         is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
