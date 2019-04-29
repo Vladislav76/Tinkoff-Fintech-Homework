@@ -83,7 +83,6 @@ class StudentListFragment : GeneralFragment() {
 
         disposables.add(mStudentListViewModel.studentsFetchOutcome
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
                 .subscribe {
                     when (it) {
                         is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading

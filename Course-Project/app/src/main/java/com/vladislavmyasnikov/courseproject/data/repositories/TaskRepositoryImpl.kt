@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.data.repositories_impl
+package com.vladislavmyasnikov.courseproject.data.repositories
 
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
 import com.vladislavmyasnikov.courseproject.data.mapper.TaskJsonToTaskEntityMapper
@@ -7,12 +7,11 @@ import com.vladislavmyasnikov.courseproject.data.network.entities.TaskInfo
 import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class TaskRepository @Inject constructor(
+class TaskRepositoryImpl @Inject constructor(
         private val localDataSource: LocalDatabase
 ) : ITaskRepository {
 

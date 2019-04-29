@@ -1,4 +1,4 @@
-package com.vladislavmyasnikov.courseproject.data.repositories_impl
+package com.vladislavmyasnikov.courseproject.data.repositories
 
 import android.util.Log
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
@@ -17,7 +17,7 @@ import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.Executors
 import javax.inject.Inject
 
-class LectureRepository @Inject constructor(
+class LectureRepositoryImpl @Inject constructor(
         private val taskRepository: ITaskRepository,
         private val localDataSource: LocalDatabase,
         private val remoteDataSource: FintechPortalApi,

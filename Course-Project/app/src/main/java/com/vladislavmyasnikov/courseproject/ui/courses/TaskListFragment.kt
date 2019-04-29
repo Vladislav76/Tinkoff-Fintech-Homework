@@ -8,22 +8,14 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.components.DaggerTaskListFragmentInjector
-import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
-import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
-import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
-import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.TaskListViewModelFactory
-import io.reactivex.Observer
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableObserver
 import javax.inject.Inject
 
 class TaskListFragment : GeneralFragment() {

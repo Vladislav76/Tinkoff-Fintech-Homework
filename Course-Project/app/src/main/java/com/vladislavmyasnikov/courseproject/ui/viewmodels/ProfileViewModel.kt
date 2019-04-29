@@ -30,11 +30,11 @@ class ProfileViewModel(private val profileRepository: IProfileRepository) : View
     }
 
     fun fetchProfile() {
-        profileRepository.fetchProfile()
+        if (!isLoading) profileRepository.fetchProfile()
     }
 
     fun refreshProfile() {
-        profileRepository.refreshProfile()
+        if (!isLoading) profileRepository.refreshProfile()
     }
 
     override fun onCleared() {

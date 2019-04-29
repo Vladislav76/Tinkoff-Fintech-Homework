@@ -1,6 +1,5 @@
 package com.vladislavmyasnikov.courseproject.di.modules
 
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
 import com.vladislavmyasnikov.courseproject.di.annotations.ActivityScope
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
@@ -13,15 +12,18 @@ class ViewModelModule {
 
     @Provides
     @ActivityScope
-    fun provideLoginViewModelFactory(repository: ILoginRepository) = LoginViewModelFactory(repository)
+    fun provideLoginViewModelFactory(repository: ILoginRepository) =
+            LoginViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideTaskListViewModelFactory(repository: ITaskRepository) = TaskListViewModelFactory(repository)
+    fun provideTaskListViewModelFactory(repository: ITaskRepository) =
+            TaskListViewModelFactory(repository)
 
     @Provides
     @FragmentScope
-    fun provideLectureListViewModelFactory(repository: ILectureRepository) = LectureListViewModelFactory(repository)
+    fun provideLectureListViewModelFactory(repository: ILectureRepository) =
+            LectureListViewModelFactory(repository)
 
     @Provides
     @FragmentScope
@@ -30,5 +32,6 @@ class ViewModelModule {
 
     @Provides
     @FragmentScope
-    fun provideProfileViewModelFactory(repository: IProfileRepository) = ProfileViewModelFactory(repository)
+    fun provideProfileViewModelFactory(repository: IProfileRepository) =
+            ProfileViewModelFactory(repository)
 }

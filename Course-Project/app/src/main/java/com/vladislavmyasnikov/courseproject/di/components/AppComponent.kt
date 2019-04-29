@@ -1,6 +1,5 @@
 package com.vladislavmyasnikov.courseproject.di.components
 
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.*
 import com.vladislavmyasnikov.courseproject.di.modules.RepositoryModule
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import dagger.Component
