@@ -33,13 +33,14 @@ class ProfileRepositoryImpl @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { profileFetchOutcome.onNext(Outcome.loading(true)) }
                 .map(ProfileJsonToProfileMapper::map)
-                .doOnComplete { loadProfile() }
-                .doOnError { loadProfile() }
-                .doOnSuccess { data ->
+                .subscribe({ data ->
                     profileFetchOutcome.onNext(Outcome.success(data))
                     if (isCacheDirty()) loadProfile() else profileFetchOutcome.onNext(Outcome.loading(false))
-                }
-                .subscribe())
+                }, {
+                    loadProfile()
+                }, {
+                    loadProfile()
+                }))
     }
 
     override fun refreshProfile() {

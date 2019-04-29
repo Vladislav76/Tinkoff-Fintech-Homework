@@ -30,11 +30,11 @@ class LectureListViewModel(private val lectureRepository: ILectureRepository) : 
     }
 
     fun fetchLectures() {
-        lectureRepository.fetchLectures()
+        if (!isLoading) lectureRepository.fetchLectures()
     }
 
     fun refreshLectures() {
-        lectureRepository.refreshLectures()
+        if (!isLoading) lectureRepository.refreshLectures()
     }
 
     override fun onCleared() {
@@ -43,8 +43,9 @@ class LectureListViewModel(private val lectureRepository: ILectureRepository) : 
     }
 }
 
-
-
+/*
+ * Factory class
+ */
 class LectureListViewModelFactory @Inject constructor(private val lectureRepository: ILectureRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")

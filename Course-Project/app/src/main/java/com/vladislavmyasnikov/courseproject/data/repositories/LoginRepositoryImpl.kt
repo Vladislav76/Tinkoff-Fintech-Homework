@@ -8,6 +8,7 @@ import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import io.reactivex.Maybe
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import retrofit2.Response
@@ -22,6 +23,8 @@ class LoginRepositoryImpl @Inject constructor(
         private val remoteDataSource: FintechPortalApi
 ) : ILoginRepository {
 
+    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+
     override val accessFetchOutcome: PublishSubject<Outcome<Unit>> = PublishSubject.create<Outcome<Unit>>()
 
     override fun getAccess() {
@@ -32,7 +35,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     override fun login(email: String, password: String) {
-        Maybe.create<Response<Unit>> { emitter ->
+        compositeDisposable.add(Maybe.create<Response<Unit>> { emitter ->
             when {
                 isEmailNotCorrect(email) -> emitter.onError(IOException())
                 isPasswordNotCorrect(password) -> emitter.onError(IOException())
@@ -46,7 +49,7 @@ class LoginRepositoryImpl @Inject constructor(
              response -> onResponseReceived(response)
          }, {
             error -> onFailureReceived(error)
-         })
+         }))
     }
 
     private fun onResponseReceived(response: Response<Unit>) {

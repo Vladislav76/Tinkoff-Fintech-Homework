@@ -35,13 +35,14 @@ class StudentRepositoryImpl @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { studentsFetchOutcome.onNext(Outcome.loading(true)) }
                 .map(StudentEntityToStudentMapper::map)
-                .doOnComplete { loadStudents() }
-                .doOnError { loadStudents() }
-                .doOnSuccess { data ->
+                .subscribe({ data ->
                     studentsFetchOutcome.onNext(Outcome.success(data))
                     if (isCacheDirty()) loadStudents() else studentsFetchOutcome.onNext(Outcome.loading(false))
-                }
-                .subscribe())
+                }, {
+                    loadStudents()
+                }, {
+                    loadStudents()
+                }))
     }
 
     override fun refreshStudents() {

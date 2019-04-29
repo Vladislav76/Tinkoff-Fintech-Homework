@@ -25,7 +25,7 @@ interface FintechPortalApi {
     fun getCourses(@Header("Cookie") token: String): Call<CourseInfo>
 
     @GET("course/android_spring_2019/homeworks")
-    fun getLectures(@Header("Cookie") token: String): Single<Lectures>
+    fun getLectures(@Header("Cookie") token: String): Single<Response<Lectures>>
 
     @GET("course/android_spring_2019/grades")
     fun getStudents(@Header("Cookie") token: String): Single<Response<List<Students>>>
