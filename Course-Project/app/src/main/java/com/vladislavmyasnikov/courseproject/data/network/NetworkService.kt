@@ -22,7 +22,7 @@ interface FintechPortalApi {
     fun getProfile(@Header("Cookie") token: String): Single<ProfileInfo>
 
     @GET("connections")
-    fun getCourses(@Header("Cookie") token: String): Call<CourseInfo>
+    fun getCourses(@Header("Cookie") token: String): Single<CourseInfo>
 
     @GET("course/android_spring_2019/homeworks")
     fun getLectures(@Header("Cookie") token: String): Single<Lectures>

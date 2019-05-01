@@ -7,6 +7,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+/* TaskEntity -> Task */
 object TaskEntityToTaskMapper : Mapper<TaskEntity, Task>() {
 
     override fun map(value: TaskEntity): Task {
@@ -14,8 +15,7 @@ object TaskEntityToTaskMapper : Mapper<TaskEntity, Task>() {
     }
 }
 
-
-
+/* TaskJson -> TaskEntity */
 object TaskJsonToTaskEntityMapper : Mapper<TaskInfo, TaskEntity>() {
 
     var lectureId: Int = 0

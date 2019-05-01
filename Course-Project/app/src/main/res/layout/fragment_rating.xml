@@ -8,7 +8,7 @@
     android:layout_margin="16dp"
     app:cardElevation="6dp"
     app:cardCornerRadius="5dp"
-    tools:context=".ui.courses.AcademicPerformanceFragment">
+    tools:context=".ui.courses.TopStudentsFragment">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -49,74 +49,63 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <LinearLayout
-                android:id="@+id/points_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:orientation="vertical"
+            <TextView
+                android:id="@+id/points_field"
+                style="@style/BoldTextStyle"
                 android:padding="16dp"
+                android:gravity="center"
+                android:maxEms="5"
+                android:maxLines="3"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <TextView
-                    android:id="@+id/points_field"
-                    style="@style/BoldTextStyle"
-                    android:text="182" />
-
-                <TextView
-                    android:id="@+id/points_label"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="балла" />
-            </LinearLayout>
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="182" />
 
             <TextView
                 android:id="@+id/general_rating_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="20dp"
                 android:drawableEnd="@drawable/ic_adb_black_24dp"
                 android:text="@string/general_rating_label"
                 app:layout_constraintBottom_toBottomOf="@id/general_rating_field"
-                app:layout_constraintStart_toEndOf="@id/points_layout" />
+                app:layout_constraintStart_toEndOf="@id/points_field" />
 
             <TextView
                 android:id="@+id/passed_tests_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="20dp"
                 android:text="@string/passed_tests_label"
                 app:layout_constraintBottom_toBottomOf="@id/passed_tests_field"
-                app:layout_constraintStart_toEndOf="@id/points_layout" />
+                app:layout_constraintStart_toEndOf="@id/points_field" />
 
             <TextView
                 android:id="@+id/done_homework_label"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
+                android:layout_marginStart="20dp"
                 android:text="@string/done_homework_label"
                 app:layout_constraintBottom_toBottomOf="@id/done_homework_field"
-                app:layout_constraintStart_toEndOf="@id/points_layout" />
+                app:layout_constraintStart_toEndOf="@id/points_field" />
 
             <TextView
                 android:id="@+id/general_rating_field"
                 style="@style/BoldTextStyle"
-                android:text="2/30"
+                tools:text="2/30"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/passed_tests_field"
                 style="@style/BoldTextStyle"
-                android:text="15/18"
+                tools:text="15/18"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/general_rating_field" />
 
             <TextView
                 android:id="@+id/done_homework_field"
                 style="@style/BoldTextStyle"
-                android:text="12/18"
+                tools:text="12/18"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/passed_tests_field" />
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -129,7 +118,7 @@
             <TextView
                 android:id="@+id/lessons_number_field"
                 style="@style/BoldTextStyle"
-                android:text="20 занятий"
+                tools:text="20 занятий"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -138,7 +127,6 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:progress="30"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/lessons_number_field" />
 
@@ -155,7 +143,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:text="10 занятий"
+                tools:text="10 занятий"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/past_lessons_number_label" />
 
@@ -172,7 +160,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/black"
-                android:text="10 занятий"
+                tools:text="10 занятий"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/remaining_lessons_number_label" />
         </androidx.constraintlayout.widget.ConstraintLayout>

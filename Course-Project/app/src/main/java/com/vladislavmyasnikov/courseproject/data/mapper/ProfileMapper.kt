@@ -3,6 +3,7 @@ package com.vladislavmyasnikov.courseproject.data.mapper
 import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 
+/* ProfileJson -> Profile */
 object ProfileJsonToProfileMapper : Mapper<ProfileJson, Profile>() {
 
     override fun map(value: ProfileJson): Profile {

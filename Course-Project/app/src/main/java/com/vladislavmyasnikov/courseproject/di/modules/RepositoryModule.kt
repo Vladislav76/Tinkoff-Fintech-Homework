@@ -36,4 +36,9 @@ class RepositoryModule {
     @Singleton
     fun provideLectureRepository(taskRepository: ITaskRepository, localDataSource: LocalDatabase, remoteDataSource: FintechPortalApi, memory: Memory): ILectureRepository =
             LectureRepositoryImpl(taskRepository, localDataSource, remoteDataSource, memory)
+
+    @Provides
+    @Singleton
+    fun provideCourseRepository(remoteDataSource: FintechPortalApi, memory: Memory): ICourseRepository =
+            CourseRepositoryImpl(remoteDataSource, memory)
 }

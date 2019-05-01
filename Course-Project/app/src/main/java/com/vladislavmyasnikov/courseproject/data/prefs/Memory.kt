@@ -3,6 +3,7 @@ package com.vladislavmyasnikov.courseproject.data.prefs
 import android.content.Context
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
 import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
+import com.vladislavmyasnikov.courseproject.domain.entities.Course
 import io.reactivex.Observable
 import javax.inject.Inject
 
@@ -10,6 +11,7 @@ class Memory @Inject constructor(applicationContext: Context) {
 
     private val cookiesStorage = applicationContext.getSharedPreferences(COOKIES_STORAGE, Context.MODE_PRIVATE)
     private val profileStorage = applicationContext.getSharedPreferences(PROFILE_STORAGE, Context.MODE_PRIVATE)
+    private val courseStorage = applicationContext.getSharedPreferences(COURSE_STORAGE, Context.MODE_PRIVATE)
 
     /*
      * Loading from storage
@@ -50,11 +52,38 @@ class Memory @Inject constructor(applicationContext: Context) {
         }
     }
 
-//    fun loadCourse(): UserCourse? {
-//        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
-//        val url = cookiesStorage.getString(COURSE_URL, null)
-//        return null //???
-//    }
+    fun loadCourseUrlAndTitle(): Observable<Pair<String, String>> {
+        return Observable.create { e ->
+            val url = courseStorage.getString(COURSE_URL, null)
+            val title = courseStorage.getString(COURSE_TITLE, null)
+            if (url != null && title != null) {
+                e.onNext(url to title)
+                e.onComplete()
+            } else e.onComplete()
+        }
+    }
+
+    fun loadCourse(): Observable<Course> {
+        return Observable.create { e ->
+            val url = courseStorage.getString(COURSE_URL, null)
+            val points = courseStorage.getFloat(POINTS, -1.0f)
+            if (url != null && points != -1.0f) {
+                val title = courseStorage.getString(COURSE_TITLE, null) ?: ""
+                val ratingPosition = courseStorage.getInt(RATING_POSITION, 0)
+                val studentCount = courseStorage.getInt(STUDENT_COUNT, 0)
+                val testCount = courseStorage.getInt(TEST_COUNT, 0)
+                val okTestCount = courseStorage.getInt(ACCEPTED_TEST_COUNT, 0)
+                val homeworkCount = courseStorage.getInt(HOMEWORK_COUNT, 0)
+                val okHomeworkCount = courseStorage.getInt(ACCEPTED_HOMEWORK_COUNT, 0)
+                val lectureCount = courseStorage.getInt(LECTURE_COUNT, 0)
+                val pastLectureCount = courseStorage.getInt(PAST_LECTURE_COUNT, 0)
+                val remainingLectureCount = courseStorage.getInt(REMAINING_LECTURE_COUNT, 0)
+                e.onNext(Course(url, title, points, ratingPosition, studentCount, okTestCount, testCount, okHomeworkCount, homeworkCount,
+                         pastLectureCount, remainingLectureCount, lectureCount))
+                e.onComplete()
+            } else e.onComplete()
+        }
+    }
 
     /*
      * Saving in storage
@@ -83,27 +112,31 @@ class Memory @Inject constructor(applicationContext: Context) {
                 .apply()
     }
 
-//    fun saveCourseData(title: String, url: String) {
-//        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
-//        preferences.edit()
-//                .putString(COURSE_TITLE, title)
-//                .putString(COURSE_URL, url)
-//                .apply()
-//    }
-//
-//    fun saveCourseData(count: Int, past: Int, remaining: Int) {
-//        val preferences = applicationContext.getSharedPreferences(COURSE_STORAGE_NAME, Context.MODE_PRIVATE)
-//        preferences.edit()
-//                .putInt(LECTURE_COUNT, count)
-//                .putInt(PAST_LECTURE_COUNT, past)
-//                .putInt(REMAINING_LECTURE_COUNT, remaining)
-//                .apply()
-//    }
+    fun saveCourseUrlAndTitle(url: String, title: String) {
+        courseStorage.edit()
+                .putString(COURSE_URL, url)
+                .putString(COURSE_TITLE, title)
+                .apply()
+    }
 
-
+    fun saveCourse(data: Course) {
+        courseStorage.edit()
+                .putString(COURSE_TITLE, data.title)
+                .putString(COURSE_URL, data.url)
+                .putFloat(POINTS, data.points)
+                .putInt(RATING_POSITION, data.ratingPosition)
+                .putInt(STUDENT_COUNT, data.studentCount)
+                .putInt(TEST_COUNT, data.testCount)
+                .putInt(ACCEPTED_TEST_COUNT, data.acceptedTestCount)
+                .putInt(HOMEWORK_COUNT, data.homeworkCount)
+                .putInt(ACCEPTED_HOMEWORK_COUNT, data.acceptedHomeworkCount)
+                .putInt(LECTURE_COUNT, data.lectureCount)
+                .putInt(PAST_LECTURE_COUNT, data.pastLectureCount)
+                .putInt(REMAINING_LECTURE_COUNT, data.remainingLectureCount)
+                .apply()
+    }
 
     companion object {
-
         const val COOKIES_STORAGE = "cookies_storage"
         const val AUTHORIZATION_TOKEN = "authorization_token"
         const val TOKEN_EXPIRATION_TIME = "token_expiration_time"
@@ -125,6 +158,13 @@ class Memory @Inject constructor(applicationContext: Context) {
         const val COURSE_STORAGE = "course_storage"
         const val COURSE_TITLE = "course_title"
         const val COURSE_URL = "course_url"
+        const val POINTS = "points"
+        const val RATING_POSITION = "rating"
+        const val STUDENT_COUNT = "student_count"
+        const val TEST_COUNT = "test_count"
+        const val ACCEPTED_TEST_COUNT = "accepted_test_count"
+        const val HOMEWORK_COUNT = "homework_count"
+        const val ACCEPTED_HOMEWORK_COUNT = "accepted_homework_count"
         const val LECTURE_COUNT = "lecture_count"
         const val PAST_LECTURE_COUNT = "past_lecture_count"
         const val REMAINING_LECTURE_COUNT = "remaining_lecture_count"

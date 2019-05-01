@@ -2,9 +2,7 @@ package com.vladislavmyasnikov.courseproject.data.repositories
 
 import android.util.Log
 import com.vladislavmyasnikov.courseproject.data.db.LocalDatabase
-import com.vladislavmyasnikov.courseproject.data.mapper.StudentEntityToStudentMapper
-import com.vladislavmyasnikov.courseproject.data.mapper.StudentJsonToStudentEntityMapper
-import com.vladislavmyasnikov.courseproject.data.mapper.StudentJsonToStudentMapper
+import com.vladislavmyasnikov.courseproject.data.mapper.*
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
@@ -31,10 +29,10 @@ class StudentRepositoryImpl @Inject constructor(
     }
 
     private fun createDatabaseObservable() =
-            Observable.fromCallable { localDataSource.studentDao().loadStudents() }
+            Observable.fromCallable { localDataSource.studentDao().loadStudentsWithMarks() }
                     .filter { it.isNotEmpty() }
-                    .map(StudentEntityToStudentMapper::map)
-                    .doAfterNext { Log.d("SRUDENT_REPO", "Students are loaded from DB (size: ${it.size})") }
+                    .map(StudentWithMarksToStudentMapper::map)
+                    .doAfterNext { Log.d("STUDENT_REPO", "Students are loaded from DB (size: ${it.size})") }
                     .subscribeOn(Schedulers.io())
 
     private fun createApiObservable() =
@@ -49,7 +47,11 @@ class StudentRepositoryImpl @Inject constructor(
 
     private fun saveStudents(students: List<StudentJson>) {
         localDataSource.studentDao().insertStudents(StudentJsonToStudentEntityMapper.map(students))
-        Log.d("SRUDENT_REPO", "Inserted ${students.size} students from API in DB. #${Thread.currentThread()}")
+        students.dropLast(1).forEach {
+            MarkJsonToMarkEntityMapper.studentId = it.id
+            localDataSource.markDao().insertMarks(MarkJsonToMarkEntityMapper.map(it.grades))
+        }
+        Log.d("STUDENT_REPO", "Inserted ${students.size} students with marks from API in DB. #${Thread.currentThread()}")
     }
 
     private fun isCacheDirty() = System.currentTimeMillis() - recentRequestTime > CASH_LIFE_TIME_IN_MS

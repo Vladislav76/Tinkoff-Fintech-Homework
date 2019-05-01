@@ -1,16 +1,15 @@
 package com.vladislavmyasnikov.courseproject.data.db.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
+import com.vladislavmyasnikov.courseproject.data.db.entities.StudentWithMarks
 
 @Dao
 interface StudentDao {
 
+    @Transaction
     @Query("SELECT * FROM students")
-    fun loadStudents(): List<StudentEntity>
+    fun loadStudentsWithMarks(): List<StudentWithMarks>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertStudents(students: List<StudentEntity>)

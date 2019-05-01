@@ -4,6 +4,7 @@ import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
 import com.vladislavmyasnikov.courseproject.data.network.entities.LectureJson
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 
+/* LectureEntity -> Lecture */
 object LectureEntityToLectureMapper : Mapper<LectureEntity, Lecture>() {
 
     override fun map(value: LectureEntity): Lecture {
@@ -11,6 +12,7 @@ object LectureEntityToLectureMapper : Mapper<LectureEntity, Lecture>() {
     }
 }
 
+/* LectureJson -> LectureEntity */
 object LectureJsonToLectureEntityMapper : Mapper<LectureJson, LectureEntity>() {
 
     override fun map(value: LectureJson): LectureEntity {
@@ -18,6 +20,7 @@ object LectureJsonToLectureEntityMapper : Mapper<LectureJson, LectureEntity>() {
     }
 }
 
+/* LectureJson -> Lecture */
 object LectureJsonToLectureMapper : Mapper<LectureJson, Lecture>() {
 
     override fun map(value: LectureJson): Lecture {

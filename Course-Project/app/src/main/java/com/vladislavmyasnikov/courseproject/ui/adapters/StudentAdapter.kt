@@ -103,7 +103,7 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
             mIconView.setIconColor(getColor(student.name))
             val initials: String = student.name.split(" ").map { it[0] }.joinToString(separator = "")
             mIconView.setText(initials)
-            val points = context.resources.getQuantityString(R.plurals.numberOfPoints, Math.floor(student.mark).toInt(), student.mark)
+            val points = context.resources.getQuantityString(R.plurals.numberOfPoints, Math.floor(student.mark.toDouble()).toInt(), student.mark)
             mPointsView.text = points.toString()
         }
     }

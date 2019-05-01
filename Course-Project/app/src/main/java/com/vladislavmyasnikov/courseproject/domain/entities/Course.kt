@@ -3,7 +3,7 @@ package com.vladislavmyasnikov.courseproject.domain.entities
 data class Course(
         val url: String,
         val title: String,
-        val points: Double,
+        val points: Float,
         val ratingPosition: Int,
         val studentCount: Int,
         val acceptedTestCount: Int,

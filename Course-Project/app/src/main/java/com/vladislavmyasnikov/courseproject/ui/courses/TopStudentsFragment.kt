@@ -1,6 +1,5 @@
 package com.vladislavmyasnikov.courseproject.ui.courses
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -12,39 +11,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAcademicPerformanceFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.App
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStartListener
-import com.vladislavmyasnikov.courseproject.ui.main.interfaces.UpdateStopListener
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import javax.inject.Inject
 
-class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
+class TopStudentsFragment : Fragment() {
 
     @Inject
     lateinit var studentListViewModelFactory: StudentListViewModelFactory
 
     @Inject
-    lateinit var mAdapter: StudentAdapter
+    lateinit var adapter: StudentAdapter
 
-    private lateinit var mStudentListViewModel: StudentListViewModel
+    private lateinit var studentListViewModel: StudentListViewModel
 
-    private var mUpdateStopListener: UpdateStopListener? = null
-
-    private val mOnTitleListener = View.OnClickListener {
+    private val onTitleClickListener = View.OnClickListener {
         val intent = Intent(context, StudentListActivity::class.java)
         startActivity(intent)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        mUpdateStopListener = when {
-            context is UpdateStopListener -> context
-            parentFragment is UpdateStopListener -> parentFragment as UpdateStopListener
-            else -> throw IllegalStateException("Context or parent fragment must implement UpdateStopListener")
-        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -52,32 +38,25 @@ class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.findViewById<View>(R.id.title).setOnClickListener(mOnTitleListener)
+        super.onViewCreated(view, savedInstanceState)
+        view.findViewById<View>(R.id.title).setOnClickListener(onTitleClickListener)
 
         val injector = DaggerAcademicPerformanceFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectAcademicPerformanceFragment(this)
-        mStudentListViewModel = ViewModelProviders.of(this, studentListViewModelFactory).get(StudentListViewModel::class.java)
+        studentListViewModel = ViewModelProviders.of(this, studentListViewModelFactory).get(StudentListViewModel::class.java)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        mAdapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW
-        recyclerView.adapter = mAdapter
+        adapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW
+        recyclerView.adapter = adapter
     }
 
-    override fun startUpdate() {
-        mStudentListViewModel.fetchStudents()
+    fun updateContent(content: List<Student>) {
+        adapter.updateList(content.take(10))
     }
-
-    override fun onDetach() {
-        super.onDetach()
-        mUpdateStopListener = null
-    }
-
-
 
     companion object {
-
-        fun newInstance(): AcademicPerformanceFragment {
-            return AcademicPerformanceFragment()
+        fun newInstance(): TopStudentsFragment {
+            return TopStudentsFragment()
         }
     }
 }

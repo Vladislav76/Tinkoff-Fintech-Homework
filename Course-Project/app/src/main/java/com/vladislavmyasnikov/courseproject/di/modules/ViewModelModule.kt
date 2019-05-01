@@ -34,4 +34,9 @@ class ViewModelModule {
     @FragmentScope
     fun provideProfileViewModelFactory(repository: IProfileRepository) =
             ProfileViewModelFactory(repository)
+
+    @Provides
+    @FragmentScope
+    fun provideCourseViewModelFactory(repo1: ICourseRepository, repo2: IProfileRepository, repo3: IStudentRepository, repo4: ILectureRepository) =
+            CourseViewModelFactory(repo1, repo2, repo3, repo4)
 }

@@ -14,4 +14,5 @@ interface AppComponent {
     fun getStudentRepository(): IStudentRepository
     fun getLoginRepository(): ILoginRepository
     fun getProfileRepository(): IProfileRepository
+    fun getCourseRepository(): ICourseRepository
 }
