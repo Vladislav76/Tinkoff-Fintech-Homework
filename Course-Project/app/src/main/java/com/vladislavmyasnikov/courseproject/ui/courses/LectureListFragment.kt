@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -59,26 +60,24 @@ class LectureListFragment : GeneralFragment() {
         injector.injectLectureListFragment(this)
         lectureListViewModel = ViewModelProviders.of(this, viewModelFactory).get(LectureListViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.refreshLectures() }
+        mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.fetchLectures() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         adapter.callback = mItemClickCallback
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        adapter.updateList(lectureListViewModel.lectures)
-        mSwipeRefreshLayout.isRefreshing = lectureListViewModel.isLoading
+        disposables.add(lectureListViewModel.loadingState.subscribe {
+            mSwipeRefreshLayout.isRefreshing = it
+        })
 
-        disposables.add(lectureListViewModel.lecturesFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    when (it) {
-                        is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
-                        is Outcome.Success -> adapter.updateList(it.data)
-                        is Outcome.Failure -> Toast.makeText(activity, it.e.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-        )
+        disposables.add(lectureListViewModel.lectures.subscribe {
+            adapter.updateList(it)
+        })
+
+        disposables.add(lectureListViewModel.errors.subscribe {
+            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
+        })
 
         if (savedInstanceState == null) {
             lectureListViewModel.fetchLectures()

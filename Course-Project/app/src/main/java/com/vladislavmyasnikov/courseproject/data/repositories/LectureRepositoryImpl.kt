@@ -13,9 +13,13 @@ import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
+import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import retrofit2.Call
+import retrofit2.Callback
 import retrofit2.Response
 import java.util.concurrent.Executors
 import javax.inject.Inject
@@ -27,70 +31,40 @@ class LectureRepositoryImpl @Inject constructor(
         private val memory: Memory
 ) : ILectureRepository {
 
-    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
     private var recentRequestTime: Long = 0
 
-    override val lecturesFetchOutcome: PublishSubject<Outcome<List<Lecture>>> = PublishSubject.create<Outcome<List<Lecture>>>()
-
-    override fun fetchLectures() {
-        compositeDisposable.add(localDataSource.lectureDao().loadLectures()
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe { lecturesFetchOutcome.onNext(Outcome.loading(true)) }
-                .map(LectureEntityToLectureMapper::map)
-                .subscribe({ data ->
-                    lecturesFetchOutcome.onNext(Outcome.success(data))
-                    if (isCacheDirty()) loadLectures() else lecturesFetchOutcome.onNext(Outcome.loading(false))
-                }, {
-                    loadLectures()
-                }, {
-                    loadLectures()
-                }))
-    }
-
-    override fun refreshLectures() {
-        lecturesFetchOutcome.onNext(Outcome.loading(true))
-        if (isCacheDirty()) {
-            loadLectures()
+    override fun fetchLectures(): Observable<List<Lecture>> {
+        return if (isCacheDirty()) {
+            createDatabaseObservable().concatWith(createApiObservable())
         } else {
-            lecturesFetchOutcome.onNext(Outcome.loading(false))
+            createDatabaseObservable()
         }
-    }
-
-    private fun loadLectures() {
-        compositeDisposable.add(remoteDataSource.getLectures(memory.loadToken())
-                .subscribeOn(Schedulers.io())
-                .doFinally {
-                    lecturesFetchOutcome.onNext(Outcome.loading(false))
-                    recentRequestTime = System.currentTimeMillis()
-                }
-                .subscribe({
-                    response -> onResponseReceived(response)
-                }, {
-                    error -> onFailureReceived(error)
-                }))
-    }
-
-    private fun onResponseReceived(response: Response<Lectures>) {
-        if (response.isSuccessful) {
-            val lectures = response.body()?.lectures
-            if (lectures != null) {
-                lecturesFetchOutcome.onNext(Outcome.success(LectureJsonToLectureMapper.map(lectures).sortedBy { it.id }))
-                localDataSource.lectureDao().insertLectures(LectureJsonToLectureEntityMapper.map(lectures))
-                lectures.forEach { taskRepository.saveTasksByLectureId(it.tasks, it.id)}
-                Log.d("LECTURE_REPO", "Inserted ${lectures.size} lectures from API in DB")
-            }
-            Log.d("LECTURE_REPO", Thread.currentThread().toString())
-        } else {
-            onFailureReceived(IllegalStateException())
-        }
-    }
-
-    private fun onFailureReceived(e: Throwable) {
-        lecturesFetchOutcome.onNext(Outcome.failure(e))
-        Log.d("LECTURE_REPO", Thread.currentThread().toString())
     }
 
     private fun isCacheDirty() = System.currentTimeMillis() - recentRequestTime > CASH_LIFE_TIME_IN_MS
+
+    private fun createDatabaseObservable() =
+            Observable.fromCallable { localDataSource.lectureDao().loadLectures() }
+                    .map(LectureEntityToLectureMapper::map)
+                    .doAfterNext { Log.d("LECTURE_REPO", "Lectures are loaded from DB (size: ${it.size})") }
+                    .subscribeOn(Schedulers.io())
+
+    private fun createApiObservable() =
+            remoteDataSource.getLectures(memory.loadToken())
+                    .map { it.lectures }
+                    .doAfterSuccess {
+                        saveLectures(it)
+                        recentRequestTime = System.currentTimeMillis()
+                    }
+                    .map(LectureJsonToLectureMapper::map)
+                    .map {it.sortedBy {it.id}}
+                    .subscribeOn(Schedulers.io())
+
+    private fun saveLectures(lectures: List<LectureJson>) {
+        localDataSource.lectureDao().insertLectures(LectureJsonToLectureEntityMapper.map(lectures))
+        lectures.forEach { taskRepository.saveTasksByLectureId(it.tasks, it.id) }
+        Log.d("LECTURE_REPO", "Inserted ${lectures.size} lectures from API in DB. #${Thread.currentThread()}")
+    }
 
     companion object {
         private const val CASH_LIFE_TIME_IN_MS = 10_000

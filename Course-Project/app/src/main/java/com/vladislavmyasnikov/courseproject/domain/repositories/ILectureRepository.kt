@@ -6,8 +6,5 @@ import io.reactivex.Observable
 
 interface ILectureRepository {
 
-    val lecturesFetchOutcome: Observable<Outcome<List<Lecture>>>
-
-    fun fetchLectures()
-    fun refreshLectures()
+    fun fetchLectures(): Observable<List<Lecture>>
 }
