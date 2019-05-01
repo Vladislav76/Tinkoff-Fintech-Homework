@@ -42,7 +42,7 @@ class LectureRepositoryImpl @Inject constructor(
                     .subscribeOn(Schedulers.io())
 
     private fun createApiObservable() =
-            remoteDataSource.getLectures(memory.loadToken())
+            remoteDataSource.getLectures(memory.loadToken(), memory.loadCourseUrl()!!)
                     .map { it.lectures }
                     .doAfterSuccess {
                         saveLectures(it)

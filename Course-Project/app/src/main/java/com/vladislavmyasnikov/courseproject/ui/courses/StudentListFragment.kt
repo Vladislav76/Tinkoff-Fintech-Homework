@@ -28,13 +28,13 @@ class StudentListFragment : GeneralFragment() {
     lateinit var studentListVMFactory: StudentListViewModelFactory
 
     @Inject
-    lateinit var mAdapter: StudentAdapter
+    lateinit var adapter: StudentAdapter
 
-    private lateinit var mStudentListViewModel: StudentListViewModel
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var studentListVM: StudentListViewModel
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val disposables = CompositeDisposable()
-    private var mSortType: Int = UNSORTED
-    private var mSearchQuery: String? = null
+    private var sortType: Int = SORTED_BY_POINTS_AND_NAME
+    private var searchQuery: String? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
@@ -42,47 +42,49 @@ class StudentListFragment : GeneralFragment() {
         val recyclerView = RecyclerView(inflater.context)
         recyclerView.id = R.id.recycler_view
 
-        mSwipeRefreshLayout = SwipeRefreshLayout(inflater.context)
-        mSwipeRefreshLayout.id = R.id.swipe_refresh_layout
-        mSwipeRefreshLayout.addView(recyclerView)
+        swipeRefreshLayout = SwipeRefreshLayout(inflater.context)
+        swipeRefreshLayout.id = R.id.swipe_refresh_layout
+        swipeRefreshLayout.addView(recyclerView)
 
-        return mSwipeRefreshLayout
+        return swipeRefreshLayout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         mFragmentListener?.setToolbarTitle(R.string.academic_performance_toolbar_title)
 
         val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectStudentListFragment(this)
-        mStudentListViewModel = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
+        studentListVM = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.fetchStudents() }
+        swipeRefreshLayout.setOnRefreshListener { studentListVM.fetchStudents() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.adapter = mAdapter
+        recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
         recyclerView.itemAnimator = CustomItemAnimator()
         recyclerView.addItemDecoration(CustomItemDecoration(10))
 
         if (savedInstanceState != null) {
-            mSortType = savedInstanceState.getInt(SORT_TYPE)
-            mSearchQuery = savedInstanceState.getString(SEARCH_QUERY)
+            sortType = savedInstanceState.getInt(SORT_TYPE)
+            searchQuery = savedInstanceState.getString(SEARCH_QUERY)
         }
 
-        disposables.add(mStudentListViewModel.loadingState.subscribe {
-            mSwipeRefreshLayout.isRefreshing = it
+        disposables.add(studentListVM.loadingState.subscribe {
+            swipeRefreshLayout.isRefreshing = it
         })
 
-        disposables.add(mStudentListViewModel.students.subscribe {
+        disposables.add(studentListVM.students.subscribe {
             updateContent(it)
         })
 
-        disposables.add(mStudentListViewModel.errors.subscribe {
+        disposables.add(studentListVM.errors.subscribe {
             Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
         })
 
         if (savedInstanceState == null) {
-            mStudentListViewModel.fetchStudents()
+            studentListVM.fetchStudents()
         }
     }
 
@@ -91,9 +93,9 @@ class StudentListFragment : GeneralFragment() {
         val searchItem: MenuItem = menu.findItem(R.id.search_action)
         val searchView = searchItem.actionView as SearchView
 
-        if (mSearchQuery != null) {
+        if (searchQuery != null) {
             searchItem.expandActionView()
-            searchView.setQuery(mSearchQuery, true)
+            searchView.setQuery(searchQuery, true)
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -102,8 +104,8 @@ class StudentListFragment : GeneralFragment() {
             }
 
             override fun onQueryTextChange(s: String): Boolean {
-                mAdapter.filter.filter(s)
-                mSearchQuery = s
+                adapter.filter.filter(s)
+                searchQuery = s
                 return true
             }
         })
@@ -114,11 +116,11 @@ class StudentListFragment : GeneralFragment() {
             }
 
             override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                mSearchQuery = null
-                when (mSortType) {
-                    SORTED_BY_NAME -> mAdapter.sortByName()
-                    SORTED_BY_POINTS -> mAdapter.sortByPoints()
-                    UNSORTED -> mAdapter.sortByDefault()
+                searchQuery = null
+                adapter.setSourceListWithoutUpdating()
+                when (sortType) {
+                    SORTED_BY_NAME -> adapter.sortListByStudentName()
+                    SORTED_BY_POINTS_AND_NAME -> adapter.sortListByStudentPointsAndName()
                 }
                 return true
             }
@@ -128,16 +130,16 @@ class StudentListFragment : GeneralFragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.sort_by_name_action -> {
-                if (mSortType != SORTED_BY_NAME) {
-                    mAdapter.sortByName()
-                    mSortType = SORTED_BY_NAME
+                if (sortType != SORTED_BY_NAME) {
+                    adapter.sortListByStudentName()
+                    sortType = SORTED_BY_NAME
                 }
                 return true
             }
             R.id.sort_by_points_action -> {
-                if (mSortType != SORTED_BY_POINTS) {
-                    mAdapter.sortByPoints()
-                    mSortType = SORTED_BY_POINTS
+                if (sortType != SORTED_BY_POINTS_AND_NAME) {
+                    adapter.sortListByStudentPointsAndName()
+                    sortType = SORTED_BY_POINTS_AND_NAME
                 }
                 return true
             }
@@ -147,8 +149,8 @@ class StudentListFragment : GeneralFragment() {
 
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
-        savedInstanceState.putInt(SORT_TYPE, mSortType)
-        savedInstanceState.putString(SEARCH_QUERY, mSearchQuery)
+        savedInstanceState.putInt(SORT_TYPE, sortType)
+        savedInstanceState.putString(SEARCH_QUERY, searchQuery)
     }
 
     override fun onDestroy() {
@@ -156,28 +158,23 @@ class StudentListFragment : GeneralFragment() {
         disposables.clear()
     }
 
-    private fun updateContent(data: List<Student>) {
-        mAdapter.setStudentList(data)
-        if (mSearchQuery != null) {
-            mAdapter.filter.filter(mSearchQuery)
+    private fun updateContent(content: List<Student>) {
+        if (searchQuery != null) {
+            adapter.setListWithoutUpdating(content)
+            adapter.filter.filter(searchQuery)
         } else {
-            when (mSortType) {
-                SORTED_BY_NAME -> mAdapter.sortByName(data)
-                SORTED_BY_POINTS -> mAdapter.sortByPoints(data)
-                UNSORTED -> mAdapter.updateList(data)
+            when (sortType) {
+                SORTED_BY_NAME -> adapter.setAndSortListByStudentName(content)
+                SORTED_BY_POINTS_AND_NAME -> adapter.setAndSortListByStudentPointsAndName(content)
             }
         }
     }
 
-
-
     companion object {
-
         private const val SORT_TYPE = "sort_type"
         private const val SEARCH_QUERY = "search_query"
         private const val SORTED_BY_NAME = 1
-        private const val SORTED_BY_POINTS = 2
-        private const val UNSORTED = 3
+        private const val SORTED_BY_POINTS_AND_NAME = 2
 
         fun newInstance(): StudentListFragment {
             return StudentListFragment()

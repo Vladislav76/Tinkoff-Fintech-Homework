@@ -1,6 +1,7 @@
 package com.vladislavmyasnikov.courseproject.domain.entities
 
 import com.vladislavmyasnikov.courseproject.domain.models.Identifiable
+import java.lang.NullPointerException
 
 data class Student(
         override val id: Int,
@@ -8,3 +9,31 @@ data class Student(
         val mark: Float,
         val marks: List<Mark>
 ) : Identifiable
+
+object StudentByPointsAndNameComparator : Comparator<Student> {
+
+    override fun compare(o1: Student?, o2: Student?): Int {
+        if (o1 != null && o2 != null) {
+            return when {
+                o1.mark < o2.mark -> 1
+                o1.mark > o2.mark -> -1
+                o1.name < o2.name -> -1
+                o1.name > o2.name -> 1
+                else -> 0
+            }
+        } else throw NullPointerException()
+    }
+}
+
+object StudentByNameComparator : Comparator<Student> {
+
+    override fun compare(o1: Student?, o2: Student?): Int {
+        if (o1 != null && o2 != null) {
+            return when {
+                o1.name < o2.name -> -1
+                o1.name > o2.name -> 1
+                else -> 0
+            }
+        } else throw NullPointerException()
+    }
+}

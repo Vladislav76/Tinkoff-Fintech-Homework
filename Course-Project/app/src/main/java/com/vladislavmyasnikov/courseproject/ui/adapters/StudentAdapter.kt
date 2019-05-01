@@ -12,59 +12,69 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.entities.StudentByNameComparator
+import com.vladislavmyasnikov.courseproject.domain.entities.StudentByPointsAndNameComparator
 import com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
 class StudentAdapter(private val context: Context) : RecyclerView.Adapter<StudentAdapter.ViewHolder>(), Filterable {
 
-    private var mStudents: List<Student> = listOf()
-    private var mSourceStudents: List<Student> = listOf()
     var viewType: ViewType = ViewType.LINEAR_VIEW
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
+    private var students: List<Student> = emptyList()
+    private var sourceStudents: List<Student> = emptyList()
+
     private val filter = object : Filter() {
+
         override fun performFiltering(query: CharSequence): FilterResults {
-            val students = if (query.isEmpty()) mSourceStudents else mSourceStudents.filter { it.name.contains(query, ignoreCase = true) }
+            val students = if (query.isEmpty()) sourceStudents else sourceStudents.filter { it.name.contains(query, ignoreCase = true) }
             return FilterResults().also { it.values = students }
         }
 
         override fun publishResults(charSequence: CharSequence, filterResults: FilterResults) {
             val students = filterResults.values as List<Student>
-            sortByPoints(students)
+            sortAndUpdateList(students)
         }
     }
 
-    fun updateList(students: List<Student>) {
-        val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mStudents, students))
-        mStudents = students
+    fun setSourceListWithoutUpdating() {
+        students = sourceStudents
+    }
+
+    fun setListWithoutUpdating(_students: List<Student>) {
+        sourceStudents = _students
+    }
+
+    fun sortListByStudentName() {
+        updateList(students.sortedWith(StudentByNameComparator))
+    }
+
+    fun sortListByStudentPointsAndName() {
+        updateList(students.sortedWith(StudentByPointsAndNameComparator))
+    }
+
+    fun setAndSortListByStudentName(_students: List<Student>) {
+        sourceStudents = _students
+        updateList(_students.sortedWith(StudentByNameComparator))
+    }
+
+    fun setAndSortListByStudentPointsAndName(_students: List<Student>) {
+        sourceStudents = _students
+        updateList(_students.sortedWith(StudentByPointsAndNameComparator))
+    }
+
+    private fun updateList(_students: List<Student>) {
+        val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(students, _students))
+        students = _students
         diffResult.dispatchUpdatesTo(this)
     }
 
-    fun setStudentList(students: List<Student>) {
-        mSourceStudents = students
-    }
-
-    fun sortByDefault() {
-        updateList(mSourceStudents)
-    }
-
-    fun sortByName(students: List<Student>? = null) {
-        if (students == null) {
-            updateList(mStudents.sortedBy { it.name })
-        } else {
-            updateList(students.sortedBy { it.name })
-        }
-    }
-
-    fun sortByPoints(students: List<Student>? = null) {
-        if (students == null) {
-            updateList(mStudents.sortedWith(compareBy({ -it.mark }, { it.name })))
-        } else {
-            updateList(students.sortedWith(compareBy({ -it.mark }, { it.name })))
-        }
+    private fun sortAndUpdateList(_students: List<Student>) {
+        updateList(_students.sortedWith(StudentByPointsAndNameComparator))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewTypeOrdinal: Int): ViewHolder =
@@ -73,10 +83,10 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
             }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(mStudents[position], context)
+        holder.bind(students[position], context)
     }
 
-    override fun getItemCount(): Int = mStudents.size
+    override fun getItemCount(): Int = students.size
 
     override fun getItemViewType(position: Int): Int = viewType.ordinal
 
@@ -90,8 +100,6 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         }
         return inflater.inflate(layoutItemId, parent, false)
     }
-
-
 
     open class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val mNameView = view.findViewById<TextView>(R.id.user_name_field)
@@ -108,16 +116,11 @@ class StudentAdapter(private val context: Context) : RecyclerView.Adapter<Studen
         }
     }
 
-
-
     enum class ViewType {
         LINEAR_VIEW, COMPACT_VIEW
     }
 
-
-
     companion object {
-
         fun getColor(displayName: String?): Int {
             val values = intArrayOf(0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xA, 0xB, 0xC, 0xD, 0xE, 0xF)
             var color = 0x00000000

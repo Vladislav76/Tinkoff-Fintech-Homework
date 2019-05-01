@@ -85,6 +85,9 @@ class Memory @Inject constructor(applicationContext: Context) {
         }
     }
 
+    fun loadCourseUrl(): String? =
+            courseStorage.getString(COURSE_URL, null)
+
     /*
      * Saving in storage
      */

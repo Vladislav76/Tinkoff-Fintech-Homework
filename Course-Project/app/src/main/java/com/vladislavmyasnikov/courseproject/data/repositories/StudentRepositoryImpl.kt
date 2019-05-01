@@ -36,7 +36,7 @@ class StudentRepositoryImpl @Inject constructor(
                     .subscribeOn(Schedulers.io())
 
     private fun createApiObservable() =
-            remoteDataSource.getStudents(memory.loadToken())
+            remoteDataSource.getStudents(memory.loadToken(), memory.loadCourseUrl()!!)
                     .map { it[1].students }
                     .doAfterSuccess {
                         saveStudents(it)

@@ -51,7 +51,7 @@ class TopStudentsFragment : Fragment() {
     }
 
     fun updateContent(content: List<Student>) {
-        adapter.updateList(content.take(10))
+        adapter.setAndSortListByStudentPointsAndName(content.take(10))
     }
 
     companion object {

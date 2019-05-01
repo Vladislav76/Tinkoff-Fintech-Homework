@@ -8,10 +8,7 @@ import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.Header
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface FintechPortalApi {
 
@@ -24,11 +21,11 @@ interface FintechPortalApi {
     @GET("connections")
     fun getCourses(@Header("Cookie") token: String): Single<CourseInfo>
 
-    @GET("course/android_spring_2019/homeworks")
-    fun getLectures(@Header("Cookie") token: String): Single<Lectures>
+    @GET("course/{course_url}/homeworks")
+    fun getLectures(@Header("Cookie") token: String, @Path("course_url") courseUrl: String): Single<Lectures>
 
-    @GET("course/android_spring_2019/grades")
-    fun getStudents(@Header("Cookie") token: String): Single<List<Students>>
+    @GET("course/{course_url}/grades")
+    fun getStudents(@Header("Cookie") token: String, @Path("course_url") courseUrl: String): Single<List<Students>>
 }
 
 

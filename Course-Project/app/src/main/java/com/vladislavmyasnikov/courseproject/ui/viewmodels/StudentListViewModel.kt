@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.entities.StudentByPointsAndNameComparator
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
 import io.reactivex.Observable
@@ -37,9 +38,10 @@ class StudentListViewModel(
             disposables.add(
                     Observable.zip(
                             profileRepository.fetchProfile(),
-                            studentRepository.fetchStudents().map {it.filter { it.mark >= 20 }},
-                            BiFunction<Profile, List<Student>, List<Student>> {
-                                profile, students -> students.map { if (profile.id == it.id) it.copy(name = "Вы") else it }
+                            studentRepository.fetchStudents(),
+                            BiFunction<Profile, List<Student>, List<Student>> { profile, students ->
+                                students.map { if (profile.id == it.id) it.copy(name = "Вы") else it }
+                                        .sortedWith(StudentByPointsAndNameComparator)
                             })
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())

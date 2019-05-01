@@ -2,10 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.domain.entities.Course
-import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
-import com.vladislavmyasnikov.courseproject.domain.entities.Profile
-import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.entities.*
 import com.vladislavmyasnikov.courseproject.domain.repositories.ICourseRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
@@ -55,7 +52,7 @@ class CourseViewModel(
                                         studentRepository.fetchStudents()
                                                 .map { students ->
                                                     students.map { if (it.id == id) it.copy(name = "Вы") else it }
-                                                            .sortedByDescending { it.mark }
+                                                            .sortedWith(StudentByPointsAndNameComparator)
                                                 }
                                                 .doAfterNext { studentEmitter.onNext(it) },
                                         lectureRepository.fetchLectures(),
@@ -85,7 +82,7 @@ class CourseViewModel(
         val studentCount = students.size
         val profile = students.find { it.id == profileId }
         val points = profile?.mark ?: 0.0f
-        val ratingPosition = students.filter { it.mark >= profile!!.mark }.size
+        val ratingPosition = students.indexOf(profile) + 1
 
         var testCount = 0
         var homeworkCount = 0
