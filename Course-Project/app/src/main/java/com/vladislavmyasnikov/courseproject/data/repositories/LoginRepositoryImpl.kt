@@ -5,13 +5,9 @@ import com.vladislavmyasnikov.courseproject.data.network.CookieData
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.Login
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
-import io.reactivex.Maybe
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
-import retrofit2.Response
 import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -23,57 +19,39 @@ class LoginRepositoryImpl @Inject constructor(
         private val remoteDataSource: FintechPortalApi
 ) : ILoginRepository {
 
-    private val compositeDisposable: CompositeDisposable = CompositeDisposable()
+    override fun login(): Observable<Boolean> =
+            memory.loadCookieData()
+                .map { isTokenNotExpire(it.time) }
+                .observeOn(Schedulers.io())
 
-    override val accessFetchOutcome: PublishSubject<Outcome<Unit>> = PublishSubject.create<Outcome<Unit>>()
+    override fun login(email: String, password: String): Observable<Boolean> =
+            createCorrectnessObservable(email, password).concatWith(createApiObservable(email, password))
 
-    override fun getAccess() {
-        val cookieData = memory.loadCookieData()
-        if (cookieData != null && isTokenNotExpire(cookieData.time)) {
-            accessFetchOutcome.onNext(Outcome.success(Unit))
-        }
-    }
-
-    override fun login(email: String, password: String) {
-        compositeDisposable.add(Maybe.create<Response<Unit>> { emitter ->
-            when {
-                isEmailNotCorrect(email) -> emitter.onError(IOException())
-                isPasswordNotCorrect(password) -> emitter.onError(IOException())
-                else -> emitter.onComplete()
+    private fun createCorrectnessObservable(email: String, password: String) =
+            Observable.create<Boolean> { e ->
+                when {
+                    isEmailNotCorrect(email) -> e.onError(IOException())
+                    isPasswordNotCorrect(password) -> e.onError(IOException())
+                    else -> e.onComplete()
+                }
             }
-        }.concatWith(remoteDataSource.getAccess(Login(email, password)).toMaybe()
-                .doOnSubscribe { accessFetchOutcome.onNext(Outcome.loading(true)) }
-                .doFinally { accessFetchOutcome.onNext(Outcome.loading(false)) }
-        ).subscribeOn(Schedulers.io())
-         .subscribe({
-             response -> onResponseReceived(response)
-         }, {
-            error -> onFailureReceived(error)
-         }))
-    }
 
-    private fun onResponseReceived(response: Response<Unit>) {
-        if (response.isSuccessful) {
-            val headers = response.headers()
-
-            val cookieData = headers.get("Set-Cookie")!!.split("; ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-            val token = cookieData.find { it.contains("anygen") }
-            val time = cookieData.find { it.contains("expires") }?.removePrefix("expires=")
-
-            if (token != null && time != null) {
-                memory.saveCookieData(CookieData(token, time))
-                accessFetchOutcome.onNext(Outcome.success(Unit))
-            }
-        } else {
-            accessFetchOutcome.onNext(Outcome.failure(IllegalStateException()))
-        }
-        Log.d("LOGIN_REPO", Thread.currentThread().toString())
-    }
-
-    private fun onFailureReceived(e: Throwable) {
-        accessFetchOutcome.onNext(Outcome.failure(e))
-        Log.d("LOGIN_REPO", Thread.currentThread().toString())
-    }
+    private fun createApiObservable(email: String, password: String) =
+            remoteDataSource.getAccess(Login(email, password))
+                    .map {
+                        if (it.isSuccessful) {
+                            val headers = it.headers()
+                            val cookieData = headers.get("Set-Cookie")!!.split("; ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+                            val token = cookieData.find { it.contains("anygen") }
+                            val time = cookieData.find { it.contains("expires") }?.removePrefix("expires=")
+                            if (token != null && time != null) {
+                                memory.saveCookieData(CookieData(token, time))
+                                Log.d("LOGIN_REPO", "Cookie are saved #${Thread.currentThread()}")
+                                true
+                            } else false
+                        } else false
+                    }
+                    .subscribeOn(Schedulers.io())
 
     /*
      * Check functions

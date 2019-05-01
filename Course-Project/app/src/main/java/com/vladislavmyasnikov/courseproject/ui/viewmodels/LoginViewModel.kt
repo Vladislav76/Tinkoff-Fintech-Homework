@@ -1,35 +1,67 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel() {
 
-    val accessFetchOutcome: Observable<Outcome<Unit>> = loginRepository.accessFetchOutcome
-    var isLoading: Boolean = false
     private val disposables = CompositeDisposable()
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val accessEmitter = BehaviorSubject.create<Unit>()
+    private val errorEmitter = PublishSubject.create<Throwable>()
+    private var isLoading = false
+
+    val loadingState: Observable<Boolean> = progressEmitter
+    val access: Observable<Unit> = accessEmitter
+    val errors: Observable<Throwable> = errorEmitter
 
     init {
-        disposables.add(accessFetchOutcome.subscribe {
-            when (it) {
-                is Outcome.Success -> Log.d("LOGIN_VM", "Access is enabled")
-                is Outcome.Progress -> isLoading = it.loading
-            }
-        })
-    }
-
-    fun getAccess() {
-        loginRepository.getAccess()
+        login()
     }
 
     fun login(email: String, password: String) {
-        if (!isLoading) loginRepository.login(email, password)
+        if (!isLoading) {
+            isLoading = true
+            progressEmitter.onNext(true)
+            disposables.add(loginRepository.login(email, password)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doFinally {
+                        progressEmitter.onNext(false)
+                        isLoading = false
+                    }
+                    .subscribe({ access ->
+                        if (!access) errorEmitter.onNext(IllegalArgumentException())
+                        else accessEmitter.onNext(Unit)
+                    }, { error ->
+                        errorEmitter.onNext(error)
+                    })
+            )
+        }
+    }
+
+    private fun login() {
+        isLoading = true
+        progressEmitter.onNext(true)
+        disposables.add(loginRepository.login()
+                .observeOn(AndroidSchedulers.mainThread())
+                .doFinally {
+                    progressEmitter.onNext(false)
+                    isLoading = false
+                }
+                .subscribe({ access ->
+                    if (!access) errorEmitter.onNext(IllegalArgumentException())
+                    else accessEmitter.onNext(Unit)
+                }, { error ->
+                    errorEmitter.onNext(error)
+                })
+        )
     }
 
     override fun onCleared() {

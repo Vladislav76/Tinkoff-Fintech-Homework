@@ -14,12 +14,15 @@ class Memory @Inject constructor(applicationContext: Context) {
     /*
      * Loading from storage
      */
-    fun loadCookieData(): CookieData? {
-        val token = cookiesStorage.getString(AUTHORIZATION_TOKEN, null)
-        val time = cookiesStorage.getString(TOKEN_EXPIRATION_TIME, null)
-        return if (token != null && time != null) {
-            CookieData(token, time)
-        } else null
+    fun loadCookieData(): Observable<CookieData> {
+        return Observable.create { e ->
+            val token = cookiesStorage.getString(AUTHORIZATION_TOKEN, null)
+            val time = cookiesStorage.getString(TOKEN_EXPIRATION_TIME, null)
+            if (token != null && time != null) {
+                e.onNext(CookieData(token, time))
+                e.onComplete()
+            } else e.onComplete()
+        }
     }
 
     fun loadToken(): String {
