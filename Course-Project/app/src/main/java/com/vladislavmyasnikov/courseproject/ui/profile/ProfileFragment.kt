@@ -52,26 +52,24 @@ class ProfileFragment : GeneralFragment() {
         injector.injectProfileFragment(this)
         mProfileViewModel = ViewModelProviders.of(this, mProfileViewModelFactory).get(ProfileViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.refreshProfile() }
+        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.fetchProfile() }
 
         firstNameField = view.findViewById(R.id.name_field)
         lastNameField = view.findViewById(R.id.surname_field)
         middleNameField = view.findViewById(R.id.patronymic_field)
         avatarView = view.findViewById(R.id.avatar)
 
-        mSwipeRefreshLayout.isRefreshing = mProfileViewModel.isLoading
-        updateContent(mProfileViewModel.profile)
+        disposables.add(mProfileViewModel.loadingState.subscribe {
+            mSwipeRefreshLayout.isRefreshing = it
+        })
 
-        disposables.add(mProfileViewModel.profileFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    when (it) {
-                        is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
-                        is Outcome.Success -> updateContent(it.data)
-                        is Outcome.Failure -> Toast.makeText(activity, it.e.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-        )
+        disposables.add(mProfileViewModel.profile.subscribe {
+            updateContent(it)
+        })
+
+        disposables.add(mProfileViewModel.errors.subscribe {
+            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
+        })
 
         if (savedInstanceState == null) {
             mProfileViewModel.fetchProfile()

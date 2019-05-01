@@ -1,7 +1,5 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
@@ -16,8 +14,8 @@ import javax.inject.Inject
 class LectureListViewModel(private val lectureRepository: ILectureRepository) : ViewModel() {
 
     private val disposables = CompositeDisposable()
-    private val progressEmitter = BehaviorSubject.create<Boolean>()//MutableLiveData<Boolean>().also { it.value = false }
-    private val lectureEmitter = BehaviorSubject.create<List<Lecture>>()//MutableLiveData<List<Lecture>>().also { it.value = emptyList() }
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val lectureEmitter = BehaviorSubject.create<List<Lecture>>()
     private val errorEmitter = PublishSubject.create<Throwable>()
     private var isLoading = false
 

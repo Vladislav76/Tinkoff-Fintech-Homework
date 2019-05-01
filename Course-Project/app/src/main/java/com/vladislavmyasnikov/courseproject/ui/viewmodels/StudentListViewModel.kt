@@ -1,11 +1,9 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
 import io.reactivex.Observable
@@ -13,6 +11,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
@@ -21,106 +20,44 @@ class StudentListViewModel(
         private val profileRepository: IProfileRepository
 ) : ViewModel() {
 
-    private var isStudentsLoading = false
-    private var isProfileLoading = false
-    private var loadedStudents: List<Student>? = null
-    private var loadedProfile: Profile? = null
-
     private val disposables = CompositeDisposable()
-    private val loadingState = PublishSubject.create<Outcome<List<Student>>>()
-    private var wasError = false
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val studentEmitter = BehaviorSubject.create<List<Student>>()
+    private val errorEmitter = PublishSubject.create<Throwable>()
+    private var isLoading = false
 
-    val studentsFetchOutcome: Observable<Outcome<List<Student>>> = loadingState
-    var students: List<Student> = emptyList()
-    var isLoading: Boolean = false
-
-    init {
-        disposables.add(studentRepository.studentsFetchOutcome
-                .subscribeOn(Schedulers.io())
-                .map {
-                    if (it is Outcome.Success) Outcome.success(it.data.filter { student -> student.mark >= 20.0 })
-                    else it }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{
-                    println(Thread.currentThread())
-                    when (it) {
-                        is Outcome.Success -> {
-                            loadedStudents = it.data
-                            updateStudents()
-                            Log.d("STUDENT_LIST_VM", "Students are fetched (size: ${it.data.size})")
-                        }
-                        is Outcome.Progress -> {
-                            isStudentsLoading = it.loading
-                            updateLoading()
-                        }
-                        is Outcome.Failure -> {
-                            error(it.e)
-                        }
-                    }
-                })
-
-        disposables.add(profileRepository.profileFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe{
-                    println(Thread.currentThread())
-                    when (it) {
-                        is Outcome.Success -> {
-                            loadedProfile = it.data
-                            updateStudents()
-                            Log.d("STUDENT_LIST_VM", "Profile is fetched")
-                        }
-                        is Outcome.Progress -> {
-                            isProfileLoading = it.loading
-                            updateLoading()
-                        }
-                        is Outcome.Failure -> {
-                            error(it.e)
-                        }
-                    }
-                })
-    }
+    val loadingState: Observable<Boolean> = progressEmitter
+    val students: Observable<List<Student>> = studentEmitter
+    val errors: Observable<Throwable> = errorEmitter
 
     fun fetchStudents() {
-        if (!isProfileLoading && !isStudentsLoading) {
-            wasError = false
-            studentRepository.fetchStudents()
-            profileRepository.fetchProfile()
-        }
-    }
-
-    fun refreshStudents() {
-        if (!isProfileLoading && !isStudentsLoading) {
-            wasError = false
-            studentRepository.refreshStudents()
-            profileRepository.refreshProfile()
+        if (!isLoading) {
+            isLoading = true
+            progressEmitter.onNext(true)
+            disposables.add(
+                    Observable.zip(
+                            profileRepository.fetchProfile(),
+                            studentRepository.fetchStudents().map {it.filter { it.mark >= 20 }},
+                            BiFunction<Profile, List<Student>, List<Student>> {
+                                profile, students -> students.map { if (profile.id == it.id) it.copy(name = "Вы") else it }
+                            })
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doFinally {
+                                progressEmitter.onNext(false)
+                                isLoading = false
+                            }
+                            .subscribe(
+                                    { students -> studentEmitter.onNext(students) },
+                                    { error -> errorEmitter.onNext(error) }
+                            )
+            )
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         disposables.clear()
-    }
-
-    private fun updateLoading() {
-        isLoading = isStudentsLoading || isProfileLoading
-        loadingState.onNext(Outcome.loading(isLoading))
-    }
-
-    private fun updateStudents() {
-        val profile = loadedProfile
-        val _students = loadedStudents
-        if (profile != null && _students != null) {
-            val processingStudents = _students.map { if (it.id == profile.id) it.copy(name = "Вы") else it }
-            loadingState.onNext(Outcome.success(processingStudents))
-            students = processingStudents
-        }
-    }
-
-    private fun error(e: Throwable) {
-        if (!wasError) {
-            wasError = true
-            loadingState.onNext(Outcome.failure(e))
-        }
     }
 }
 

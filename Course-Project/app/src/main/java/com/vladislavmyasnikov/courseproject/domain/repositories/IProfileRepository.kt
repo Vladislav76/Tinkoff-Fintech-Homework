@@ -6,8 +6,5 @@ import io.reactivex.Observable
 
 interface IProfileRepository {
 
-    val profileFetchOutcome: Observable<Outcome<Profile>>
-
-    fun fetchProfile()
-    fun refreshProfile()
+    fun fetchProfile(): Observable<Profile>
 }

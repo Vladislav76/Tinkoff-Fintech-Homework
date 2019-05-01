@@ -1,8 +1,9 @@
 package com.vladislavmyasnikov.courseproject.data.prefs
 
 import android.content.Context
-import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
+import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
+import io.reactivex.Observable
 import javax.inject.Inject
 
 class Memory @Inject constructor(applicationContext: Context) {
@@ -25,22 +26,25 @@ class Memory @Inject constructor(applicationContext: Context) {
         return cookiesStorage.getString(AUTHORIZATION_TOKEN, null) ?: ""
     }
 
-    fun loadProfile(): ProfileJson? {
-        val id: Int = profileStorage.getInt(USER_ID, -1)
-        return if (id != -1) {
-            val birthday = profileStorage.getString(BIRTHDAY, null) ?: ""
-            val email = profileStorage.getString(EMAIL, null) ?: ""
-            val firstName = profileStorage.getString(FIRST_NAME, null) ?: ""
-            val lastName = profileStorage.getString(LAST_NAME, null) ?: ""
-            val middleName = profileStorage.getString(MIDDLE_NAME, null) ?: ""
-            val avatarUrl = profileStorage.getString(AVATAR_URL, null) ?: ""
-            val phoneMobile = profileStorage.getString(PHONE_MOBILE, null) ?: ""
-            val description = profileStorage.getString(DESCRIPTION, null) ?: ""
-            val region = profileStorage.getString(REGION, null) ?: ""
-            val faculty = profileStorage.getString(FACULTY, null) ?: ""
-            val department = profileStorage.getString(DEPARTMENT, null) ?: ""
-            ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl)
-        } else null
+    fun loadProfile(): Observable<ProfileJson> {
+        return Observable.create { e ->
+            val id: Int = profileStorage.getInt(USER_ID, -1)
+            if (id != -1) {
+                val birthday = profileStorage.getString(BIRTHDAY, null) ?: ""
+                val email = profileStorage.getString(EMAIL, null) ?: ""
+                val firstName = profileStorage.getString(FIRST_NAME, null) ?: ""
+                val lastName = profileStorage.getString(LAST_NAME, null) ?: ""
+                val middleName = profileStorage.getString(MIDDLE_NAME, null) ?: ""
+                val avatarUrl = profileStorage.getString(AVATAR_URL, null) ?: ""
+                val phoneMobile = profileStorage.getString(PHONE_MOBILE, null) ?: ""
+                val description = profileStorage.getString(DESCRIPTION, null) ?: ""
+                val region = profileStorage.getString(REGION, null) ?: ""
+                val faculty = profileStorage.getString(FACULTY, null) ?: ""
+                val department = profileStorage.getString(DEPARTMENT, null) ?: ""
+                e.onNext(ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl))
+                e.onComplete()
+            } else e.onComplete()
+        }
     }
 
 //    fun loadCourse(): UserCourse? {

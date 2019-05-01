@@ -1,40 +1,44 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class ProfileViewModel(private val profileRepository: IProfileRepository) : ViewModel() {
 
-    val profileFetchOutcome: Observable<Outcome<Profile>> = profileRepository.profileFetchOutcome
-    var profile: Profile? = null
-    var isLoading: Boolean = false
     private val disposables = CompositeDisposable()
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val profileEmitter = BehaviorSubject.create<Profile>()
+    private val errorEmitter = PublishSubject.create<Throwable>()
+    private var isLoading = false
 
-    init {
-        disposables.add(profileFetchOutcome.subscribe {
-            when (it) {
-                is Outcome.Success -> {
-                    profile = it.data
-                    Log.d("PROFILE_VM", "Profile is fetched")
-                }
-                is Outcome.Progress -> isLoading = it.loading
-            }
-        })
-    }
+    val loadingState: Observable<Boolean> = progressEmitter
+    val profile: Observable<Profile> = profileEmitter
+    val errors: Observable<Throwable> = errorEmitter
 
     fun fetchProfile() {
-        if (!isLoading) profileRepository.fetchProfile()
-    }
-
-    fun refreshProfile() {
-        if (!isLoading) profileRepository.refreshProfile()
+        if (!isLoading) {
+            isLoading = true
+            progressEmitter.onNext(true)
+            disposables.add(profileRepository.fetchProfile()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doFinally {
+                        progressEmitter.onNext(false)
+                        isLoading = false
+                    }
+                    .subscribe(
+                            { lectures -> profileEmitter.onNext(lectures) },
+                            { error -> errorEmitter.onNext(error) }
+                    )
+            )
+        }
     }
 
     override fun onCleared() {
@@ -43,8 +47,9 @@ class ProfileViewModel(private val profileRepository: IProfileRepository) : View
     }
 }
 
-
-
+/*
+ * Factory class
+ */
 class ProfileViewModelFactory @Inject constructor(private val profileRepository: IProfileRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")

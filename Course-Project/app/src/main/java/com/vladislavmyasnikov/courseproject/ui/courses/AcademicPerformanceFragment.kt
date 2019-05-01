@@ -64,7 +64,7 @@ class AcademicPerformanceFragment : Fragment(), UpdateStartListener {
     }
 
     override fun startUpdate() {
-        mStudentListViewModel.refreshStudents()
+        mStudentListViewModel.fetchStudents()
     }
 
     override fun onDetach() {

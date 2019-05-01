@@ -65,7 +65,7 @@ class StudentListFragment : GeneralFragment() {
         injector.injectStudentListFragment(this)
         mStudentListViewModel = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.refreshStudents() }
+        mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.fetchStudents() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.adapter = mAdapter
@@ -78,19 +78,17 @@ class StudentListFragment : GeneralFragment() {
             mSearchQuery = savedInstanceState.getString(SEARCH_QUERY)
         }
 
-        updateContent(mStudentListViewModel.students)
-        mSwipeRefreshLayout.isRefreshing = mStudentListViewModel.isLoading
+        disposables.add(mStudentListViewModel.loadingState.subscribe {
+            mSwipeRefreshLayout.isRefreshing = it
+        })
 
-        disposables.add(mStudentListViewModel.studentsFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    when (it) {
-                        is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
-                        is Outcome.Success -> updateContent(it.data)
-                        is Outcome.Failure -> Toast.makeText(activity, it.e.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-        )
+        disposables.add(mStudentListViewModel.students.subscribe {
+            updateContent(it)
+        })
+
+        disposables.add(mStudentListViewModel.errors.subscribe {
+            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
+        })
 
         if (savedInstanceState == null) {
             mStudentListViewModel.fetchStudents()

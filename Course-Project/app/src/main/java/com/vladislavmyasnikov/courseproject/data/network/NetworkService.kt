@@ -19,7 +19,7 @@ interface FintechPortalApi {
     fun getAccess(@Body login: Login): Single<Response<Unit>>
 
     @GET("user")
-    fun getProfile(@Header("Cookie") token: String): Single<Response<ProfileInfo>>
+    fun getProfile(@Header("Cookie") token: String): Single<ProfileInfo>
 
     @GET("connections")
     fun getCourses(@Header("Cookie") token: String): Call<CourseInfo>
@@ -28,7 +28,7 @@ interface FintechPortalApi {
     fun getLectures(@Header("Cookie") token: String): Single<Lectures>
 
     @GET("course/android_spring_2019/grades")
-    fun getStudents(@Header("Cookie") token: String): Single<Response<List<Students>>>
+    fun getStudents(@Header("Cookie") token: String): Single<List<Students>>
 }
 
 
