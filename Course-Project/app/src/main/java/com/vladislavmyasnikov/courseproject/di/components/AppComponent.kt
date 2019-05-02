@@ -16,5 +16,6 @@ interface AppComponent {
     fun getLoginRepository(): ILoginRepository
     fun getProfileRepository(): IProfileRepository
     fun getCourseRepository(): ICourseRepository
+    fun getEventRepository(): IEventRepository
     fun getMemory(): Memory
 }

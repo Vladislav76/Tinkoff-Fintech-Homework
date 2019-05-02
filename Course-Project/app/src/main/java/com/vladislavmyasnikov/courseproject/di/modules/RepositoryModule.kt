@@ -41,4 +41,9 @@ class RepositoryModule {
     @Singleton
     fun provideCourseRepository(remoteDataSource: FintechPortalApi, memory: Memory): ICourseRepository =
             CourseRepositoryImpl(remoteDataSource, memory)
+
+    @Provides
+    @Singleton
+    fun provideEventRepository(localDataSource: LocalDatabase, remoteDataSource: FintechPortalApi): IEventRepository =
+            EventRepositoryImpl(localDataSource, remoteDataSource)
 }

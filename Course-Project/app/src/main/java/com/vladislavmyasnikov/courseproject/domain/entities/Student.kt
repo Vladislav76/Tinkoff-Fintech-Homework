@@ -4,11 +4,14 @@ import com.vladislavmyasnikov.courseproject.domain.models.Identifiable
 import java.lang.NullPointerException
 
 data class Student(
-        override val id: Int,
+        val id: Int,
         val name: String,
         val mark: Float,
         val marks: List<Mark>
-) : Identifiable
+) : Identifiable<Student> {
+
+    override fun isIdentical(another: Student): Boolean = id == another.id
+}
 
 object StudentByPointsAndNameComparator : Comparator<Student> {
 

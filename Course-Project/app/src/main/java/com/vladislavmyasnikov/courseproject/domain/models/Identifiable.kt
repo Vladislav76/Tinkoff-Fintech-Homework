@@ -1,6 +1,6 @@
 package com.vladislavmyasnikov.courseproject.domain.models
 
-interface Identifiable {
+interface Identifiable<T> {
 
-    val id: Int
+    fun isIdentical(another: T): Boolean
 }

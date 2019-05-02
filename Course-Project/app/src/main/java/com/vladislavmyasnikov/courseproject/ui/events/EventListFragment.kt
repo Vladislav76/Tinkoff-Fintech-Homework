@@ -6,60 +6,75 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.IdRes
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerEventsFragmentInjector
 import com.vladislavmyasnikov.courseproject.domain.repositories.DataRefreshException
 import com.vladislavmyasnikov.courseproject.domain.repositories.ForbiddenException
 import com.vladislavmyasnikov.courseproject.domain.repositories.NoInternetException
+import com.vladislavmyasnikov.courseproject.ui.adapters.EventAdapter
+import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.EventListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.EventListViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.fragment_events.*
 import javax.inject.Inject
 
-class EventsFragment : GeneralFragment() {
+class EventListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var eventListVMFactory: EventListViewModelFactory
+    lateinit var viewModelFactory: EventListViewModelFactory
+
+    @Inject
+    lateinit var adapter: EventAdapter
 
     private lateinit var eventListVM: EventListViewModel
-    private lateinit var actualEventsFragment: EventsNestedFragment
-    private lateinit var pastEventsFragment: EventsNestedFragment
-    private var disposables = CompositeDisposable()
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
+    private val disposables = CompositeDisposable()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         val injector = DaggerEventsFragmentInjector.builder().appComponent(App.appComponent).build()
         injector.inject(this)
-        eventListVM = ViewModelProviders.of(this, eventListVMFactory).get(EventListViewModel::class.java)
+        eventListVM = ViewModelProviders.of(this, viewModelFactory).get(EventListViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        addChildFragment(CONTENT_FRAME_1_TAG)
-        addChildFragment(CONTENT_FRAME_2_TAG)
-        return inflater.inflate(R.layout.fragment_events, container, false)
+        val recyclerView = RecyclerView(inflater.context)
+        recyclerView.id = R.id.recycler_view
+        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recyclerView.adapter = adapter
+        recyclerView.addItemDecoration(CustomItemDecoration(5))
+        adapter.viewType = EventAdapter.ViewType.DETAILED_VIEW
+
+        swipeRefreshLayout = SwipeRefreshLayout(inflater.context)
+        swipeRefreshLayout.id = R.id.swipe_refresh_layout
+        swipeRefreshLayout.addView(recyclerView)
+
+        return swipeRefreshLayout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mFragmentListener?.setToolbarTitle(R.string.events_toolbar_title)
-        swipe_refresh_layout.setOnRefreshListener { eventListVM.fetchEvents() }
+        mFragmentListener?.setToolbarTitle(arguments?.getString(ARG_TITLE)!!)
+        swipeRefreshLayout.setOnRefreshListener { eventListVM.fetchEvents() }
 
         disposables.add(eventListVM.loadingState.subscribe {
-            swipe_refresh_layout.isRefreshing = it
+            swipeRefreshLayout.isRefreshing = it
         })
 
         disposables.add(eventListVM.events
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    actualEventsFragment.updateContent(it)
-                    pastEventsFragment.updateContent(it)
-        })
+                    adapter.updateList(it.filter {
+                        it.isActual == arguments?.getBoolean(ARG_IS_ACTUAL_EVENTS_VIEWING_MODE)
+                    })
+                })
 
         disposables.add(eventListVM.errors.subscribe {
             when (it) {
@@ -79,35 +94,16 @@ class EventsFragment : GeneralFragment() {
         disposables.clear()
     }
 
-    private fun addChildFragment(tag: String) {
-        val fragmentManager = childFragmentManager
-        var fragment = fragmentManager.findFragmentByTag(tag)
-        val containerId: Int
-
-        if (fragment == null) {
-            when (tag) {
-                CONTENT_FRAME_1_TAG -> {
-                    fragment = EventsNestedFragment.newInstance(resources.getString(R.string.actual_events_label), isActual = true)
-                    actualEventsFragment = fragment
-                    containerId = R.id.content_frame_1
-                }
-                CONTENT_FRAME_2_TAG -> {
-                    fragment = EventsNestedFragment.newInstance(resources.getString(R.string.past_events_label), isActual = false)
-                    pastEventsFragment = fragment
-                    containerId = R.id.content_frame_2
-                }
-                else -> return
-            }
-            fragmentManager.beginTransaction().replace(containerId, fragment).commit()
-        }
-    }
-
     companion object {
-        private const val CONTENT_FRAME_1_TAG = "content_frame_1"
-        private const val CONTENT_FRAME_2_TAG = "content_frame_2"
+        private const val ARG_TITLE = "title"
+        private const val ARG_IS_ACTUAL_EVENTS_VIEWING_MODE = "is_actual_events_viewing_mode"
 
-        fun newInstance(): EventsFragment {
-            return EventsFragment()
-        }
+        fun newInstance(title: String, isActual: Boolean): EventListFragment =
+                EventListFragment().apply {
+                    arguments = Bundle().apply {
+                        putString(ARG_TITLE, title)
+                        putBoolean(ARG_IS_ACTUAL_EVENTS_VIEWING_MODE, isActual)
+                    }
+                }
     }
 }

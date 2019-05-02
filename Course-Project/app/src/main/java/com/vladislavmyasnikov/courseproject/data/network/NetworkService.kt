@@ -1,10 +1,7 @@
 package com.vladislavmyasnikov.courseproject.data.network
 
 import com.google.gson.annotations.SerializedName
-import com.vladislavmyasnikov.courseproject.data.network.entities.CourseJson
-import com.vladislavmyasnikov.courseproject.data.network.entities.LectureJson
-import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
-import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
+import com.vladislavmyasnikov.courseproject.data.network.entities.*
 import io.reactivex.Single
 import retrofit2.Call
 import retrofit2.Response
@@ -20,6 +17,9 @@ interface FintechPortalApi {
 
     @GET("connections")
     fun getCourses(@Header("Cookie") token: String): Single<CourseInfo>
+
+    @GET("calendar/list/event")
+    fun getEvents(): Single<EventInfo>
 
     @GET("course/{course_url}/homeworks")
     fun getLectures(@Header("Cookie") token: String, @Path("course_url") courseUrl: String): Single<Lectures>
@@ -39,6 +39,11 @@ class CookieData(val token: String, val time: String)
 class Lectures(@SerializedName("homeworks") val lectures: List<LectureJson>)
 
 class Students(@SerializedName("grades") val students: List<StudentJson>)
+
+class EventInfo(
+        @SerializedName("active") val actualEvents: List<EventJson>,
+        @SerializedName("archive") val pastEvents: List<EventJson>
+)
 
 class ProfileInfo(@SerializedName("user") val profile: ProfileJson)
 

@@ -40,6 +40,9 @@ class CoursesFragment : GeneralFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        addChildFragment(CONTENT_FRAME_1_TAG)
+        addChildFragment(CONTENT_FRAME_2_TAG)
+        addChildFragment(CONTENT_FRAME_3_TAG)
         return inflater.inflate(R.layout.fragment_courses, container, false)
     }
 
@@ -50,10 +53,6 @@ class CoursesFragment : GeneralFragment() {
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener { courseVM.fetchCourse() }
-
-        addChildFragment(CONTENT_FRAME_1_TAG)
-        addChildFragment(CONTENT_FRAME_2_TAG)
-        addChildFragment(CONTENT_FRAME_3_TAG)
 
         disposables.add(courseVM.loadingState
                 .observeOn(AndroidSchedulers.mainThread())

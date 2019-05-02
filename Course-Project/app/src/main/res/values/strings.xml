@@ -34,6 +34,8 @@
     <string name="academic_performance_label">Успеваемость</string>
     <string name="rating_label">Рейтинг</string>
     <string name="passed_courses_label">Пройденные курсы</string>
+    <string name="actual_events_label">Актуальное</string>
+    <string name="past_events_label">Прошедшие</string>
     <string name="details_label">ДЕТАЛИ</string>
     <string name="general_rating_label">Общий рейтинг</string>
     <string name="passed_tests_label">Пройдено тестов</string>
@@ -63,4 +65,7 @@
         <item quantity="few">%.2f балла</item>
         <item quantity="other">%.2f баллов</item>
     </plurals>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

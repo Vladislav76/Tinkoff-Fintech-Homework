@@ -4,6 +4,9 @@ import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.di.modules.AdapterModule
 import com.vladislavmyasnikov.courseproject.di.modules.ViewModelModule
 import com.vladislavmyasnikov.courseproject.ui.courses.*
+import com.vladislavmyasnikov.courseproject.ui.events.EventListFragment
+import com.vladislavmyasnikov.courseproject.ui.events.EventsFragment
+import com.vladislavmyasnikov.courseproject.ui.events.EventsNestedFragment
 import com.vladislavmyasnikov.courseproject.ui.profile.ProfileFragment
 import dagger.Component
 
@@ -47,4 +50,13 @@ interface AcademicPerformanceFragmentInjector {
 interface CoursesFragmentInjector {
 
     fun inject(fragment: CoursesFragment)
+}
+
+@Component(dependencies = [AppComponent::class], modules = [ViewModelModule::class, AdapterModule::class])
+@FragmentScope
+interface EventsFragmentInjector {
+
+    fun inject(fragment: EventsNestedFragment)
+    fun inject(fragment: EventsFragment)
+    fun inject(fragment: EventListFragment)
 }

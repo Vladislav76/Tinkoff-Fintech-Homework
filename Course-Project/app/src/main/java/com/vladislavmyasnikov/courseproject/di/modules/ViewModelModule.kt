@@ -39,4 +39,9 @@ class ViewModelModule {
     @FragmentScope
     fun provideCourseViewModelFactory(repo1: ICourseRepository, repo2: IProfileRepository, repo3: IStudentRepository, repo4: ILectureRepository) =
             CourseViewModelFactory(repo1, repo2, repo3, repo4)
+
+    @Provides
+    @FragmentScope
+    fun provideEventListViewModelFactory(repo: IEventRepository) =
+            EventListViewModelFactory(repo)
 }

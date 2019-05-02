@@ -6,6 +6,6 @@ import com.vladislavmyasnikov.courseproject.domain.models.Identifiable
 
 @Entity(tableName = "lectures")
 data class LectureEntity(
-        @PrimaryKey override val id: Int,
+        @PrimaryKey val id: Int,
         val title: String
-) : Identifiable
+)
