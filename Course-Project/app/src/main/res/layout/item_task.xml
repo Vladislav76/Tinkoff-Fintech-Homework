@@ -3,22 +3,37 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/task_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="6dp"
+        android:backgroundTint="@color/task_icon_background"
+        android:background="@drawable/ellipse"/>
 
     <LinearLayout
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/name_field"
+            android:id="@+id/task_title"
+            style="@style/BoldTextStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            tools:text="Задача номер 5"/>
 
         <TextView
-            android:id="@+id/deadline_field"
+            android:id="@+id/task_deadline"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/black"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:hint="@string/deadline_date_hint"/>
@@ -27,17 +42,24 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_gravity="center_vertical"
+        android:gravity="end"
+        android:layout_marginStart="8dp"
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/status_field"
+            android:id="@+id/task_status"
+            style="@style/BoldTextStyle"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            tools:text="ОК"/>
 
         <TextView
-            android:id="@+id/mark_field"
+            android:id="@+id/task_mark"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:textColor="@color/black"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            tools:text="5.0/5.0"/>
     </LinearLayout>
 </LinearLayout>

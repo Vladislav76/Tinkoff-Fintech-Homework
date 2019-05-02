@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -9,9 +10,21 @@
     android:focusable="true"
     android:background="?android:selectableItemBackground">
 
+    <ImageView
+        android:id="@+id/lecture_icon"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="6dp"
+        android:src="@drawable/lecture_icon"
+        android:backgroundTint="@color/lecture_icon_background"
+        android:background="@drawable/ellipse"/>
+
     <TextView
-        android:id="@+id/name_field"
+        android:id="@+id/lecture_title"
+        style="@style/BoldTextStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:singleLine="true"/>
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="8dp"
+        tools:text="Лекция 1. Андроид всемогущий."/>
 </LinearLayout>

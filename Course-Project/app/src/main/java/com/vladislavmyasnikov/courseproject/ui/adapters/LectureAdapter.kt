@@ -12,42 +12,40 @@ import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 
-class LectureAdapter : RecyclerView.Adapter<LectureAdapter.LectureViewHolder>() {
+class LectureAdapter : RecyclerView.Adapter<LectureAdapter.ViewHolder>() {
 
     var callback: OnItemClickCallback? = null
-    private var mLectures: List<Lecture> = emptyList()
+    private var items: List<Lecture> = emptyList()
 
-    fun updateList(lectures: List<Lecture>) {
-        val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(mLectures, lectures))
-        mLectures = lectures
+    fun updateList(_items: List<Lecture>) {
+        val diffResult = DiffUtil.calculateDiff(DiffUtilCallback(items, _items))
+        items = _items
         diffResult.dispatchUpdatesTo(this)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LectureViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val view = inflater.inflate(R.layout.item_lecture, parent, false)
-        val holder = LectureViewHolder(view)
+        val holder = ViewHolder(view)
 
         holder.itemView.setOnClickListener {
-            val lecture = mLectures[holder.adapterPosition]
-            callback?.onClick(lecture.id, lecture.title)
+            val item = items[holder.adapterPosition]
+            callback?.onClick(item.id, item.title)
         }
         return holder
     }
 
-    override fun onBindViewHolder(holder: LectureViewHolder, position: Int) {
-        holder.bind(mLectures[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(items[position])
     }
 
-    override fun getItemCount(): Int = mLectures.size
+    override fun getItemCount(): Int = items.size
 
+    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val title = view.findViewById<TextView>(R.id.lecture_title)
 
-
-    class LectureViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val mNameView = view.findViewById<TextView>(R.id.name_field)
-
-        fun bind(lecture: Lecture) {
-            mNameView.text = lecture.title
+        fun bind(item: Lecture) {
+            title.text = item.title
         }
     }
 }

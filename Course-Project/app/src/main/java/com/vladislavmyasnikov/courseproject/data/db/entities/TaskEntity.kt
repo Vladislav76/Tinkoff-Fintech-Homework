@@ -17,5 +17,6 @@ data class TaskEntity(
         val mark: Double,
         @ColumnInfo(name = "deadline_date") val deadline: Date?,
         @ColumnInfo(name = "max_score") val maxScore: Double,
-        @ColumnInfo(name = "lecture_id", index = true) val lectureId: Int
+        @ColumnInfo(name = "lecture_id", index = true) val lectureId: Int,
+        @ColumnInfo(name = "task_type") val taskType: String
 )

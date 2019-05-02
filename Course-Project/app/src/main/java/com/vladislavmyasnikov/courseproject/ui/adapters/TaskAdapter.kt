@@ -3,12 +3,16 @@ package com.vladislavmyasnikov.courseproject.ui.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
+import com.vladislavmyasnikov.courseproject.domain.entities.EventTypeColor
 import com.vladislavmyasnikov.courseproject.domain.entities.Task
+import com.vladislavmyasnikov.courseproject.domain.entities.TaskStatus
+import com.vladislavmyasnikov.courseproject.domain.entities.TaskType
 import com.vladislavmyasnikov.courseproject.utilities.DiffUtilCallback
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,23 +39,36 @@ class TaskAdapter : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     override fun getItemCount(): Int = mTasks.size
 
-
-
     class TaskViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val mNameView = view.findViewById<TextView>(R.id.name_field)
-        private val mDeadlineView = view.findViewById<TextView>(R.id.deadline_field)
-        private val mStatusView = view.findViewById<TextView>(R.id.status_field)
-        private val mMarkView = view.findViewById<TextView>(R.id.mark_field)
+        private val title = view.findViewById<TextView>(R.id.task_title)
+        private val deadline = view.findViewById<TextView>(R.id.task_deadline)
+        private val status = view.findViewById<TextView>(R.id.task_status)
+        private val mark = view.findViewById<TextView>(R.id.task_mark)
+        private val icon = view.findViewById<ImageView>(R.id.task_icon)
 
-        fun bind(task: Task) {
-            mNameView.text = task.title
-            mStatusView.text = task.status
-            mMarkView.text = String.format(Locale.getDefault(), "%.2f/%.2f", task.mark, task.maxScore)
+        fun bind(item: Task) {
+            title.text = item.title
+            mark.text = String.format(Locale.getDefault(), "%.2f/%.2f", item.mark, item.maxScore)
+
+            val statusText = when (item.status) {
+                TaskStatus.ON_CHECK -> "Проверка"
+                TaskStatus.NEW -> "Новое"
+                TaskStatus.ACCEPTED -> "OK"
+                TaskStatus.OTHER -> ""
+            }
+            status.text = statusText
 
             val format = SimpleDateFormat("HH:mm, dd.MM.yyyy", Locale.getDefault())
-            if (task.deadline != null) {
-                mDeadlineView.text = format.format(task.deadline)
+            if (item.deadline != null) {
+                deadline.text = format.format(item.deadline)
             }
+
+            val iconRes = when (item.taskType) {
+                TaskType.TEST -> R.drawable.test_icon
+                TaskType.HOMEWORK -> R.drawable.homework_icon
+                TaskType.OTHER -> R.drawable.group_9
+            }
+            icon.setImageResource(iconRes)
         }
     }
 }
