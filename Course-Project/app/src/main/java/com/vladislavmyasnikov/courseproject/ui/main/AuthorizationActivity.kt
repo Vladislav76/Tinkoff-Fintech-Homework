@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAuthorizationActivityInjector
+import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
@@ -56,7 +57,12 @@ class AuthorizationActivity : AppCompatActivity() {
         })
 
         disposables.add(loginViewModel.errors.subscribe {
-            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+            when (it) {
+                is IncorrectEmailInputException -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
+                is IncorrectPasswordInputException -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
+                is IncorrectLoginException -> Toast.makeText(this, R.string.incorrect_authorization_data_message, Toast.LENGTH_SHORT).show()
+                is NoInternetException -> Toast.makeText(this, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+            }
         })
     }
 

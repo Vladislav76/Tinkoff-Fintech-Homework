@@ -7,9 +7,18 @@ import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.repositories.DataRefreshException
+import com.vladislavmyasnikov.courseproject.domain.repositories.ForbiddenException
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
+import com.vladislavmyasnikov.courseproject.domain.repositories.NoInternetException
 import io.reactivex.Observable
+import io.reactivex.Single
+import io.reactivex.SingleObserver
+import io.reactivex.SingleSource
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
+import java.io.IOException
+import java.util.function.Function
 import javax.inject.Inject
 
 class StudentRepositoryImpl @Inject constructor(
@@ -21,7 +30,7 @@ class StudentRepositoryImpl @Inject constructor(
     private var recentRequestTime: Long = 0
 
     override fun fetchStudents(): Observable<List<Student>> {
-        return if (isCacheDirty()) {
+        return if (isCacheDirty() && memory.loadCourseUrl() != null) {
             createDatabaseObservable().concatWith(createApiObservable())
         } else {
             createDatabaseObservable()

@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.vladislavmyasnikov.courseproject.data.mapper.ExceptionMapper
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -37,10 +38,9 @@ class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel(
                         isLoading = false
                     }
                     .subscribe({ access ->
-                        if (!access) errorEmitter.onNext(IllegalArgumentException())
-                        else accessEmitter.onNext(Unit)
+                        accessEmitter.onNext(access)
                     }, { error ->
-                        errorEmitter.onNext(error)
+                        errorEmitter.onNext(ExceptionMapper.map(error))
                     })
             )
         }
@@ -56,8 +56,7 @@ class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel(
                     isLoading = false
                 }
                 .subscribe({ access ->
-                    if (!access) errorEmitter.onNext(IllegalArgumentException())
-                    else accessEmitter.onNext(Unit)
+                    accessEmitter.onNext(access)
                 }, { error ->
                     errorEmitter.onNext(error)
                 })

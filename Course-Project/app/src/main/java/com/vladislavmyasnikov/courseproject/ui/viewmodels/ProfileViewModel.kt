@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.vladislavmyasnikov.courseproject.data.mapper.ExceptionMapper
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
 import io.reactivex.Observable
@@ -33,10 +34,11 @@ class ProfileViewModel(private val profileRepository: IProfileRepository) : View
                         progressEmitter.onNext(false)
                         isLoading = false
                     }
-                    .subscribe(
-                            { lectures -> profileEmitter.onNext(lectures) },
-                            { error -> errorEmitter.onNext(error) }
-                    )
+                    .subscribe({ lectures ->
+                        profileEmitter.onNext(lectures)
+                    }, { error ->
+                        errorEmitter.onNext(ExceptionMapper.map(error))
+                    })
             )
         }
     }

@@ -13,6 +13,9 @@ import com.bumptech.glide.Glide
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerProfileFragmentInjector
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
+import com.vladislavmyasnikov.courseproject.domain.repositories.DataRefreshException
+import com.vladislavmyasnikov.courseproject.domain.repositories.ForbiddenException
+import com.vladislavmyasnikov.courseproject.domain.repositories.NoInternetException
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
@@ -66,7 +69,11 @@ class ProfileFragment : GeneralFragment() {
         })
 
         disposables.add(mProfileViewModel.errors.subscribe {
-            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
+            when (it) {
+                is ForbiddenException -> App.INSTANCE.logout()
+                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+            }
         })
 
         if (savedInstanceState == null) {

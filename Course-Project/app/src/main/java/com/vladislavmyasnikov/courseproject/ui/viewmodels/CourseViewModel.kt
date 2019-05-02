@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.vladislavmyasnikov.courseproject.data.mapper.ExceptionMapper
 import com.vladislavmyasnikov.courseproject.domain.entities.*
 import com.vladislavmyasnikov.courseproject.domain.repositories.ICourseRepository
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
@@ -66,12 +67,13 @@ class CourseViewModel(
                             ).doFinally {
                                 progressEmitter.onNext(false)
                                 isLoading = false
-                            }.subscribeOn(Schedulers.io())
+                            }
+                            .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ course ->
                                 courseEmitter.onNext(course)
                             }, { error ->
-                                errorEmitter.onNext(error)
+                                errorEmitter.onNext(ExceptionMapper.map(error))
                             })
             )
         }

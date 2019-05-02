@@ -1,17 +1,35 @@
 package com.vladislavmyasnikov.courseproject.data.prefs
 
 import android.content.Context
+import android.content.SharedPreferences
 import com.vladislavmyasnikov.courseproject.data.network.CookieData
 import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.domain.entities.Course
 import io.reactivex.Observable
 import javax.inject.Inject
 
-class Memory @Inject constructor(applicationContext: Context) {
+class Memory @Inject constructor(private val applicationContext: Context) {
 
-    private val cookiesStorage = applicationContext.getSharedPreferences(COOKIES_STORAGE, Context.MODE_PRIVATE)
-    private val profileStorage = applicationContext.getSharedPreferences(PROFILE_STORAGE, Context.MODE_PRIVATE)
-    private val courseStorage = applicationContext.getSharedPreferences(COURSE_STORAGE, Context.MODE_PRIVATE)
+    private lateinit var cookiesStorage: SharedPreferences
+    private lateinit var profileStorage: SharedPreferences
+    private lateinit var courseStorage: SharedPreferences
+
+    init {
+        init()
+    }
+
+    private fun init() {
+        cookiesStorage = applicationContext.getSharedPreferences(COOKIES_STORAGE, Context.MODE_PRIVATE)
+        profileStorage = applicationContext.getSharedPreferences(PROFILE_STORAGE, Context.MODE_PRIVATE)
+        courseStorage = applicationContext.getSharedPreferences(COURSE_STORAGE, Context.MODE_PRIVATE)
+    }
+
+    fun clear() {
+        cookiesStorage.edit().clear().apply()
+        profileStorage.edit().clear().apply()
+        courseStorage.edit().clear().apply()
+        init()
+    }
 
     /*
      * Loading from storage

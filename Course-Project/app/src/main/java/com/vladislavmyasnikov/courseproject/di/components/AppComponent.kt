@@ -1,5 +1,6 @@
 package com.vladislavmyasnikov.courseproject.di.components
 
+import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.di.modules.RepositoryModule
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import dagger.Component
@@ -15,4 +16,5 @@ interface AppComponent {
     fun getLoginRepository(): ILoginRepository
     fun getProfileRepository(): IProfileRepository
     fun getCourseRepository(): ICourseRepository
+    fun getMemory(): Memory
 }

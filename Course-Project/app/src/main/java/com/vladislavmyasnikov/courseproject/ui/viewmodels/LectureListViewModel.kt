@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.vladislavmyasnikov.courseproject.data.mapper.ExceptionMapper
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
 import io.reactivex.Observable
@@ -33,10 +34,11 @@ class LectureListViewModel(private val lectureRepository: ILectureRepository) : 
                         progressEmitter.onNext(false)
                         isLoading = false
                     }
-                    .subscribe(
-                            { lectures -> lectureEmitter.onNext(lectures) },
-                            { error -> errorEmitter.onNext(error) }
-                    )
+                    .subscribe({ lectures ->
+                        lectureEmitter.onNext(lectures)
+                    }, { error ->
+                        errorEmitter.onNext(ExceptionMapper.map(error))
+                    })
             )
         }
     }

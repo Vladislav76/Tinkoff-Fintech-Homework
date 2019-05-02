@@ -16,8 +16,8 @@ class TaskRepositoryImpl @Inject constructor(
 
     override fun getTasksByLectureId(id: Int): Observable<List<Task>> =
             Observable.fromCallable { localDataSource.taskDao().loadTasks(id) }
-                    .subscribeOn(Schedulers.io())
                     .map(TaskEntityToTaskMapper::map)
+                    .subscribeOn(Schedulers.io())
 
     override fun saveTasksByLectureId(tasks: List<TaskInfo>, lectureId: Int) {
         TaskJsonToTaskEntityMapper.lectureId = lectureId

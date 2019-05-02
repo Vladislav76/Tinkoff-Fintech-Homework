@@ -2,6 +2,7 @@ package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.vladislavmyasnikov.courseproject.data.mapper.ExceptionMapper
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.domain.entities.StudentByPointsAndNameComparator
@@ -49,10 +50,11 @@ class StudentListViewModel(
                                 progressEmitter.onNext(false)
                                 isLoading = false
                             }
-                            .subscribe(
-                                    { students -> studentEmitter.onNext(students) },
-                                    { error -> errorEmitter.onNext(error) }
-                            )
+                            .subscribe({ students ->
+                                studentEmitter.onNext(students)
+                            }, { error ->
+                                errorEmitter.onNext(ExceptionMapper.map(error))
+                            })
             )
         }
     }

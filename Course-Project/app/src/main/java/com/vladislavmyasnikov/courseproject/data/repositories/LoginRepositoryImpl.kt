@@ -5,10 +5,9 @@ import com.vladislavmyasnikov.courseproject.data.network.CookieData
 import com.vladislavmyasnikov.courseproject.data.network.FintechPortalApi
 import com.vladislavmyasnikov.courseproject.data.network.Login
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
-import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
+import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import java.io.IOException
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -19,19 +18,20 @@ class LoginRepositoryImpl @Inject constructor(
         private val remoteDataSource: FintechPortalApi
 ) : ILoginRepository {
 
-    override fun login(): Observable<Boolean> =
+    override fun login(): Observable<Unit> =
             memory.loadCookieData()
-                .map { isTokenNotExpire(it.time) }
-                .observeOn(Schedulers.io())
+                    .filter { isTokenNotExpire(it.time) }
+                    .map { Unit }
+                    .observeOn(Schedulers.io())
 
-    override fun login(email: String, password: String): Observable<Boolean> =
+    override fun login(email: String, password: String): Observable<Unit> =
             createCorrectnessObservable(email, password).concatWith(createApiObservable(email, password))
 
     private fun createCorrectnessObservable(email: String, password: String) =
-            Observable.create<Boolean> { e ->
+            Observable.create<Unit> { e ->
                 when {
-                    isEmailNotCorrect(email) -> e.onError(IOException())
-                    isPasswordNotCorrect(password) -> e.onError(IOException())
+                    isEmailNotCorrect(email) -> e.onError(IncorrectEmailInputException())
+                    isPasswordNotCorrect(password) -> e.onError(IncorrectPasswordInputException())
                     else -> e.onComplete()
                 }
             }
@@ -47,9 +47,9 @@ class LoginRepositoryImpl @Inject constructor(
                             if (token != null && time != null) {
                                 memory.saveCookieData(CookieData(token, time))
                                 Log.d("LOGIN_REPO", "Cookie are saved #${Thread.currentThread()}")
-                                true
-                            } else false
-                        } else false
+                                Unit
+                            } else throw DataRefreshException()
+                        } else throw IncorrectLoginException()
                     }
                     .subscribeOn(Schedulers.io())
 
