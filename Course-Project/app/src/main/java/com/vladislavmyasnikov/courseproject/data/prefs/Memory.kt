@@ -64,7 +64,8 @@ class Memory @Inject constructor(private val applicationContext: Context) {
                 val region = profileStorage.getString(REGION, null) ?: ""
                 val faculty = profileStorage.getString(FACULTY, null) ?: ""
                 val department = profileStorage.getString(DEPARTMENT, null) ?: ""
-                e.onNext(ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl))
+                val university = profileStorage.getString(UNIVERSITY, null) ?: ""
+                e.onNext(ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl, university))
                 e.onComplete()
             } else e.onComplete()
         }
@@ -130,6 +131,7 @@ class Memory @Inject constructor(private val applicationContext: Context) {
                 .putString(REGION, data.region)
                 .putString(FACULTY, data.faculty)
                 .putString(DEPARTMENT, data.department)
+                .putString(UNIVERSITY, data.university)
                 .apply()
     }
 
@@ -175,6 +177,7 @@ class Memory @Inject constructor(private val applicationContext: Context) {
         const val FACULTY = "faculty"
         const val DEPARTMENT = "department"
         const val AVATAR_URL = "avatar_url"
+        const val UNIVERSITY = "university"
 
         const val COURSE_STORAGE = "course_storage"
         const val COURSE_TITLE = "course_title"

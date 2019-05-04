@@ -12,5 +12,6 @@ data class Profile(
         val region: String,
         val faculty: String,
         val department: String,
-        val avatarUrl: String
+        val avatarUrl: String,
+        val university: String
 )

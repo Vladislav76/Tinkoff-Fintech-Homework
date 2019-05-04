@@ -14,5 +14,6 @@ class ProfileJson(
         @SerializedName("region") val region: String,
         @SerializedName("faculty") val faculty: String,
         @SerializedName("department") val department: String,
-        @SerializedName("avatar") val avatarUrl: String
+        @SerializedName("avatar") val avatarUrl: String,
+        @SerializedName("university") val university: String
 )

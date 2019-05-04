@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.vladislavmyasnikov.courseproject.R
 
-class UserView : ConstraintLayout {
+class StudentView : ConstraintLayout {
 
     private var mBadgeCount: Int = 0
     private var mUserNameView: TextView? = null
@@ -28,16 +28,16 @@ class UserView : ConstraintLayout {
     }
 
     private fun init(context: Context, attrs: AttributeSet?) {
-        val view = View.inflate(context, R.layout.user_item, this)
+        val view = View.inflate(context, R.layout.item_student, this)
         mUserNameView = view.findViewById(R.id.user_name_field)
         mBadgeView = view.findViewById(R.id.user_points_field)
         mUserIconView = view.findViewById(R.id.user_icon)
 
         if (attrs != null) {
-            val array = context.obtainStyledAttributes(attrs, R.styleable.UserView)
-            setText(array.getString(R.styleable.UserView_text))
-            setBadgeCount(array.getInteger(R.styleable.UserView_badgeCount, 0))
-            setIconBackgroundColor(array.getColor(R.styleable.UserView_iconBackgroundColor, 0))
+            val array = context.obtainStyledAttributes(attrs, R.styleable.StudentView)
+            setText(array.getString(R.styleable.StudentView_text))
+            setBadgeCount(array.getInteger(R.styleable.StudentView_badgeCount, 0))
+            setIconBackgroundColor(array.getColor(R.styleable.StudentView_iconBackgroundColor, 0))
             array.recycle()
         }
     }

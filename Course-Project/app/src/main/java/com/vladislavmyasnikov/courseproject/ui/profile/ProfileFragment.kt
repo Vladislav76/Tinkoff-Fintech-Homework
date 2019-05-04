@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
+import com.google.android.material.textfield.TextInputLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerProfileFragmentInjector
 import com.vladislavmyasnikov.courseproject.domain.entities.Profile
@@ -22,6 +23,7 @@ import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.fragment_profile.*
 
 class ProfileFragment : GeneralFragment() {
 
@@ -30,10 +32,6 @@ class ProfileFragment : GeneralFragment() {
 
     private lateinit var mProfileViewModel: ProfileViewModel
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
-    private lateinit var firstNameField: TextView
-    private lateinit var lastNameField: TextView
-    private lateinit var middleNameField: TextView
-    private lateinit var avatarView: ImageView
     private val disposables = CompositeDisposable()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -54,11 +52,6 @@ class ProfileFragment : GeneralFragment() {
         mProfileViewModel = ViewModelProviders.of(this, mProfileViewModelFactory).get(ProfileViewModel::class.java)
 
         mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.fetchProfile() }
-
-        firstNameField = view.findViewById(R.id.name_field)
-        lastNameField = view.findViewById(R.id.surname_field)
-        middleNameField = view.findViewById(R.id.patronymic_field)
-        avatarView = view.findViewById(R.id.avatar)
 
         disposables.add(mProfileViewModel.loadingState.subscribe {
             mSwipeRefreshLayout.isRefreshing = it
@@ -86,20 +79,29 @@ class ProfileFragment : GeneralFragment() {
         disposables.clear()
     }
 
-    private fun updateContent(profile: Profile?) {
-        if (profile != null) {
-            firstNameField.text = profile.firstName
-            lastNameField.text = profile.lastName
-            middleNameField.text = profile.middleName
-            val profileAvatar = Glide.with(this).load("https://fintech.tinkoff.ru${profile.avatarUrl}")
-            profileAvatar.into(avatarView)
+    private fun updateContent(content: Profile) {
+        fun updateView(view: TextView, value: String, viewLayout: TextInputLayout) {
+            view.visibility =
+                    if (value == "") View.GONE.also { viewLayout.visibility = View.GONE }
+                    else View.VISIBLE.also { viewLayout.visibility = View.VISIBLE; view.text = value }
         }
+
+        profile_display_name.text = String.format("%s %s %s", content.firstName, content.lastName, content.middleName)
+        profile_display_email.text = content.email
+        updateView(profile_phone_number, content.phoneMobile, profile_phone_number_view)
+        updateView(profile_email, content.email, profile_email_view)
+        updateView(profile_plaсe, content.region, profile_place_view)
+        updateView(profile_university, content.university, profile_university_view)
+        updateView(profile_faculty, content.faculty, profile_faculty_view)
+        updateView(profile_department, content.department, profile_department_view)
+        updateView(profile_birthday, content.birthday, profile_birthday_view)
+        updateView(profile_description, content.description, profile_description_view)
+
+        val avatar = Glide.with(this).load("https://fintech.tinkoff.ru${content.avatarUrl}")
+        avatar.into(profile_avatar)
     }
 
-
-
     companion object {
-
         fun newInstance(): ProfileFragment {
             return ProfileFragment()
         }
