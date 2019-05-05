@@ -2,12 +2,18 @@
 <resources>
     <color name="colorPrimary">#1080C1</color>
     <color name="colorPrimaryDark">#084F91</color>
-    <color name="colorAccent">#D81B60</color>
-    <color name="itemBackground">#4A5D89</color>
+    <color name="colorAccent">#AC2945</color>
     <color name="white">#FFFFFF</color>
     <color name="green">#5BC151</color>
     <color name="blue">#3199DA</color>
     <color name="black">#080808</color>
+
+    <color name="auth_color_primary_dark">#383F49</color>
+    <color name="auth_color_accent">#FFFFFF</color>
+
+    <color name="yellow_background">#ffdd2d</color>
+    <color name="dark_gray_background">#3e4757</color>
+    <color name="gray_background">#33ffffff</color>
     <color name="lecture_icon_background">#857AC6</color>
     <color name="task_icon_background">#6D85BD</color>
 </resources>

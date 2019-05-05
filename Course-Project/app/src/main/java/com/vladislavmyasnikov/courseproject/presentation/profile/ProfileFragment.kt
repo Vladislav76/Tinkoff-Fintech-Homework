@@ -94,7 +94,7 @@ class ProfileFragment : GeneralFragment() {
         profile_content.visibility = View.VISIBLE
         placeholder.visibility = View.GONE
 
-        profile_display_name.text = String.format("%s %s %s", content.firstName, content.lastName, content.middleName)
+        profile_display_name.text = String.format("%s %s %s", content.lastName, content.firstName, content.middleName)
         profile_display_email.text = content.email
         updateView(profile_phone_number, content.phoneMobile, profile_phone_number_view)
         updateView(profile_email, content.email, profile_email_view)

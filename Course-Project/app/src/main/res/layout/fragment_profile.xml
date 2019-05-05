@@ -80,7 +80,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
-                        android:text="Контактная информация"/>
+                        android:text="@string/contacts_label"
+                        android:drawableStart="@drawable/contacts"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/profile_phone_number_view"
@@ -91,7 +92,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Мобильный телефон"
+                            android:hint="@string/phone_label"
                             android:focusable="false"
                             tools:text="8-800-533535"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -105,7 +106,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Электронная почта"
+                            android:hint="@string/email_label"
                             android:focusable="false"
                             tools:text="vasyapypkin@email.com"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -119,7 +120,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Город проживания"
+                            android:hint="@string/place_label"
                             android:focusable="false"
                             tools:text="www.Ленинград"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -141,7 +142,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
-                        android:text="Образование"/>
+                        android:text="@string/education_label"
+                        android:drawableStart="@drawable/study"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/profile_university_view"
@@ -152,7 +154,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="ВУЗ"
+                            android:hint="@string/university_label"
                             android:focusable="false"
                             tools:text="СПбГУ"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -166,7 +168,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Факультет"
+                            android:hint="@string/faculty_label"
                             android:focusable="false"
                             tools:text="MM"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -180,7 +182,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Кафедра"
+                            android:hint="@string/department_label"
                             android:focusable="false"
                             tools:text="SE"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -202,7 +204,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:layout_marginBottom="16dp"
-                        android:text="Персональная информация"/>
+                        android:text="@string/personal_info_label"
+                        android:drawableStart="@drawable/more"/>
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/profile_birthday_view"
@@ -213,7 +216,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="Дата рождения"
+                            android:hint="@string/birthday_label"
                             android:focusable="false"
                             tools:text="22.12.1970"/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -227,7 +230,7 @@
                             style="@style/TextAppearance.MaterialComponents.Body1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="О себе"
+                            android:hint="@string/profile_description_label"
                             android:focusable="false"
                             tools:text="..."/>
                     </com.google.android.material.textfield.TextInputLayout>
@@ -237,7 +240,7 @@
                     android:id="@+id/logout_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Выйти"
+                    android:text="@string/logout_action"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/profile_personal_information"
                     app:layout_constraintBottom_toBottomOf="parent"/>
