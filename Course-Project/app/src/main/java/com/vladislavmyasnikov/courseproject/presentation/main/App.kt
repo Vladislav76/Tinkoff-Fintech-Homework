@@ -8,6 +8,8 @@ import com.vladislavmyasnikov.courseproject.di.components.DaggerAppComponent
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.exceptions.UndeliverableException
+import io.reactivex.plugins.RxJavaPlugins
 import io.reactivex.schedulers.Schedulers
 
 class App: Application() {
@@ -18,6 +20,13 @@ class App: Application() {
         super.onCreate()
         INSTANCE = this
         appComponent = DaggerAppComponent.builder().contextModule(ContextModule(this)).build()
+
+        RxJavaPlugins.setErrorHandler { error ->
+            if (error is UndeliverableException) {
+                return@setErrorHandler
+            }
+            throw error
+        }
     }
 
     fun logout() {

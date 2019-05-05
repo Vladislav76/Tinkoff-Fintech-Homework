@@ -11,8 +11,7 @@ class StudentJson(
 class MarkJson(
         @SerializedName("id") val id: Int = 0,
         @SerializedName("mark") val mark: Float = 0.0f,
-        @SerializedName("status") val status: String = "",
-        @SerializedName("task_type") val taskType: String = ""
+        @SerializedName("status") val status: String = ""
 )
 
 
