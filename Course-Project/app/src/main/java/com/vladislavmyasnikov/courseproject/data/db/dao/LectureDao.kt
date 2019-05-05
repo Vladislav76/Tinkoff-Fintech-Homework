@@ -15,4 +15,7 @@ interface LectureDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertLectures(lectures: List<LectureEntity>)
+
+    @Query("DELETE FROM lectures")
+    fun deleteLectures()
 }

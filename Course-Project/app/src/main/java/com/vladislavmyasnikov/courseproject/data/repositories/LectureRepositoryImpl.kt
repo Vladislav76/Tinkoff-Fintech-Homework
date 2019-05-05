@@ -40,6 +40,9 @@ class LectureRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun deleteLectures(): Completable =
+        Completable.fromCallable { localDataSource.lectureDao().deleteLectures() }
+
     private fun createLectureDatabaseObservable() =
             Observable.fromCallable { localDataSource.lectureDao().loadLectures() }
                     .filter { it.isNotEmpty() }

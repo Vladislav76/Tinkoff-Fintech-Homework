@@ -2,11 +2,17 @@ package com.vladislavmyasnikov.courseproject.presentation.main
 
 import android.app.Application
 import android.content.Intent
+import android.util.Log
 import com.vladislavmyasnikov.courseproject.di.components.AppComponent
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAppComponent
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 
 class App: Application() {
+
+    private val disposables = CompositeDisposable()
 
     override fun onCreate() {
         super.onCreate()
@@ -20,6 +26,14 @@ class App: Application() {
         startActivity(intent)
 
         appComponent.getMemory().clear()
+        disposables.add(
+                appComponent.getLectureRepository().deleteLectures()
+                        .subscribeOn(Schedulers.io())
+                        .mergeWith(
+                                appComponent.getStudentRepository().deleteStudents().subscribeOn(Schedulers.io())
+                        ).observeOn(AndroidSchedulers.mainThread())
+                        .subscribe { Log.d("APP", "Data are deleted from DB") }
+        )
     }
 
     companion object {

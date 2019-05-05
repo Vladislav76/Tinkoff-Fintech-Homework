@@ -8,6 +8,7 @@ import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.data.prefs.Memory
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
+import io.reactivex.Completable
 import io.reactivex.Observable
 import javax.inject.Inject
 
@@ -26,6 +27,9 @@ class StudentRepositoryImpl @Inject constructor(
             createDatabaseObservable()
         }
     }
+
+    override fun deleteStudents(): Completable =
+            Completable.fromCallable { localDataSource.studentDao().deleteStudents() }
 
     private fun createDatabaseObservable() =
             Observable.fromCallable { localDataSource.studentDao().loadStudents() }
