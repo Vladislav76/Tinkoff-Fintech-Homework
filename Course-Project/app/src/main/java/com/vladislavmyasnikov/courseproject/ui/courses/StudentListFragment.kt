@@ -1,7 +1,9 @@
 package com.vladislavmyasnikov.courseproject.ui.courses
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
@@ -24,6 +26,7 @@ import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.layout_refreshing_recycler.*
 
 class StudentListFragment : GeneralFragment() {
 
@@ -34,61 +37,35 @@ class StudentListFragment : GeneralFragment() {
     lateinit var adapter: StudentAdapter
 
     private lateinit var studentListVM: StudentListViewModel
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private val disposables = CompositeDisposable()
     private var sortType: Int = SORTED_BY_POINTS_AND_NAME
     private var searchQuery: String? = null
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
+        injector.injectStudentListFragment(this)
+        studentListVM = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         setHasOptionsMenu(true)
-
-        val recyclerView = RecyclerView(inflater.context)
-        recyclerView.id = R.id.recycler_view
-
-        swipeRefreshLayout = SwipeRefreshLayout(inflater.context)
-        swipeRefreshLayout.id = R.id.swipe_refresh_layout
-        swipeRefreshLayout.addView(recyclerView)
-
-        return swipeRefreshLayout
+        return inflater.inflate(R.layout.layout_refreshing_recycler, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         mFragmentListener?.setToolbarTitle(R.string.academic_performance_toolbar_title)
+        swipe_refresh_layout.setOnRefreshListener { studentListVM.fetchStudents() }
 
-        val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
-        injector.injectStudentListFragment(this)
-        studentListVM = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
-
-        swipeRefreshLayout.setOnRefreshListener { studentListVM.fetchStudents() }
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-        recyclerView.itemAnimator = CustomItemAnimator()
-        recyclerView.addItemDecoration(CustomItemDecoration(10))
+        recycler_view.adapter = adapter
+        recycler_view.itemAnimator = CustomItemAnimator()
+        recycler_view.addItemDecoration(CustomItemDecoration(10))
 
         if (savedInstanceState != null) {
             sortType = savedInstanceState.getInt(SORT_TYPE)
             searchQuery = savedInstanceState.getString(SEARCH_QUERY)
         }
-
-        disposables.add(studentListVM.loadingState.subscribe {
-            swipeRefreshLayout.isRefreshing = it
-        })
-
-        disposables.add(studentListVM.students.subscribe {
-            updateContent(it)
-        })
-
-        disposables.add(studentListVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
 
         if (savedInstanceState == null) {
             studentListVM.fetchStudents()
@@ -154,14 +131,34 @@ class StudentListFragment : GeneralFragment() {
         }
     }
 
+    override fun onStart() {
+        super.onStart()
+
+        disposables.add(studentListVM.loadingState.subscribe {
+            swipe_refresh_layout.isRefreshing = it
+        })
+
+        disposables.add(studentListVM.students.subscribe {
+            updateContent(it)
+        })
+
+        disposables.add(studentListVM.errors.subscribe {
+            when (it) {
+                is ForbiddenException -> App.INSTANCE.logout()
+                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
     override fun onSaveInstanceState(savedInstanceState: Bundle) {
         super.onSaveInstanceState(savedInstanceState)
         savedInstanceState.putInt(SORT_TYPE, sortType)
         savedInstanceState.putString(SEARCH_QUERY, searchQuery)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 

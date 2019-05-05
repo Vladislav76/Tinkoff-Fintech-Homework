@@ -3,12 +3,9 @@ package com.vladislavmyasnikov.courseproject.ui.main
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAuthorizationActivityInjector
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
@@ -16,17 +13,14 @@ import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.activity_authorization.*
 
 class AuthorizationActivity : AppCompatActivity() {
 
     @Inject
     lateinit var viewModelFactory: LoginViewModelFactory
 
-    private lateinit var loginViewModel: LoginViewModel
-    private lateinit var emailInputField: TextInputEditText
-    private lateinit var passwordInputField: TextInputEditText
-    private lateinit var progressBar: ProgressBar
-    private lateinit var loginButton: Button
+    private lateinit var loginVM: LoginViewModel
     private val disposables = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,28 +29,26 @@ class AuthorizationActivity : AppCompatActivity() {
 
         val component = DaggerAuthorizationActivityInjector.builder().appComponent(App.appComponent).build()
         component.injectAuthorizationActivity(this)
-        loginViewModel = ViewModelProviders.of(this, viewModelFactory).get(LoginViewModel::class.java)
+        loginVM = ViewModelProviders.of(this, viewModelFactory).get(LoginViewModel::class.java)
 
-        emailInputField = findViewById(R.id.input_email_field)
-        passwordInputField = findViewById(R.id.input_password_field)
-        loginButton = findViewById(R.id.login_button)
-        progressBar = findViewById(R.id.progress_bar)
-
-        loginButton.setOnClickListener {
-            val email = emailInputField.text.toString()
-            val password = passwordInputField.text.toString()
-            loginViewModel.login(email, password)
+        login_button.setOnClickListener {
+            val email = input_email_field.text.toString()
+            val password = input_password_field.text.toString()
+            loginVM.login(email, password)
         }
+    }
 
-        disposables.add(loginViewModel.loadingState.subscribe {
+    override fun onStart() {
+        super.onStart()
+        disposables.add(loginVM.loadingState.subscribe {
             setLoading(it)
         })
 
-        disposables.add(loginViewModel.access.subscribe {
+        disposables.add(loginVM.access.subscribe {
             startWork()
         })
 
-        disposables.add(loginViewModel.errors.subscribe {
+        disposables.add(loginVM.errors.subscribe {
             when (it) {
                 is IncorrectEmailInputException -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
                 is IncorrectPasswordInputException -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
@@ -66,14 +58,14 @@ class AuthorizationActivity : AppCompatActivity() {
         })
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 
     private fun setLoading(isLoading: Boolean) {
-        progressBar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
-        loginButton.isEnabled = !isLoading
+        progress_bar.visibility = if (isLoading) View.VISIBLE else View.INVISIBLE
+        login_button.isEnabled = !isLoading
     }
 
     private fun startWork() {

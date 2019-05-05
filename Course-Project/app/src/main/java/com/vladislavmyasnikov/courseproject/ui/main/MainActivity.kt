@@ -87,8 +87,6 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         }
     }
 
-
-
     companion object {
         private const val BACK_STACK_ROOT_TAG = "root_fragment"
     }

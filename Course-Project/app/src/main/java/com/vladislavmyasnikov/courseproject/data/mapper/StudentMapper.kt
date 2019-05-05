@@ -5,7 +5,7 @@ import com.vladislavmyasnikov.courseproject.data.db.entities.StudentWithMarks
 import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import com.vladislavmyasnikov.courseproject.domain.entities.Student
 
-/* StudentJson -> StudentEntity */
+/* JSON -> ENTITY */
 object StudentJsonToStudentEntityMapper : Mapper<StudentJson, StudentEntity>() {
 
     override fun map(value: StudentJson): StudentEntity {
@@ -13,7 +13,7 @@ object StudentJsonToStudentEntityMapper : Mapper<StudentJson, StudentEntity>() {
     }
 }
 
-/* StudentJson -> Student */
+/* JSON -> STUDENT */
 object StudentJsonToStudentMapper : Mapper<StudentJson, Student>() {
 
     override fun map(value: StudentJson): Student {
@@ -21,7 +21,7 @@ object StudentJsonToStudentMapper : Mapper<StudentJson, Student>() {
     }
 }
 
-/* StudentWithMarks -> Student */
+/* STUDENT_WITH_MARKS -> MODEL */
 object StudentWithMarksToStudentMapper : Mapper<StudentWithMarks, Student>() {
 
     override fun map(value: StudentWithMarks): Student {

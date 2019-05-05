@@ -64,6 +64,13 @@ class EventListFragment : GeneralFragment() {
         mFragmentListener?.setToolbarTitle(arguments?.getString(ARG_TITLE)!!)
         swipeRefreshLayout.setOnRefreshListener { eventListVM.fetchEvents() }
 
+        if (savedInstanceState == null) {
+            eventListVM.fetchEvents()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
         disposables.add(eventListVM.loadingState.subscribe {
             swipeRefreshLayout.isRefreshing = it
         })
@@ -71,8 +78,8 @@ class EventListFragment : GeneralFragment() {
         disposables.add(eventListVM.events
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    adapter.updateList(it.filter {
-                        it.isActual == arguments?.getBoolean(ARG_IS_ACTUAL_EVENTS_VIEWING_MODE)
+                    adapter.updateList(it.filter {event ->
+                        event.isActual == arguments?.getBoolean(ARG_IS_ACTUAL_EVENTS_VIEWING_MODE)
                     })
                 })
 
@@ -83,14 +90,10 @@ class EventListFragment : GeneralFragment() {
                 is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
             }
         })
-
-        if (savedInstanceState == null) {
-            eventListVM.fetchEvents()
-        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 

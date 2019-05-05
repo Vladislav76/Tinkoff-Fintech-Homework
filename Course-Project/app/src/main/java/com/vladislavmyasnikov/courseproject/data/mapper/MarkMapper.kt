@@ -4,7 +4,7 @@ import com.vladislavmyasnikov.courseproject.data.db.entities.MarkEntity
 import com.vladislavmyasnikov.courseproject.data.network.entities.MarkJson
 import com.vladislavmyasnikov.courseproject.domain.entities.Mark
 
-/* MarkJson -> Mark */
+/* JSON -> MODEL */
 object MarkJsonToMarkMapper : Mapper<MarkJson, Mark>() {
 
     override fun map(value: MarkJson): Mark {
@@ -12,7 +12,7 @@ object MarkJsonToMarkMapper : Mapper<MarkJson, Mark>() {
     }
 }
 
-/* MarkJson -> MarkEntity */
+/* JSON -> ENTITY */
 object MarkJsonToMarkEntityMapper : Mapper<MarkJson, MarkEntity>() {
 
     var studentId: Int = 0
@@ -22,7 +22,7 @@ object MarkJsonToMarkEntityMapper : Mapper<MarkJson, MarkEntity>() {
     }
 }
 
-/* MarkEntity -> Mark */
+/* ENTITY -> MODEL */
 object MarkEntityToMarkMapper : Mapper<MarkEntity, Mark>() {
 
     override fun map(value: MarkEntity): Mark {

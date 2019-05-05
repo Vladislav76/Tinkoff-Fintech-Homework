@@ -1,14 +1,13 @@
 package com.vladislavmyasnikov.courseproject.ui.profile
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.bumptech.glide.Glide
 import com.google.android.material.textfield.TextInputLayout
 import com.vladislavmyasnikov.courseproject.R
@@ -22,60 +21,60 @@ import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModelFactory
 import io.reactivex.disposables.CompositeDisposable
-import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_profile.*
+import javax.inject.Inject
 
 class ProfileFragment : GeneralFragment() {
 
     @Inject
-    lateinit var mProfileViewModelFactory: ProfileViewModelFactory
+    lateinit var profileVMFactory: ProfileViewModelFactory
 
-    private lateinit var mProfileViewModel: ProfileViewModel
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var profileVM: ProfileViewModel
     private val disposables = CompositeDisposable()
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val injector = DaggerProfileFragmentInjector.builder().appComponent(App.appComponent).build()
+        injector.injectProfileFragment(this)
+        profileVM = ViewModelProviders.of(this, profileVMFactory).get(ProfileViewModel::class.java)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_profile, container, false)
-
-        mSwipeRefreshLayout = SwipeRefreshLayout(inflater.context)
-        mSwipeRefreshLayout.id = R.id.swipe_refresh_layout
-        mSwipeRefreshLayout.addView(view)
-
-        return mSwipeRefreshLayout
+        return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         mFragmentListener?.setToolbarTitle(R.string.profile_toolbar_title)
+        swipe_refresh_layout.setOnRefreshListener { profileVM.fetchProfile() }
 
-        val injector = DaggerProfileFragmentInjector.builder().appComponent(App.appComponent).build()
-        injector.injectProfileFragment(this)
-        mProfileViewModel = ViewModelProviders.of(this, mProfileViewModelFactory).get(ProfileViewModel::class.java)
+        if (savedInstanceState == null) {
+            profileVM.fetchProfile()
+        }
+    }
 
-        mSwipeRefreshLayout.setOnRefreshListener { mProfileViewModel.fetchProfile() }
+    override fun onStart() {
+        super.onStart()
 
-        disposables.add(mProfileViewModel.loadingState.subscribe {
-            mSwipeRefreshLayout.isRefreshing = it
+        disposables.add(profileVM.loadingState.subscribe {
+            swipe_refresh_layout.isRefreshing = it
         })
 
-        disposables.add(mProfileViewModel.profile.subscribe {
+        disposables.add(profileVM.profile.subscribe {
             updateContent(it)
         })
 
-        disposables.add(mProfileViewModel.errors.subscribe {
+        disposables.add(profileVM.errors.subscribe {
             when (it) {
                 is ForbiddenException -> App.INSTANCE.logout()
                 is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
                 is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
             }
         })
-
-        if (savedInstanceState == null) {
-            mProfileViewModel.fetchProfile()
-        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 

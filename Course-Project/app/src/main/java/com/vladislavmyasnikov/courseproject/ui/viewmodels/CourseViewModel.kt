@@ -86,6 +86,7 @@ class CourseViewModel(
         val points = profile?.mark ?: 0.0f
         val ratingPosition = students.indexOf(profile) + 1
 
+        //TODO: maybe from lectures???  LectureWithTasks -> Data + List<Task>; LectureRepo: fetchLectures() & fetchLecturesWithTasks()
         var testCount = 0
         var homeworkCount = 0
         var okTestCount = 0
@@ -100,7 +101,6 @@ class CourseViewModel(
                     homeworkCount++
                     if (it.status == "accepted") okHomeworkCount++
                 }
-
             }
         }
 

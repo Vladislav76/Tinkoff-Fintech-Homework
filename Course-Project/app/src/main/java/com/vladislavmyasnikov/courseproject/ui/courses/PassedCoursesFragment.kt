@@ -13,10 +13,7 @@ class PassedCoursesFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_passed_courses, container, false)
     }
 
-
-
     companion object {
-
         fun newInstance(): PassedCoursesFragment {
             return PassedCoursesFragment()
         }

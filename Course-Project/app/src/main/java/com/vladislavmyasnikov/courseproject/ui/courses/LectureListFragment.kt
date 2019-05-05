@@ -1,14 +1,12 @@
 package com.vladislavmyasnikov.courseproject.ui.courses
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerLectureListFragmentInjector
 import com.vladislavmyasnikov.courseproject.domain.repositories.DataRefreshException
@@ -20,9 +18,10 @@ import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import retrofit2.HttpException
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.layout_refreshing_recycler.*
 
 class LectureListFragment : GeneralFragment() {
 
@@ -32,51 +31,44 @@ class LectureListFragment : GeneralFragment() {
     @Inject
     lateinit var adapter: LectureAdapter
 
-    private lateinit var lectureListViewModel: LectureListViewModel
-    private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private lateinit var lectureVM: LectureListViewModel
     private val disposables = CompositeDisposable()
 
-    private val mItemClickCallback = object : OnItemClickCallback {
+    private val itemClickCallback = object : OnItemClickCallback {
         override fun onClick(id: Int, name: String) {
             val fragment = TaskListFragment.newInstance(id, name)
             mFragmentListener?.addFragmentOnTop(fragment)
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        val injector = DaggerLectureListFragmentInjector.builder().appComponent(App.appComponent).build()
+        injector.injectLectureListFragment(this)
+        lectureVM = ViewModelProviders.of(this, viewModelFactory).get(LectureListViewModel::class.java)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val recyclerView = RecyclerView(inflater.context)
-        recyclerView.id = R.id.recycler_view
-
-        mSwipeRefreshLayout = SwipeRefreshLayout(inflater.context)
-        mSwipeRefreshLayout.id = R.id.swipe_refresh_layout
-        mSwipeRefreshLayout.addView(recyclerView)
-
-        return mSwipeRefreshLayout
+        return inflater.inflate(R.layout.layout_refreshing_recycler, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         mFragmentListener?.setToolbarTitle(R.string.lectures_toolbar_title)
+        swipe_refresh_layout.setOnRefreshListener { lectureVM.fetchLectures() }
 
-        val injector = DaggerLectureListFragmentInjector.builder().appComponent(App.appComponent).build()
-        injector.injectLectureListFragment(this)
-        lectureListViewModel = ViewModelProviders.of(this, viewModelFactory).get(LectureListViewModel::class.java)
+        adapter.callback = itemClickCallback
+        recycler_view.adapter = adapter
 
-        mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.fetchLectures() }
-
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        adapter.callback = mItemClickCallback
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(activity)
-
-        disposables.add(lectureListViewModel.loadingState.subscribe {
-            mSwipeRefreshLayout.isRefreshing = it
+        disposables.add(lectureVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+            swipe_refresh_layout.isRefreshing = it
         })
 
-        disposables.add(lectureListViewModel.lectures.subscribe {
-            adapter.updateList(it)
-        })
-
-        disposables.add(lectureListViewModel.errors.subscribe {
+        disposables.add(lectureVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
             when (it) {
                 is ForbiddenException -> App.INSTANCE.logout()
                 is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
@@ -84,20 +76,29 @@ class LectureListFragment : GeneralFragment() {
             }
         })
 
+        disposables.add(lectureVM.lectures
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+            adapter.updateList(it)
+        })
+
         if (savedInstanceState == null) {
-            lectureListViewModel.fetchLectures()
+            lectureVM.fetchLectures()
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStart() {
+        super.onStart()
+
+
+    }
+
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 
-
-
     companion object {
-
         fun newInstance(): LectureListFragment {
             return LectureListFragment()
         }

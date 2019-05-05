@@ -50,6 +50,13 @@ class EventsFragment : GeneralFragment() {
         mFragmentListener?.setToolbarTitle(R.string.events_toolbar_title)
         swipe_refresh_layout.setOnRefreshListener { eventListVM.fetchEvents() }
 
+        if (savedInstanceState == null) {
+            eventListVM.fetchEvents()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
         disposables.add(eventListVM.loadingState.subscribe {
             swipe_refresh_layout.isRefreshing = it
         })
@@ -59,7 +66,7 @@ class EventsFragment : GeneralFragment() {
                 .subscribe {
                     actualEventsFragment.updateContent(it)
                     pastEventsFragment.updateContent(it)
-        })
+                })
 
         disposables.add(eventListVM.errors.subscribe {
             when (it) {
@@ -68,14 +75,10 @@ class EventsFragment : GeneralFragment() {
                 is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
             }
         })
-
-        if (savedInstanceState == null) {
-            eventListVM.fetchEvents()
-        }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onStop() {
+        super.onStop()
         disposables.clear()
     }
 

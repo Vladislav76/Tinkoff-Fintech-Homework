@@ -48,12 +48,18 @@ class CoursesFragment : GeneralFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         mFragmentListener?.setToolbarTitle(R.string.courses_toolbar_title)
 
         swipeRefreshLayout = view.findViewById(R.id.swipe_refresh_layout)
         swipeRefreshLayout.setOnRefreshListener { courseVM.fetchCourse() }
 
+        if (savedInstanceState == null) {
+            courseVM.fetchCourse()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
         disposables.add(courseVM.loadingState
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
@@ -82,10 +88,11 @@ class CoursesFragment : GeneralFragment() {
                 is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
             }
         })
+    }
 
-        if (savedInstanceState == null) {
-            courseVM.fetchCourse()
-        }
+    override fun onStop() {
+        super.onStop()
+        disposables.clear()
     }
 
     private fun addChildFragment(tag: String) {
@@ -113,11 +120,6 @@ class CoursesFragment : GeneralFragment() {
             }
             fragmentManager.beginTransaction().replace(containerId, fragment).commit()
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        disposables.clear()
     }
 
     companion object {
