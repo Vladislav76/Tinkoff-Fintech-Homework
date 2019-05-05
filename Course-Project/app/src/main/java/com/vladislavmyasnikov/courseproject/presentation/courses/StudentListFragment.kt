@@ -20,6 +20,7 @@ import com.vladislavmyasnikov.courseproject.presentation.main.App
 import com.vladislavmyasnikov.courseproject.presentation.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.StudentListViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.layout_refreshing_recycler.*
@@ -65,21 +66,27 @@ class StudentListFragment : GeneralFragment() {
             searchQuery = savedInstanceState.getString(SEARCH_QUERY)
         }
 
-        disposables.add(studentListVM.loadingState.subscribe {
-            swipe_refresh_layout.isRefreshing = it
-        })
+        disposables.add(studentListVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    swipe_refresh_layout.isRefreshing = it
+                })
 
-        disposables.add(studentListVM.students.subscribe {
-            updateContent(it)
-        })
+        disposables.add(studentListVM.students
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    updateContent(it)
+                })
 
-        disposables.add(studentListVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(studentListVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is ForbiddenException -> App.INSTANCE.logout()
+                        is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
 
         if (savedInstanceState == null) {
             studentListVM.fetchStudents()

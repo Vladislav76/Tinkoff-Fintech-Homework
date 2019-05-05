@@ -51,9 +51,11 @@ class EventsFragment : GeneralFragment() {
         mainPanelController?.showMainPanel()
         swipe_refresh_layout.setOnRefreshListener { eventListVM.fetchEvents() }
 
-        disposables.add(eventListVM.loadingState.subscribe {
-            swipe_refresh_layout.isRefreshing = it
-        })
+        disposables.add(eventListVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    swipe_refresh_layout.isRefreshing = it
+                })
 
         disposables.add(eventListVM.events
                 .observeOn(AndroidSchedulers.mainThread())
@@ -62,13 +64,15 @@ class EventsFragment : GeneralFragment() {
                     pastEventsFragment.updateContent(it)
                 })
 
-        disposables.add(eventListVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(eventListVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is ForbiddenException -> App.INSTANCE.logout()
+                        is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
 
         if (savedInstanceState == null) {
             eventListVM.fetchEvents()

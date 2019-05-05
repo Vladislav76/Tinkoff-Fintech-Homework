@@ -40,7 +40,6 @@ class CourseRepositoryImpl @Inject constructor(
                 recentRequestTime = System.currentTimeMillis()
                 Log.d("COURSE_REPO", "Inserted course url and title from API in cache. #${Thread.currentThread()}")
             }
-            .subscribeOn(Schedulers.io())
 
     private fun isCacheDirty() = System.currentTimeMillis() - recentRequestTime > CASH_LIFE_TIME_IN_MS
 

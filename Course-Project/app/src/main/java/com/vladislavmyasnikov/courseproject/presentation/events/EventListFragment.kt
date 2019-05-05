@@ -20,6 +20,7 @@ import com.vladislavmyasnikov.courseproject.presentation.viewmodels.EventListVie
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.EventListViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.layout_refreshing_recycler.*
 
@@ -56,9 +57,11 @@ class EventListFragment : GeneralFragment() {
         recycler_view.addItemDecoration(CustomItemDecoration(5))
         adapter.viewType = EventAdapter.ViewType.DETAILED_VIEW
 
-        disposables.add(eventListVM.loadingState.subscribe {
-            swipe_refresh_layout.isRefreshing = it
-        })
+        disposables.add(eventListVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    swipe_refresh_layout.isRefreshing = it
+                })
 
         disposables.add(eventListVM.events
                 .observeOn(AndroidSchedulers.mainThread())
@@ -70,13 +73,15 @@ class EventListFragment : GeneralFragment() {
                     })
                 })
 
-        disposables.add(eventListVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(eventListVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is ForbiddenException -> App.INSTANCE.logout()
+                        is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
 
         if (savedInstanceState == null) {
             eventListVM.fetchEvents()

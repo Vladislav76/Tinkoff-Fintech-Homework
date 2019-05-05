@@ -11,6 +11,7 @@ import com.vladislavmyasnikov.courseproject.di.components.DaggerAuthorizationAct
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.LoginViewModel
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.LoginViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.activity_authorization.*
@@ -40,22 +41,28 @@ class AuthorizationActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        disposables.add(loginVM.loadingState.subscribe {
-            setLoading(it)
-        })
+        disposables.add(loginVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    setLoading(it)
+                })
 
-        disposables.add(loginVM.access.subscribe {
-            startWork()
-        })
+        disposables.add(loginVM.access
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    startWork()
+                })
 
-        disposables.add(loginVM.errors.subscribe {
-            when (it) {
-                is IncorrectEmailInputException -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
-                is IncorrectPasswordInputException -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
-                is IncorrectLoginException -> Toast.makeText(this, R.string.incorrect_authorization_data_message, Toast.LENGTH_SHORT).show()
-                is NoInternetException -> Toast.makeText(this, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(loginVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is IncorrectEmailInputException -> Toast.makeText(this, R.string.incorrect_input_email_message, Toast.LENGTH_SHORT).show()
+                        is IncorrectPasswordInputException -> Toast.makeText(this, R.string.incorrect_input_password_message, Toast.LENGTH_SHORT).show()
+                        is IncorrectLoginException -> Toast.makeText(this, R.string.incorrect_authorization_data_message, Toast.LENGTH_SHORT).show()
+                        is NoInternetException -> Toast.makeText(this, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
     }
 
     override fun onStop() {

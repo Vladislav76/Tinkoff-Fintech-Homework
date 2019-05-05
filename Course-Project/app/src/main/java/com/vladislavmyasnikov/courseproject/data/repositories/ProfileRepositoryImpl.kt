@@ -31,7 +31,6 @@ class ProfileRepositoryImpl @Inject constructor(
             memory.loadProfile()
                     .map(ProfileJsonToProfileMapper::map)
                     .doAfterNext { Log.d("PROFILE_REPO", "Profile is loaded fro cache") }
-                    .subscribeOn(Schedulers.io())
 
     private fun createApiObservable() =
             remoteDataSource.getProfile(memory.loadToken())
@@ -41,7 +40,6 @@ class ProfileRepositoryImpl @Inject constructor(
                         recentRequestTime = System.currentTimeMillis()
                     }
                     .map(ProfileJsonToProfileMapper::map)
-                    .subscribeOn(Schedulers.io())
 
     private fun saveProfile(profile: ProfileJson) {
         memory.saveProfileData(profile)

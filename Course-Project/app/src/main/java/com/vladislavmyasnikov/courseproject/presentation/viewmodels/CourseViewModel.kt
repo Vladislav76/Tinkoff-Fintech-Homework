@@ -41,10 +41,10 @@ class CourseViewModel(
             isLoading = true
             progressEmitter.onNext(true)
             disposables.add(
-                    courseRepository.fetchCourse()
+                    courseRepository.fetchCourse().subscribeOn(Schedulers.io())
                             .concatWith(Observable.zip(
-                                    courseRepository.fetchCourseUrlAndTitle(),
-                                    profileRepository.fetchProfile(),
+                                    courseRepository.fetchCourseUrlAndTitle().subscribeOn(Schedulers.io()),
+                                    profileRepository.fetchProfile().subscribeOn(Schedulers.io()),
                                     BiFunction<Pair<String,String>, Profile, Triple<String,String,Int>> {
                                         (url,title), profile -> Triple(url, title, profile.id)
                                     }
@@ -55,9 +55,10 @@ class CourseViewModel(
                                                     students.map { if (it.id == id) it.copy(name = "Вы") else it }
                                                             .sortedWith(StudentByPointsAndNameComparator)
                                                 }
-                                                .doAfterNext { studentEmitter.onNext(it) },
-                                        lectureRepository.fetchLectures(),
-                                        BiFunction<List<Student>, List<Lecture>, Course> { students, lectures ->
+                                                .doAfterNext { studentEmitter.onNext(it) }
+                                                .subscribeOn(Schedulers.io()),
+                                        lectureRepository.fetchLecturesWithTasks().subscribeOn(Schedulers.io()),
+                                        BiFunction<List<Student>, List<LectureWithTasks>, Course> { students, lectures ->
                                             extractCourseData(url, title, id, students, lectures)
                                         }
                                 ).doAfterNext { course ->
@@ -68,8 +69,6 @@ class CourseViewModel(
                                 progressEmitter.onNext(false)
                                 isLoading = false
                             }
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ course ->
                                 courseEmitter.onNext(course)
                             }, { error ->
@@ -79,32 +78,35 @@ class CourseViewModel(
         }
     }
 
-    private fun extractCourseData(url: String, title: String, profileId: Int, students: List<Student>, lectures: List<Lecture>): Course {
+    private fun extractCourseData(url: String, title: String, profileId: Int, students: List<Student>, lectures: List<LectureWithTasks>): Course {
         /* Extract from students */
         val studentCount = students.size
         val profile = students.find { it.id == profileId }
         val points = profile?.mark ?: 0.0f
         val ratingPosition = students.indexOf(profile) + 1
 
-        //TODO: maybe from lectures???  LectureWithTasks -> Data + List<Task>; LectureRepo: fetchLectures() & fetchLecturesWithTasks()
+        /* Extract from lectures */
         var testCount = 0
         var homeworkCount = 0
         var okTestCount = 0
         var okHomeworkCount = 0
-        profile?.marks?.forEach {
-            when (it.taskType) {
-                "test_during_lecture" -> {
-                    testCount++
-                    if (it.status == "accepted") okTestCount++
-                }
-                "full" -> {
-                    homeworkCount++
-                    if (it.status == "accepted") okHomeworkCount++
+
+        for (lecture in lectures) {
+            for (task in lecture.tasks) {
+                when (task.taskType) {
+                    TaskType.TEST -> {
+                        testCount++
+                        if (task.status == TaskStatus.ACCEPTED) okTestCount++
+                    }
+                    TaskType.HOMEWORK -> {
+                        homeworkCount++
+                        if (task.status == TaskStatus.ACCEPTED) okHomeworkCount++
+                    }
+                    else -> Unit
                 }
             }
         }
 
-        /* Extract from lectures */
         val lectureCount = lectures.size
         val pastLectureCount = homeworkCount
         val remainingLectureCount = lectureCount - pastLectureCount

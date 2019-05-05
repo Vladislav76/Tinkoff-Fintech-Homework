@@ -72,17 +72,20 @@ class CoursesFragment : GeneralFragment() {
         disposables.add(courseVM.course
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    actionBarController?.setTitle(it.title)
                     courseFragment.updateContent(it)
                 }
         )
 
-        disposables.add(courseVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(courseVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is ForbiddenException -> App.INSTANCE.logout()
+                        is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
 
         if (savedInstanceState == null) {
             courseVM.fetchCourse()

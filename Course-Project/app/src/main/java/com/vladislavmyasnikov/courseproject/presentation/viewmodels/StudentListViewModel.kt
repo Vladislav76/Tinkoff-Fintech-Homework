@@ -38,14 +38,12 @@ class StudentListViewModel(
             progressEmitter.onNext(true)
             disposables.add(
                     Observable.zip(
-                            profileRepository.fetchProfile(),
-                            studentRepository.fetchStudents(),
+                            profileRepository.fetchProfile().subscribeOn(Schedulers.io()),
+                            studentRepository.fetchStudents().subscribeOn(Schedulers.io()),
                             BiFunction<Profile, List<Student>, List<Student>> { profile, students ->
                                 students.map { if (profile.id == it.id) it.copy(name = "Вы") else it }
                                         .sortedWith(StudentByPointsAndNameComparator)
                             })
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
                             .doFinally {
                                 progressEmitter.onNext(false)
                                 isLoading = false

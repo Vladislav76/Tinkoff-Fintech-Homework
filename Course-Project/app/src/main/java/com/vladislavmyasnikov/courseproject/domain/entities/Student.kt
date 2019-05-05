@@ -6,8 +6,7 @@ import java.lang.NullPointerException
 data class Student(
         val id: Int,
         val name: String,
-        val mark: Float,
-        val marks: List<Mark>
+        val mark: Float
 ) : Identifiable<Student> {
 
     override fun isIdentical(another: Student): Boolean = id == another.id

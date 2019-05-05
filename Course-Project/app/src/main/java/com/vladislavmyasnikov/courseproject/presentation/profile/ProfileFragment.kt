@@ -20,6 +20,7 @@ import com.vladislavmyasnikov.courseproject.presentation.main.App
 import com.vladislavmyasnikov.courseproject.presentation.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.ProfileViewModelFactory
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.fragment_profile.*
 import javax.inject.Inject
@@ -51,21 +52,27 @@ class ProfileFragment : GeneralFragment() {
         swipe_refresh_layout.setOnRefreshListener { profileVM.fetchProfile() }
         logout_button.setOnClickListener { App.INSTANCE.logout() }
 
-        disposables.add(profileVM.loadingState.subscribe {
-            swipe_refresh_layout.isRefreshing = it
-        })
+        disposables.add(profileVM.loadingState
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    swipe_refresh_layout.isRefreshing = it
+                })
 
-        disposables.add(profileVM.profile.subscribe {
-            updateContent(it)
-        })
+        disposables.add(profileVM.profile
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    updateContent(it)
+                })
 
-        disposables.add(profileVM.errors.subscribe {
-            when (it) {
-                is ForbiddenException -> App.INSTANCE.logout()
-                is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
-            }
-        })
+        disposables.add(profileVM.errors
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
+                    when (it) {
+                        is ForbiddenException -> App.INSTANCE.logout()
+                        is NoInternetException -> Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
+                        is DataRefreshException -> Toast.makeText(activity, R.string.not_ok_status_message, Toast.LENGTH_SHORT).show()
+                    }
+                })
 
         if (savedInstanceState == null) {
             profileVM.fetchProfile()

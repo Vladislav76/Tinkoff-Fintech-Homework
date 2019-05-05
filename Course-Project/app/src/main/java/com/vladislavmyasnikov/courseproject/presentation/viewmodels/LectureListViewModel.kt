@@ -8,6 +8,7 @@ import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureReposito
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -29,11 +30,11 @@ class LectureListViewModel(private val lectureRepository: ILectureRepository) : 
             isLoading = true
             progressEmitter.onNext(true)
             disposables.add(lectureRepository.fetchLectures()
-                    .observeOn(AndroidSchedulers.mainThread())
                     .doFinally {
                         progressEmitter.onNext(false)
                         isLoading = false
                     }
+                    .subscribeOn(Schedulers.io())
                     .subscribe({ lectures ->
                         lectureEmitter.onNext(lectures)
                     }, { error ->

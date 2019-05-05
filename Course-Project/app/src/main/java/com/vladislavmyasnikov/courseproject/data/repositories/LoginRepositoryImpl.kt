@@ -22,7 +22,6 @@ class LoginRepositoryImpl @Inject constructor(
             memory.loadCookieData()
                     .filter { isTokenNotExpire(it.time) }
                     .map { Unit }
-                    .observeOn(Schedulers.io())
 
     override fun login(email: String, password: String): Observable<Unit> =
             createCorrectnessObservable(email, password).concatWith(createApiObservable(email, password))
@@ -51,7 +50,6 @@ class LoginRepositoryImpl @Inject constructor(
                             } else throw DataRefreshException()
                         } else throw IncorrectLoginException()
                     }
-                    .subscribeOn(Schedulers.io())
 
     /*
      * Check functions

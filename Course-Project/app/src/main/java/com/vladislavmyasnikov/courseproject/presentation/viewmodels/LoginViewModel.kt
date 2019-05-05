@@ -7,6 +7,7 @@ import com.vladislavmyasnikov.courseproject.domain.repositories.ILoginRepository
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
@@ -32,11 +33,11 @@ class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel(
             isLoading = true
             progressEmitter.onNext(true)
             disposables.add(loginRepository.login(email, password)
-                    .observeOn(AndroidSchedulers.mainThread())
                     .doFinally {
                         progressEmitter.onNext(false)
                         isLoading = false
                     }
+                    .subscribeOn(Schedulers.io())
                     .subscribe({ access ->
                         accessEmitter.onNext(access)
                     }, { error ->
@@ -50,11 +51,11 @@ class LoginViewModel(private val loginRepository: ILoginRepository) : ViewModel(
         isLoading = true
         progressEmitter.onNext(true)
         disposables.add(loginRepository.login()
-                .observeOn(AndroidSchedulers.mainThread())
                 .doFinally {
                     progressEmitter.onNext(false)
                     isLoading = false
                 }
+                .subscribeOn(Schedulers.io())
                 .subscribe({ access ->
                     accessEmitter.onNext(access)
                 }, { error ->

@@ -33,7 +33,6 @@ class EventRepositoryImpl @Inject constructor(
                     .filter { it.isNotEmpty() }
                     .map(EntityToModelEventMapper::map)
                     .doAfterNext { Log.d("EVENT_REPO", "Events are loaded from DB (size: ${it.size})") }
-                    .subscribeOn(Schedulers.io())
 
     private fun createApiObservable() =
             remoteDataSource.getEvents()
@@ -48,7 +47,6 @@ class EventRepositoryImpl @Inject constructor(
                         val pastEvents = JsonToModelEventMapper.map(it.pastEvents)
                         listOf(actualEvents, pastEvents).flatten()
                     }
-                    .subscribeOn(Schedulers.io())
 
     private fun saveEvents(data: EventInfo) {
         JsonToEntityEventMapper.isActualEvent = true

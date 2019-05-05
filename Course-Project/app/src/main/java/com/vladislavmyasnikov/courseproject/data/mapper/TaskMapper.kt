@@ -52,3 +52,18 @@ object JsonToEntityTaskMapper : Mapper<TaskInfo, TaskEntity>() {
         }
     }
 }
+
+/* JSON -> MODEL */
+object JsonToModelTaskMapper : Mapper<TaskInfo, Task>() {
+
+    override fun map(value: TaskInfo): Task {
+        var date: Date? = null
+        try {
+            if (value.task.deadlineDate != null) date = format.parse(value.task.deadlineDate)
+        } catch (e: ParseException) {
+            e.printStackTrace()
+        } finally {
+            return Task(value.id, value.task.title, convertStringToTaskStatus(value.status), value.mark, date, value.task.maxScore, convertStringToTaskType(value.task.taskType))
+        }
+    }
+}

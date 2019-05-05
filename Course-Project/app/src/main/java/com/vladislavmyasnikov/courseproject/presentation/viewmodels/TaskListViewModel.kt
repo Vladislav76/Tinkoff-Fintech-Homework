@@ -4,17 +4,19 @@ import androidx.lifecycle.*
 import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 class TaskListViewModel(private val taskRepository: ITaskRepository) : ViewModel() {
 
     fun loadTasksByLectureId(id: Int): Observable<List<Task>> {
-        return taskRepository.getTasksByLectureId(id)
+        return taskRepository.getTasksByLectureId(id).subscribeOn(Schedulers.io())
     }
 }
 
-
-
+/*
+ * Factory class
+ */
 class TaskListViewModelFactory @Inject constructor(private val taskRepository: ITaskRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
