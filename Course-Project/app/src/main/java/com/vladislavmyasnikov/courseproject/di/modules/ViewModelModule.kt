@@ -3,7 +3,7 @@ package com.vladislavmyasnikov.courseproject.di.modules
 import com.vladislavmyasnikov.courseproject.di.annotations.ActivityScope
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.domain.repositories.*
-import com.vladislavmyasnikov.courseproject.ui.viewmodels.*
+import com.vladislavmyasnikov.courseproject.presentation.viewmodels.*
 import dagger.Module
 import dagger.Provides
 

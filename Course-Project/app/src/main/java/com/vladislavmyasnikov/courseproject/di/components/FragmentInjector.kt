@@ -3,11 +3,11 @@ package com.vladislavmyasnikov.courseproject.di.components
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
 import com.vladislavmyasnikov.courseproject.di.modules.AdapterModule
 import com.vladislavmyasnikov.courseproject.di.modules.ViewModelModule
-import com.vladislavmyasnikov.courseproject.ui.courses.*
-import com.vladislavmyasnikov.courseproject.ui.events.EventListFragment
-import com.vladislavmyasnikov.courseproject.ui.events.EventsFragment
-import com.vladislavmyasnikov.courseproject.ui.events.EventsNestedFragment
-import com.vladislavmyasnikov.courseproject.ui.profile.ProfileFragment
+import com.vladislavmyasnikov.courseproject.presentation.courses.*
+import com.vladislavmyasnikov.courseproject.presentation.events.EventListFragment
+import com.vladislavmyasnikov.courseproject.presentation.events.EventsFragment
+import com.vladislavmyasnikov.courseproject.presentation.events.EventsNestedFragment
+import com.vladislavmyasnikov.courseproject.presentation.profile.ProfileFragment
 import dagger.Component
 
 @Component(dependencies = [AppComponent::class], modules = [ViewModelModule::class, AdapterModule::class])

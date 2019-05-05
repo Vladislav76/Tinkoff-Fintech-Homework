@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
-    <com.vladislavmyasnikov.courseproject.ui.components.InitialsRoundView
+    <com.vladislavmyasnikov.courseproject.presentation.components.InitialsRoundView
         android:id="@+id/user_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"

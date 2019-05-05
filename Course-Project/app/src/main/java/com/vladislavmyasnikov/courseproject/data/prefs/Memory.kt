@@ -53,18 +53,18 @@ class Memory @Inject constructor(private val applicationContext: Context) {
         return Observable.create { e ->
             val id: Int = profileStorage.getInt(USER_ID, -1)
             if (id != -1) {
-                val birthday = profileStorage.getString(BIRTHDAY, null) ?: ""
-                val email = profileStorage.getString(EMAIL, null) ?: ""
-                val firstName = profileStorage.getString(FIRST_NAME, null) ?: ""
-                val lastName = profileStorage.getString(LAST_NAME, null) ?: ""
-                val middleName = profileStorage.getString(MIDDLE_NAME, null) ?: ""
-                val avatarUrl = profileStorage.getString(AVATAR_URL, null) ?: ""
-                val phoneMobile = profileStorage.getString(PHONE_MOBILE, null) ?: ""
-                val description = profileStorage.getString(DESCRIPTION, null) ?: ""
-                val region = profileStorage.getString(REGION, null) ?: ""
-                val faculty = profileStorage.getString(FACULTY, null) ?: ""
-                val department = profileStorage.getString(DEPARTMENT, null) ?: ""
-                val university = profileStorage.getString(UNIVERSITY, null) ?: ""
+                val birthday = profileStorage.getString(BIRTHDAY, null)
+                val email = profileStorage.getString(EMAIL, null)
+                val firstName = profileStorage.getString(FIRST_NAME, null)
+                val lastName = profileStorage.getString(LAST_NAME, null)
+                val middleName = profileStorage.getString(MIDDLE_NAME, null)
+                val avatarUrl = profileStorage.getString(AVATAR_URL, null)
+                val phoneMobile = profileStorage.getString(PHONE_MOBILE, null)
+                val description = profileStorage.getString(DESCRIPTION, null)
+                val region = profileStorage.getString(REGION, null)
+                val faculty = profileStorage.getString(FACULTY, null)
+                val department = profileStorage.getString(DEPARTMENT, null)
+                val university = profileStorage.getString(UNIVERSITY, null)
                 e.onNext(ProfileJson(id, birthday, email, firstName, lastName, middleName, phoneMobile, description, region, faculty, department, avatarUrl, university))
                 e.onComplete()
             } else e.onComplete()

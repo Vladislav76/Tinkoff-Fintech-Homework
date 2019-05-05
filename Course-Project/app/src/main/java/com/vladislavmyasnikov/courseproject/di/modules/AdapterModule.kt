@@ -2,10 +2,10 @@ package com.vladislavmyasnikov.courseproject.di.modules
 
 import android.content.Context
 import com.vladislavmyasnikov.courseproject.di.annotations.FragmentScope
-import com.vladislavmyasnikov.courseproject.ui.adapters.EventAdapter
-import com.vladislavmyasnikov.courseproject.ui.adapters.LectureAdapter
-import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
-import com.vladislavmyasnikov.courseproject.ui.adapters.TaskAdapter
+import com.vladislavmyasnikov.courseproject.presentation.adapters.EventAdapter
+import com.vladislavmyasnikov.courseproject.presentation.adapters.LectureAdapter
+import com.vladislavmyasnikov.courseproject.presentation.adapters.StudentAdapter
+import com.vladislavmyasnikov.courseproject.presentation.adapters.TaskAdapter
 import dagger.Module
 import dagger.Provides
 

@@ -7,7 +7,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.main.AuthorizationActivity">
+    tools:context=".presentation.main.AuthorizationActivity">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
