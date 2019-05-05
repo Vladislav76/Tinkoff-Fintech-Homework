@@ -27,6 +27,8 @@ class RatingFragment : GeneralFragment() {
     }
 
     fun updateContent(content: Course) {
+        rating_content.visibility = View.VISIBLE
+        placeholder.visibility = View.GONE
         points_field.text = String.format("%.2f баллов", content.points)
         general_rating_field.text = String.format("%d/%d", content.ratingPosition, content.studentCount)
         passed_tests_field.text = String.format("%d/%d", content.acceptedTestCount, content.testCount)

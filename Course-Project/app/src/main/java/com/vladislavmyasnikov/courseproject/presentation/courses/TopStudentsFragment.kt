@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.RecyclerView
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAcademicPerformanceFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
@@ -16,6 +15,7 @@ import com.vladislavmyasnikov.courseproject.presentation.main.App
 import com.vladislavmyasnikov.courseproject.presentation.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.presentation.viewmodels.StudentListViewModelFactory
+import kotlinx.android.synthetic.main.fragment_top_students.*
 import javax.inject.Inject
 
 class TopStudentsFragment : GeneralFragment() {
@@ -46,14 +46,17 @@ class TopStudentsFragment : GeneralFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        view.findViewById<View>(R.id.title).setOnClickListener(onTitleClickListener)
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
+        title.setOnClickListener(onTitleClickListener)
         adapter.viewType = StudentAdapter.ViewType.COMPACT_VIEW
-        recyclerView.adapter = adapter
+        recycler_view.adapter = adapter
     }
 
     fun updateContent(content: List<Student>) {
-        adapter.setAndSortListByStudentPointsAndName(content.take(10))
+        if (content.isNotEmpty()) {
+            recycler_view.visibility = View.VISIBLE
+            placeholder.visibility = View.GONE
+            adapter.setAndSortListByStudentPointsAndName(content.take(10))
+        }
     }
 
     companion object {

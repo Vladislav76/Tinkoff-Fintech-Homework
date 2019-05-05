@@ -49,9 +49,13 @@ class EventsNestedFragment : GeneralFragment() {
     }
 
     fun updateContent(content: List<Event>) {
-        val filteredContent = content.filter { it.isActual == isActualEventsViewingMode }
-        adapter.updateList(filteredContent.take(5))
-        title_details_label.text = String.format("ВСЕ %d", filteredContent.size)
+        if (content.isNotEmpty()) {
+            recycler_view.visibility = View.VISIBLE
+            placeholder.visibility = View.GONE
+            val filteredContent = content.filter { it.isActual == isActualEventsViewingMode }
+            adapter.updateList(filteredContent.take(5))
+            title_details_label.text = String.format("ВСЕ %d", filteredContent.size)
+        }
     }
 
     companion object {

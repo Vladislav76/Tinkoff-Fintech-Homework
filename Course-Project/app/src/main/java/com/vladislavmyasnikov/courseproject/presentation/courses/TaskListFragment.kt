@@ -19,6 +19,7 @@ import com.vladislavmyasnikov.courseproject.presentation.viewmodels.TaskListView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.layout_recycler.*
 
 class TaskListFragment : GeneralFragment() {
 
@@ -39,9 +40,7 @@ class TaskListFragment : GeneralFragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val recyclerView = RecyclerView(inflater.context)
-        recyclerView.id = R.id.recycler_view
-        return recyclerView
+        return inflater.inflate(R.layout.layout_recycler, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,14 +49,16 @@ class TaskListFragment : GeneralFragment() {
         actionBarController?.setTitle(arguments!!.getString(TITLE_ARG)!!)
         mainPanelController?.hideMainPanel()
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(activity)
+        recycler_view.adapter = adapter
 
         disposables.add(taskListVM.loadTasksByLectureId(arguments!!.getInt(LECTURE_ID_ARG))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({ tasks ->
-                    adapter.updateList(tasks)
+                    if (tasks.isNotEmpty()) {
+                        recycler_view.visibility = View.VISIBLE
+                        placeholder.visibility = View.GONE
+                        adapter.updateList(tasks)
+                    }
                 }, { error ->
                     Toast.makeText(activity, error.toString(), Toast.LENGTH_SHORT).show()
                 })

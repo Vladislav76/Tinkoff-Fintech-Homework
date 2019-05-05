@@ -63,6 +63,8 @@ class EventListFragment : GeneralFragment() {
         disposables.add(eventListVM.events
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
+                    recycler_view.visibility = View.VISIBLE
+                    placeholder.visibility = View.GONE
                     adapter.updateList(it.filter {event ->
                         event.isActual == arguments?.getBoolean(ARG_IS_ACTUAL_EVENTS_VIEWING_MODE)
                     })

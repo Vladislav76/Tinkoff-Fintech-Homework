@@ -157,6 +157,8 @@ class StudentListFragment : GeneralFragment() {
     }
 
     private fun updateContent(content: List<Student>) {
+        recycler_view.visibility = View.VISIBLE
+        placeholder.visibility = View.GONE
         if (searchQuery != null) {
             adapter.setListWithoutUpdating(content)
             adapter.filter.filter(searchQuery)

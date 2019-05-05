@@ -44,9 +44,20 @@
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <TextView
+            android:id="@+id/placeholder"
+            style="@style/BoldTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:layout_gravity="center"
+            android:text="@string/plaсeholder_label"/>
+
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rating_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:padding="16dp">
 
             <TextView
@@ -108,19 +119,14 @@
                 tools:text="12/18"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/passed_tests_field" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp">
 
             <TextView
                 android:id="@+id/lessons_number_field"
                 style="@style/BoldTextStyle"
-                tools:text="20 занятий"
+                android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/done_homework_field"
+                tools:text="20 занятий"/>
 
             <ProgressBar
                 android:id="@+id/progress_bar"

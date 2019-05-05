@@ -42,6 +42,7 @@
     <string name="done_homework_label">Выполнено Д/З</string>
     <string name="past_lessons_label">Прошло</string>
     <string name="remaining_lessons_label">Осталось</string>
+    <string name="plaсeholder_label">Здесь пока ничего нет :(</string>
 
     <string name="name_hint">Не указано</string>
     <string name="surname_hint">Не указано</string>

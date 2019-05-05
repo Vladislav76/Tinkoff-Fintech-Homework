@@ -65,8 +65,8 @@ class LectureListFragment : GeneralFragment() {
         disposables.add(lectureVM.loadingState
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-            swipe_refresh_layout.isRefreshing = it
-        })
+                    swipe_refresh_layout.isRefreshing = it
+                })
 
         disposables.add(lectureVM.errors
                 .observeOn(AndroidSchedulers.mainThread())
@@ -81,8 +81,10 @@ class LectureListFragment : GeneralFragment() {
         disposables.add(lectureVM.lectures
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-            adapter.updateList(it)
-        })
+                    recycler_view.visibility = View.VISIBLE
+                    placeholder.visibility = View.GONE
+                    adapter.updateList(it)
+                })
 
         if (savedInstanceState == null) {
             lectureVM.fetchLectures()
