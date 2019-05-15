@@ -18,18 +18,3 @@ class ContextModule(private val context: Context) {
     @Provides
     fun provideContext(): Context = context
 }
-
-@Module
-class FragmentActivityModule(private val fragmentActivity: FragmentActivity) {
-
-    @Provides
-    fun provideFragmentActivity(): FragmentActivity = fragmentActivity
-}
-
-@Module
-class FragmentModule(private val fragment: Fragment) {
-
-    @Provides
-    @FragmentScope
-    fun provideFragment(): Fragment = fragment
-}

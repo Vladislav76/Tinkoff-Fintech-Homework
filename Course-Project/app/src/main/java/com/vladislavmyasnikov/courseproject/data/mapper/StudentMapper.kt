@@ -11,11 +11,16 @@ object StudentEntityToStudentMapper : Mapper<StudentEntity, Student>() {
     }
 }
 
-
-
 object StudentJsonToStudentEntityMapper : Mapper<StudentJson, StudentEntity>() {
 
     override fun map(value: StudentJson): StudentEntity {
         return StudentEntity(value.id, value.name, value.grades.last().mark)
+    }
+}
+
+object StudentJsonToStudentMapper : Mapper<StudentJson, Student>() {
+
+    override fun map(value: StudentJson): Student {
+        return Student(value.id, value.name, value.grades.last().mark)
     }
 }

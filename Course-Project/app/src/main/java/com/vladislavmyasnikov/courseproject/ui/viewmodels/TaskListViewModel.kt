@@ -1,8 +1,6 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
 import androidx.lifecycle.*
-import com.vladislavmyasnikov.courseproject.data.db.entities.TaskEntity
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.TaskRepository
 import com.vladislavmyasnikov.courseproject.domain.entities.Task
 import com.vladislavmyasnikov.courseproject.domain.repositories.ITaskRepository
 import io.reactivex.Observable

@@ -1,13 +1,9 @@
 package com.vladislavmyasnikov.courseproject.domain.repositories
 
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.Observable
 
 interface ILectureRepository {
 
-    val lecturesFetchOutcome: PublishSubject<Outcome<List<Lecture>>>
-
-    fun fetchLectures()
-    fun refreshLectures()
+    fun fetchLectures(): Observable<List<Lecture>>
 }

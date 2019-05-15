@@ -1,45 +1,44 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.db.entities.LectureEntity
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.LectureRepository
 import com.vladislavmyasnikov.courseproject.domain.entities.Lecture
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.domain.repositories.ILectureRepository
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 class LectureListViewModel(private val lectureRepository: ILectureRepository) : ViewModel() {
 
     private val disposables = CompositeDisposable()
-    val lecturesFetchOutcome: PublishSubject<Outcome<List<Lecture>>> = lectureRepository.lecturesFetchOutcome
-    var lectures: List<Lecture> = emptyList()
-    var isLoading: Boolean = false
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val lectureEmitter = BehaviorSubject.create<List<Lecture>>()
+    private val errorEmitter = PublishSubject.create<Throwable>()
+    private var isLoading = false
 
-    init {
-        disposables.add(lecturesFetchOutcome.subscribe {
-            when (it) {
-                is Outcome.Success -> {
-                    lectures = it.data
-                    Log.d("LECTURE_LIST_VM", "Lectures are fetched (size: ${lectures.size})")
-                }
-                is Outcome.Progress -> isLoading = it.loading
-            }
-        })
-    }
+    val loadingState: Observable<Boolean> = progressEmitter
+    val lectures: Observable<List<Lecture>> = lectureEmitter
+    val errors: Observable<Throwable> = errorEmitter
 
     fun fetchLectures() {
-        lectureRepository.fetchLectures()
-    }
-
-    fun refreshLectures() {
-        lectureRepository.refreshLectures()
+        if (!isLoading) {
+            isLoading = true
+            progressEmitter.onNext(true)
+            disposables.add(lectureRepository.fetchLectures()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doFinally {
+                        progressEmitter.onNext(false)
+                        isLoading = false
+                    }
+                    .subscribe(
+                            { lectures -> lectureEmitter.onNext(lectures) },
+                            { error -> errorEmitter.onNext(error) }
+                    )
+            )
+        }
     }
 
     override fun onCleared() {
@@ -48,8 +47,9 @@ class LectureListViewModel(private val lectureRepository: ILectureRepository) : 
     }
 }
 
-
-
+/*
+ * Factory class
+ */
 class LectureListViewModelFactory @Inject constructor(private val lectureRepository: ILectureRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")

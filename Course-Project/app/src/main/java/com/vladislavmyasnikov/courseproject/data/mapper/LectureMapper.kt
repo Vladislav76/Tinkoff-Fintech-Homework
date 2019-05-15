@@ -11,11 +11,16 @@ object LectureEntityToLectureMapper : Mapper<LectureEntity, Lecture>() {
     }
 }
 
-
-
 object LectureJsonToLectureEntityMapper : Mapper<LectureJson, LectureEntity>() {
 
     override fun map(value: LectureJson): LectureEntity {
         return LectureEntity(value.id, value.title)
+    }
+}
+
+object LectureJsonToLectureMapper : Mapper<LectureJson, Lecture>() {
+
+    override fun map(value: LectureJson): Lecture {
+        return Lecture(value.id, value.title)
     }
 }

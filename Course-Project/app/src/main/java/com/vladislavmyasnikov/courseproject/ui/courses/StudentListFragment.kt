@@ -4,38 +4,35 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
 import com.vladislavmyasnikov.courseproject.di.components.DaggerStudentListFragmentInjector
 import com.vladislavmyasnikov.courseproject.di.modules.ContextModule
-import com.vladislavmyasnikov.courseproject.di.modules.FragmentModule
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
 import com.vladislavmyasnikov.courseproject.ui.adapters.StudentAdapter
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemAnimator
 import com.vladislavmyasnikov.courseproject.ui.components.CustomItemDecoration
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
-import com.vladislavmyasnikov.courseproject.ui.viewmodels.ProfileViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.StudentListViewModelFactory
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 class StudentListFragment : GeneralFragment() {
 
     @Inject
-    lateinit var viewModelFactory: StudentListViewModelFactory
+    lateinit var studentListVMFactory: StudentListViewModelFactory
 
     @Inject
     lateinit var mAdapter: StudentAdapter
 
     private lateinit var mStudentListViewModel: StudentListViewModel
-
     private lateinit var mSwipeRefreshLayout: SwipeRefreshLayout
+    private val disposables = CompositeDisposable()
     private var mSortType: Int = UNSORTED
     private var mSearchQuery: String? = null
 
@@ -57,9 +54,9 @@ class StudentListFragment : GeneralFragment() {
 
         val injector = DaggerStudentListFragmentInjector.builder().appComponent(App.appComponent).contextModule(ContextModule(activity!!)).build()
         injector.injectStudentListFragment(this)
-        mStudentListViewModel = ViewModelProviders.of(this, viewModelFactory).get(StudentListViewModel::class.java)
+        mStudentListViewModel = ViewModelProviders.of(this, studentListVMFactory).get(StudentListViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.updateStudents() }
+        mSwipeRefreshLayout.setOnRefreshListener { mStudentListViewModel.fetchStudents() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         recyclerView.adapter = mAdapter
@@ -72,36 +69,20 @@ class StudentListFragment : GeneralFragment() {
             mSearchQuery = savedInstanceState.getString(SEARCH_QUERY)
         }
 
-        mStudentListViewModel.students.observe(this, Observer { students ->
-            mAdapter.setStudentList(students)
-            if (mSearchQuery != null) {
-                mAdapter.filter.filter(mSearchQuery)
-            } else {
-                when (mSortType) {
-                    SORTED_BY_NAME -> mAdapter.sortByName(students)
-                    SORTED_BY_POINTS -> mAdapter.sortByPoints(students)
-                    UNSORTED -> mAdapter.updateList(students)
-                }
-            }
+        disposables.add(mStudentListViewModel.loadingState.subscribe {
+            mSwipeRefreshLayout.isRefreshing = it
         })
 
-        mStudentListViewModel.responseMessage.observe(this, Observer {
-            if (it != null) {
-                when (it) {
-                    ResponseMessage.SUCCESS -> mSwipeRefreshLayout.isRefreshing = false
-                    ResponseMessage.LOADING -> mSwipeRefreshLayout.isRefreshing = true
-                    ResponseMessage.NO_INTERNET -> {
-                        Toast.makeText(activity, R.string.no_internet_message, Toast.LENGTH_SHORT).show()
-                        mSwipeRefreshLayout.isRefreshing = false
-                    }
-                    ResponseMessage.ERROR -> mSwipeRefreshLayout.isRefreshing = false
-                }
-            }
+        disposables.add(mStudentListViewModel.students.subscribe {
+            updateContent(it)
+        })
+
+        disposables.add(mStudentListViewModel.errors.subscribe {
+            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
         })
 
         if (savedInstanceState == null) {
-            mSwipeRefreshLayout.isRefreshing = true
-            mStudentListViewModel.updateStudents()
+            mStudentListViewModel.fetchStudents()
         }
     }
 
@@ -172,7 +153,20 @@ class StudentListFragment : GeneralFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mStudentListViewModel.resetResponseMessage()
+        disposables.clear()
+    }
+
+    private fun updateContent(data: List<Student>) {
+        mAdapter.setStudentList(data)
+        if (mSearchQuery != null) {
+            mAdapter.filter.filter(mSearchQuery)
+        } else {
+            when (mSortType) {
+                SORTED_BY_NAME -> mAdapter.sortByName(data)
+                SORTED_BY_POINTS -> mAdapter.sortByPoints(data)
+                UNSORTED -> mAdapter.updateList(data)
+            }
+        }
     }
 
 

@@ -11,10 +11,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.textfield.TextInputEditText
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerAuthorizationActivityInjector
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LoginViewModelFactory
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -49,22 +47,17 @@ class AuthorizationActivity : AppCompatActivity() {
             loginViewModel.login(email, password)
         }
 
-        setLoading(loginViewModel.isLoading)
+        disposables.add(loginViewModel.loadingState.subscribe {
+            setLoading(it)
+        })
 
-        disposables.add(loginViewModel.accessFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    when (it) {
-                        is Outcome.Progress -> setLoading(it.loading)
-                        is Outcome.Success -> startWork()
-                        is Outcome.Failure -> Toast.makeText(this, it.e.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-        )
+        disposables.add(loginViewModel.access.subscribe {
+            startWork()
+        })
 
-        if (savedInstanceState == null) {
-            loginViewModel.getAccess()
-        }
+        disposables.add(loginViewModel.errors.subscribe {
+            Toast.makeText(this, it.toString(), Toast.LENGTH_SHORT).show()
+        })
     }
 
     override fun onDestroy() {

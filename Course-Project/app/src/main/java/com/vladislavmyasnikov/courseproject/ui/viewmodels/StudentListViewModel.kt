@@ -1,44 +1,75 @@
 package com.vladislavmyasnikov.courseproject.ui.viewmodels
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.vladislavmyasnikov.courseproject.data.db.entities.StudentEntity
-import com.vladislavmyasnikov.courseproject.data.models.ResponseMessage
-import com.vladislavmyasnikov.courseproject.data.repositories_impl.StudentRepository
+import com.vladislavmyasnikov.courseproject.domain.entities.Profile
+import com.vladislavmyasnikov.courseproject.domain.entities.Student
+import com.vladislavmyasnikov.courseproject.domain.repositories.IProfileRepository
+import com.vladislavmyasnikov.courseproject.domain.repositories.IStudentRepository
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.functions.BiFunction
+import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
-class StudentListViewModel(private val studentRepository: StudentRepository) : ViewModel() {
+class StudentListViewModel(
+        private val studentRepository: IStudentRepository,
+        private val profileRepository: IProfileRepository
+) : ViewModel() {
 
-    private val mutableResponseMessage = MutableLiveData<ResponseMessage>()
-    val responseMessage: LiveData<ResponseMessage> = mutableResponseMessage
-    val students: LiveData<List<StudentEntity>> = studentRepository.students
+    private val disposables = CompositeDisposable()
+    private val progressEmitter = BehaviorSubject.create<Boolean>()
+    private val studentEmitter = BehaviorSubject.create<List<Student>>()
+    private val errorEmitter = PublishSubject.create<Throwable>()
+    private var isLoading = false
 
-    fun updateStudents() {
-        studentRepository.refreshStudents(object : StudentRepository.LoadStudentsCallback {
-            override fun onResponseReceived(response: ResponseMessage) {
-                mutableResponseMessage.postValue(response)
-                println("response: $response")
-            }
-        })
+    val loadingState: Observable<Boolean> = progressEmitter
+    val students: Observable<List<Student>> = studentEmitter
+    val errors: Observable<Throwable> = errorEmitter
+
+    fun fetchStudents() {
+        if (!isLoading) {
+            isLoading = true
+            progressEmitter.onNext(true)
+            disposables.add(
+                    Observable.zip(
+                            profileRepository.fetchProfile(),
+                            studentRepository.fetchStudents().map {it.filter { it.mark >= 20 }},
+                            BiFunction<Profile, List<Student>, List<Student>> {
+                                profile, students -> students.map { if (profile.id == it.id) it.copy(name = "Вы") else it }
+                            })
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doFinally {
+                                progressEmitter.onNext(false)
+                                isLoading = false
+                            }
+                            .subscribe(
+                                    { students -> studentEmitter.onNext(students) },
+                                    { error -> errorEmitter.onNext(error) }
+                            )
+            )
+        }
     }
 
-    fun resetResponseMessage() {
-        if (mutableResponseMessage.value != ResponseMessage.LOADING) {
-            mutableResponseMessage.value = null
-        }
+    override fun onCleared() {
+        super.onCleared()
+        disposables.clear()
     }
 }
 
-
-
-class StudentListViewModelFactory @Inject constructor(private val studentRepository: StudentRepository) : ViewModelProvider.Factory {
+/*
+ * Factory class
+ */
+class StudentListViewModelFactory @Inject constructor(private val studentRepository: IStudentRepository, private val profileRepository: IProfileRepository) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         return if (modelClass.isAssignableFrom(StudentListViewModel::class.java)) {
-            StudentListViewModel(studentRepository) as T
+            StudentListViewModel(studentRepository, profileRepository) as T
         } else {
             throw IllegalArgumentException("ViewModel not found")
         }

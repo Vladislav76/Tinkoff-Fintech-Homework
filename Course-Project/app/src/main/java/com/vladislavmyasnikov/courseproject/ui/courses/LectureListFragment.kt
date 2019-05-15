@@ -11,14 +11,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.vladislavmyasnikov.courseproject.R
 import com.vladislavmyasnikov.courseproject.di.components.DaggerLectureListFragmentInjector
-import com.vladislavmyasnikov.courseproject.domain.models.Outcome
 import com.vladislavmyasnikov.courseproject.ui.adapters.LectureAdapter
 import com.vladislavmyasnikov.courseproject.ui.main.App
 import com.vladislavmyasnikov.courseproject.ui.main.GeneralFragment
 import com.vladislavmyasnikov.courseproject.ui.main.interfaces.OnItemClickCallback
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModel
 import com.vladislavmyasnikov.courseproject.ui.viewmodels.LectureListViewModelFactory
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
@@ -59,26 +57,24 @@ class LectureListFragment : GeneralFragment() {
         injector.injectLectureListFragment(this)
         lectureListViewModel = ViewModelProviders.of(this, viewModelFactory).get(LectureListViewModel::class.java)
 
-        mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.refreshLectures() }
+        mSwipeRefreshLayout.setOnRefreshListener { lectureListViewModel.fetchLectures() }
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_view)
         adapter.callback = mItemClickCallback
         recyclerView.adapter = adapter
         recyclerView.layoutManager = LinearLayoutManager(activity)
 
-        adapter.updateList(lectureListViewModel.lectures)
-        mSwipeRefreshLayout.isRefreshing = lectureListViewModel.isLoading
+        disposables.add(lectureListViewModel.loadingState.subscribe {
+            mSwipeRefreshLayout.isRefreshing = it
+        })
 
-        disposables.add(lectureListViewModel.lecturesFetchOutcome
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    when (it) {
-                        is Outcome.Progress -> mSwipeRefreshLayout.isRefreshing = it.loading
-                        is Outcome.Success -> adapter.updateList(it.data)
-                        is Outcome.Failure -> Toast.makeText(activity, it.e.toString(), Toast.LENGTH_SHORT).show()
-                    }
-                }
-        )
+        disposables.add(lectureListViewModel.lectures.subscribe {
+            adapter.updateList(it)
+        })
+
+        disposables.add(lectureListViewModel.errors.subscribe {
+            Toast.makeText(activity, it.toString(), Toast.LENGTH_SHORT).show()
+        })
 
         if (savedInstanceState == null) {
             lectureListViewModel.fetchLectures()

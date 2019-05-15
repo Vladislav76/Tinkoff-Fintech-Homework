@@ -38,5 +38,5 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideService(retrofit: Retrofit) = retrofit.create(FintechPortalApi::class.java)
+    fun provideService(retrofit: Retrofit): FintechPortalApi = retrofit.create(FintechPortalApi::class.java)
 }

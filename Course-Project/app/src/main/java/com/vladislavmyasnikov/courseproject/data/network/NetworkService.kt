@@ -7,6 +7,7 @@ import com.vladislavmyasnikov.courseproject.data.network.entities.ProfileJson
 import com.vladislavmyasnikov.courseproject.data.network.entities.StudentJson
 import io.reactivex.Single
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -15,10 +16,10 @@ import retrofit2.http.POST
 interface FintechPortalApi {
 
     @POST("signin")
-    fun getAccess(@Body login: Login): Call<Unit>
+    fun getAccess(@Body login: Login): Single<Response<Unit>>
 
     @GET("user")
-    fun getProfile(@Header("Cookie") token: String): Call<ProfileInfo>
+    fun getProfile(@Header("Cookie") token: String): Single<ProfileInfo>
 
     @GET("connections")
     fun getCourses(@Header("Cookie") token: String): Call<CourseInfo>
@@ -27,7 +28,7 @@ interface FintechPortalApi {
     fun getLectures(@Header("Cookie") token: String): Single<Lectures>
 
     @GET("course/android_spring_2019/grades")
-    fun getStudents(@Header("Cookie") token: String): Call<List<Students>>
+    fun getStudents(@Header("Cookie") token: String): Single<List<Students>>
 }
 
 
@@ -42,6 +43,6 @@ class Lectures(@SerializedName("homeworks") val lectures: List<LectureJson>)
 
 class Students(@SerializedName("grades") val students: List<StudentJson>)
 
-class ProfileInfo(@SerializedName("user") val profile: ProfileJson?)
+class ProfileInfo(@SerializedName("user") val profile: ProfileJson)
 
 class CourseInfo(@SerializedName("courses") val courses: List<CourseJson>)
